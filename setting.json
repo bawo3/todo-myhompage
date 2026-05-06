@@ -1,0 +1,78 @@
+{
+  "wedding": {
+    "groom": {
+      "name": "김재현",
+      "englishName": "Kim Jae Hyun",
+      "fatherName": "김철수",
+      "motherName": "이영희",
+      "contact": "010-1234-5678"
+    },
+    "bride": {
+      "name": "이혜주",
+      "englishName": "Lee Hye Ju",
+      "fatherName": "이민준",
+      "motherName": "최수정",
+      "contact": "010-9876-5432"
+    },
+    "date": {
+      "year": 2026,
+      "month": 11,
+      "day": 7,
+      "dayOfWeek": "토요일",
+      "time": "오후 12시 30분"
+    },
+    "venue": {
+      "name": "문수컨벤션",
+      "hall": "1층 블루밍하우스홀",
+      "address": "울산광역시 남구 문수로 44",
+      "lat": 35.5359834,
+      "lng": 129.2586323,
+      "photo": "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20210624_271%2F1624520159858wbEY5_JPEG%2FLlDEAapOjAuV9p0mzslGZPHW.jpg"
+    },
+    "message": {
+      "main": "두 사람이 하나 되어\n새로운 이야기를 시작합니다",
+      "sub": "귀한 걸음으로 자리를 빛내어 주시기를\n진심으로 청합니다",
+      "invitation": "오랜 시간을 지나 마주한 두 사람이\n이제 하나의 길을 함께 걷고자 합니다\n\n그 첫 발걸음에\n소중한 분들의 따뜻한 마음을 더해 주신다면\n더없는 기쁨이 될 것입니다"
+    },
+    "account": {
+      "groom": {
+        "bank": "농협",
+        "number": "302-03-81-2812-91",
+        "holder": "김재현"
+      },
+      "bride": {
+        "bank": "카카오뱅크",
+        "number": "3333-07-7353601",
+        "holder": "이혜주"
+      }
+    },
+    "gallery": {
+      "enabled": true,
+      "photos": [
+        {
+          "src": "./images/photo1.svg",
+          "caption": "처음 만난 날"
+        },
+        {
+          "src": "./images/photo2.svg",
+          "caption": "함께한 봄날"
+        },
+        {
+          "src": "./images/photo3.svg",
+          "caption": "영원히 함께"
+        }
+      ]
+    },
+    "rsvp": {
+      "enabled": true,
+      "deadline": "2026-10-31"
+    }
+  },
+  "theme": {
+    "primaryColor": "#C9A96E",
+    "accentColor": "#8B6F47",
+    "roseGold": "#B76E79",
+    "cream": "#FAF7F2",
+    "darkGold": "#8B6F47"
+  }
+}
