@@ -87,12 +87,12 @@
   <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━
        신랑 (왼쪽) — 한복 입은 판다
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <g transform="translate(380, 360)" filter="url(#softShadow)">
-    <!-- 한복 도포 (파란색 외투, 발끝까지) -->
-    <path d="M-110,30 Q-115,90 -125,180 L125,180 Q115,90 110,30 Q60,10 0,5 Q-60,10 -110,30 Z"
+  <g transform="translate(380, 320)" filter="url(#softShadow)">
+    <!-- 한복 도포 (파란색 외투) -->
+    <path d="M-110,30 Q-115,80 -120,140 L120,140 Q115,80 110,30 Q60,10 0,5 Q-60,10 -110,30 Z"
           fill="url(#hanbokBlue)"/>
     <!-- 도포 옆선 -->
-    <path d="M-110,30 L-125,180 M110,30 L125,180" stroke="#0F2240" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <path d="M-110,30 L-120,140 M110,30 L120,140" stroke="#0F2240" stroke-width="1.5" fill="none" opacity="0.5"/>
     <!-- 옥색 저고리 안감 -->
     <path d="M-90,5 Q-50,-15 0,-15 Q50,-15 90,5 Q70,30 0,35 Q-70,30 -90,5 Z"
           fill="url(#hanbokTeal)"/>
@@ -152,12 +152,12 @@
   <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━
        신부 (오른쪽) — 한복 입은 토끼
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-  <g transform="translate(820, 360)" filter="url(#softShadow)">
+  <g transform="translate(820, 320)" filter="url(#softShadow)">
     <!-- 빨간 치마 (큰 종 모양) -->
-    <path d="M-130,30 Q-150,100 -170,200 L170,200 Q150,100 130,30 Q70,10 0,5 Q-70,10 -130,30 Z"
+    <path d="M-130,30 Q-145,80 -160,150 L160,150 Q145,80 130,30 Q70,10 0,5 Q-70,10 -130,30 Z"
           fill="url(#hanbokRed)"/>
     <!-- 치마 주름 -->
-    <path d="M-100,50 L-115,200 M-50,30 L-55,200 M0,28 L0,200 M50,30 L55,200 M100,50 L115,200"
+    <path d="M-100,50 L-110,150 M-50,30 L-55,150 M0,28 L0,150 M50,30 L55,150 M100,50 L110,150"
           stroke="#7A0010" stroke-width="1" fill="none" opacity="0.4"/>
 
     <!-- 분홍 저고리 -->
@@ -227,7 +227,7 @@
   </g>
 
   <!-- 가운데 하트 (두 사람 사이) -->
-  <g transform="translate(600, 360)">
+  <g transform="translate(600, 320)">
     <path d="M0,-25 C-12,-50 -50,-50 -50,-15 C-50,15 0,40 0,40 C0,40 50,15 50,-15 C50,-50 12,-50 0,-25Z"
           fill="url(#goldGrad)" opacity="0.95"/>
     <path d="M-15,-30 C-22,-42 -38,-38 -36,-22"
@@ -235,24 +235,26 @@
   </g>
 
   <!-- 하단 이름 -->
-  <g transform="translate(600, 555)">
+  <g transform="translate(600, 525)">
     <!-- 신랑 이름 -->
     <text x="-180" y="0" text-anchor="middle"
-          font-family="'Noto Serif KR', serif" font-size="38" font-weight="500"
-          fill="#2C2420" letter-spacing="6">김재현</text>
+          font-family="'Noto Serif KR', 'Malgun Gothic', sans-serif"
+          font-size="38" font-weight="600"
+          fill="#2C2420" letter-spacing="5">김재현</text>
     <!-- ampersand -->
-    <text x="0" y="0" text-anchor="middle"
-          font-family="'Cormorant Garamond', Georgia, serif" font-style="italic"
-          font-size="50" font-weight="300"
+    <text x="0" y="-2" text-anchor="middle"
+          font-family="Georgia, serif" font-style="italic"
+          font-size="48" font-weight="400"
           fill="#C9A96E">&amp;</text>
     <!-- 신부 이름 -->
     <text x="180" y="0" text-anchor="middle"
-          font-family="'Noto Serif KR', serif" font-size="38" font-weight="500"
-          fill="#2C2420" letter-spacing="6">이혜주</text>
+          font-family="'Noto Serif KR', 'Malgun Gothic', sans-serif"
+          font-size="38" font-weight="600"
+          fill="#2C2420" letter-spacing="5">이혜주</text>
   </g>
 
   <!-- 하단 날짜 -->
-  <text x="600" y="600" text-anchor="middle"
-        font-family="Georgia, serif" font-size="16"
+  <text x="600" y="575" text-anchor="middle"
+        font-family="Georgia, serif" font-size="15"
         fill="#8B6F47" letter-spacing="6">2026 . 11 . 07  SATURDAY</text>
 </svg>
