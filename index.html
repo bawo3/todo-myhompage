@@ -3,7 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>청첩장</title>
+<title>재현 ♥ 혜주 청첩장</title>
+<meta name="description" content="2026.11.07 SAT · 문수컨벤션 1층 블루밍하우스홀 · 12:30">
+
+<!-- ━━━ Open Graph (카카오톡·페이스북 미리보기용) ━━━ -->
+<meta property="og:type"        content="website">
+<meta property="og:title"       content="재현 ♥ 혜주 청첩장">
+<meta property="og:description" content="2026.11.07 SAT · 문수컨벤션 1층 블루밍하우스홀 · 12:30">
+<meta property="og:image"       content="https://bawo3.github.io/todo-myhompage/images/og-cover.svg">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt"   content="한복 입은 판다 신랑과 토끼 신부 일러스트">
+<meta property="og:url"         content="https://bawo3.github.io/todo-myhompage/">
+<meta property="og:site_name"   content="재현 ♥ 혜주 청첩장">
+<meta property="og:locale"      content="ko_KR">
+
+<!-- 트위터 카드 -->
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="재현 ♥ 혜주 청첩장">
+<meta name="twitter:description" content="2026.11.07 SAT · 문수컨벤션 1층 블루밍하우스홀 · 12:30">
+<meta name="twitter:image"       content="https://bawo3.github.io/todo-myhompage/images/og-cover.svg">
+
+<!-- 테마 컬러 (모바일 브라우저 상단바) -->
+<meta name="theme-color" content="#C9A96E">
+
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;600&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;family=Noto+Sans+KR:wght@300;400;500&amp;display=swap" rel="stylesheet">
 <style>
 /* ── 전역 변수 & 리셋 ── */
@@ -386,7 +409,7 @@ body {
 }
 .family-grid {
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 24px; margin-top: 32px;
+  gap: 16px; margin-top: 32px;
 }
 .family-card {
   background: rgba(255,255,255,0.72);
@@ -420,11 +443,26 @@ body {
   color: var(--gold); text-transform: uppercase;
   margin-bottom: 12px;
 }
+/* 부모님 정보 — 2x2 그리드 (위: 아버지/어머니 라벨, 아래: 성함) */
 .family-parents {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 14px;
+  margin-top: 4px;
   font-family: 'Noto Serif KR', serif;
-  font-size: 12px; font-weight: 300;
-  color: var(--text-light);
-  line-height: 2; letter-spacing: 1px;
+}
+.family-parent-label {
+  font-size: 10px; font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-align: center;
+}
+.family-parent-name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-mid);
+  letter-spacing: 1.5px;
+  text-align: center;
+  word-break: keep-all;
 }
 .family-name {
   font-family: 'Noto Serif KR', serif;
@@ -619,16 +657,26 @@ body {
   background: linear-gradient(160deg, var(--cream) 0%, var(--cream-dark) 100%);
   text-align: center;
 }
-/* 지도 아래 주소 카드 */
+/* 지도 아래 주소 카드 (버튼 — 클릭 시 복사) */
 .venue-addr-card {
   display: inline-flex; align-items: center; gap: 10px;
   margin: 4px auto 20px;
-  padding: 12px 22px;
+  padding: 12px 20px;
   background: rgba(255,255,255,0.7);
   backdrop-filter: blur(10px);
+  border: none;
   border-radius: 30px;
   box-shadow: 0 4px 20px rgba(139,111,71,0.10), 0 1px 0 rgba(255,255,255,0.9) inset;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.25s;
 }
+.venue-addr-card:hover {
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 6px 28px rgba(139,111,71,0.16), 0 1px 0 rgba(255,255,255,0.9) inset;
+  transform: translateY(-1px);
+}
+.venue-addr-card:active { transform: scale(0.98); }
 .venue-addr-icon {
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
@@ -638,6 +686,14 @@ body {
   font-size: 12.5px; font-weight: 400;
   color: var(--text-mid); letter-spacing: 0.5px;
 }
+/* 복사 아이콘 */
+.venue-addr-copy-icon {
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.55;
+  transition: opacity 0.25s;
+}
+.venue-addr-card:hover .venue-addr-copy-icon { opacity: 1; }
 .venue-photo-wrap {
   width: 100%;
   aspect-ratio: 16/9;
@@ -874,9 +930,12 @@ body {
   margin-bottom: 28px;
 }
 .account-toggle {
-  display: flex; gap: 12px; justify-content: center;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  justify-content: center;
 }
+.account-toggle .acc-btn { min-width: 0; width: 100%; }
 .acc-btn {
   padding: 18px 24px 16px;
   border: none;
@@ -1266,12 +1325,32 @@ body {
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* ── 반응형 ── */
+/* ── 반응형 ──
+   디자인 정책: 신랑/신부 관련 카드(혼주, 마음전하기)는
+   모바일에서도 항상 가로 2열로 표기 — PC와 동일한 레이아웃 유지 */
 @media (max-width: 480px) {
-  .cover { padding: 60px 24px; }
-  .section { padding: 48px 24px; }
-  .family-grid { grid-template-columns: 1fr; gap: 12px; }
-  .transport-grid { grid-template-columns: 1fr; }
+  .cover { padding: 60px 20px; }
+  .section { padding: 48px 18px; }
+  /* 혼주 카드 — 모바일에서도 2열 유지, 패딩·폰트만 축소 */
+  .family-grid  { gap: 10px; }
+  .family-card  { padding: 22px 10px; }
+  .family-parents { gap: 4px 8px; }
+  .family-parent-label { font-size: 9px; letter-spacing: 1px; }
+  .family-parent-name  { font-size: 12px; letter-spacing: 1px; }
+  .family-name    { font-size: 17px; letter-spacing: 2px; }
+  .family-contact { font-size: 10px; padding: 6px 12px; }
+  /* 마음 전하기 카드 — 모바일에서도 2열 유지 */
+  .account-toggle { gap: 10px; }
+  .acc-btn        { padding: 16px 14px 14px; }
+  .acc-btn-name   { font-size: 14px; letter-spacing: 1px; }
+  .acc-btn-bank   { font-size: 10px; }
+  .acc-character  { width: 46px; height: 46px; top: -20px; }
+  /* 교통 정보는 좁아서 1열 유지 */
+  /* 교통 정보도 모바일에서 2x2 유지 */
+  .transport-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .transport-card { padding: 14px 12px; }
+  .transport-info { font-size: 10.5px; line-height: 1.7; }
+  /* 예식 일정 */
   .date-main { gap: 12px; }
   .date-main-cell { min-width: 56px; }
   .date-main-value { font-size: 40px; }
@@ -1282,6 +1361,12 @@ body {
   .corner-deco.tr { top: 16px; right: 16px; }
   .corner-deco.bl { bottom: 16px; left: 16px; }
   .corner-deco.br { bottom: 16px; right: 16px; }
+}
+/* 아주 좁은 화면 (360px 미만) — 글자 살짝 더 축소 */
+@media (max-width: 360px) {
+  .family-name { font-size: 15px; letter-spacing: 1px; }
+  .acc-btn-name { font-size: 13px; }
+  .acc-character { width: 40px; height: 40px; top: -18px; }
 }
 </style>
 </head>
@@ -1441,14 +1526,24 @@ body {
       <!-- 신랑측 -->
       <div class="family-card">
         <div class="family-role">Groom</div>
-        <div class="family-parents" id="groom-parents">—</div>
+        <div class="family-parents">
+          <div class="family-parent-label">아버지</div>
+          <div class="family-parent-label">어머니</div>
+          <div class="family-parent-name" id="groom-father">—</div>
+          <div class="family-parent-name" id="groom-mother">—</div>
+        </div>
         <div class="family-name" id="groom-name">—</div>
         <a class="family-contact" id="groom-contact" href="#">📞 연락하기</a>
       </div>
       <!-- 신부측 -->
       <div class="family-card">
         <div class="family-role">Bride</div>
-        <div class="family-parents" id="bride-parents">—</div>
+        <div class="family-parents">
+          <div class="family-parent-label">아버지</div>
+          <div class="family-parent-label">어머니</div>
+          <div class="family-parent-name" id="bride-father">—</div>
+          <div class="family-parent-name" id="bride-mother">—</div>
+        </div>
         <div class="family-name" id="bride-name">—</div>
         <a class="family-contact" id="bride-contact" href="#">📞 연락하기</a>
       </div>
@@ -1547,18 +1642,24 @@ body {
       <iframe id="naver-map-iframe" src="" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
 
-    <!-- 지도 아래 주소 카드 -->
-    <div class="venue-addr-card">
+    <!-- 지도 아래 주소 카드 (클릭 시 복사) -->
+    <button class="venue-addr-card" onclick="copyAddr()" title="클릭하면 주소가 복사됩니다">
       <div class="venue-addr-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 8 14 8 14s8-8.75 8-14c0-4.42-3.58-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" fill="#C9A96E"/>
         </svg>
       </div>
       <div class="venue-addr-text" id="venue-addr">—</div>
-    </div>
+      <div class="venue-addr-copy-icon" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <rect x="6" y="6" width="12" height="14" rx="2" stroke="#C9A96E" stroke-width="1.6" fill="none"/>
+          <path d="M9 4h7a2 2 0 012 2v2" stroke="#C9A96E" stroke-width="1.6" fill="none"/>
+        </svg>
+      </div>
+    </button>
 
     <button class="map-btn" onclick="openNavModal()">
-      🗺 길찾기
+      🗺 문수컨벤션 길찾기
     </button>
 
     <!-- 웨딩홀 실제 사진 (장소명+홀 표시) -->
@@ -1761,13 +1862,23 @@ body {
       —
     </p>
     <div class="rsvp-form">
+      <!-- 신랑측 / 신부측 선택 -->
+      <div class="form-field">
+        <label class="form-label">신랑/신부측 <span class="required-mark">*</span></label>
+        <div class="form-radio-group">
+          <label class="radio-option">
+            <input type="radio" name="side" value="groom">
+            <div class="radio-label">🤵 신랑측</div>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="side" value="bride">
+            <div class="radio-label">👰 신부측</div>
+          </label>
+        </div>
+      </div>
       <div class="form-field">
         <label class="form-label">성함 <span class="required-mark">*</span></label>
         <input class="form-input" id="rsvp-name" type="text" placeholder="홍길동">
-      </div>
-      <div class="form-field">
-        <label class="form-label">연락처 <span class="required-mark">*</span></label>
-        <input class="form-input" id="rsvp-phone" type="tel" placeholder="010-0000-0000">
       </div>
       <div class="form-field">
         <label class="form-label">참석 여부 <span class="required-mark">*</span></label>
@@ -1784,7 +1895,7 @@ body {
       </div>
       <div class="form-field">
         <label class="form-label">인원 수 (본인 포함)</label>
-        <input class="form-input" id="rsvp-count" type="number" min="1" max="10" value="1">
+        <input class="form-input" id="rsvp-count" type="number" min="1" max="10" step="1" value="1">
       </div>
       <button class="rsvp-submit" onclick="submitRsvp()">참석 의사 전달하기</button>
     </div>
@@ -1868,7 +1979,7 @@ body {
             <path d="M12 3C7.03 3 3 6.36 3 10.5c0 2.67 1.62 5.01 4.07 6.38L6 21l4.3-2.84c.55.08 1.12.12 1.7.12 4.97 0 9-3.36 9-7.5S16.97 3 12 3z" fill="#3A1D1D"/>
           </svg>
         </div>
-        카카오페이<br>송금
+        복사 후<br>카카오톡 송금
       </button>
       <button class="pay-app-btn" onclick="goPay('copy')">
         <div class="pay-app-icon pay-icon-copy">
@@ -1964,17 +2075,17 @@ function renderGreeting() {
 function renderFamily() {
   const g = CFG.groom, b = CFG.bride;
 
-  document.getElementById('groom-parents').innerHTML =
-    `${g.fatherName} 아버지 · ${g.motherName} 어머니`;
-  document.getElementById('groom-name').textContent = g.name;
-  const gc = document.getElementById('groom-contact');
-  gc.href = `tel:${g.contact}`;
+  /* 신랑 부모님 — 2x2 그리드의 아버지/어머니 칸에 성함만 채움 */
+  document.getElementById('groom-father').textContent = g.fatherName;
+  document.getElementById('groom-mother').textContent = g.motherName;
+  document.getElementById('groom-name').textContent   = g.name;
+  document.getElementById('groom-contact').href       = `tel:${g.contact}`;
 
-  document.getElementById('bride-parents').innerHTML =
-    `${b.fatherName} 아버지 · ${b.motherName} 어머니`;
-  document.getElementById('bride-name').textContent = b.name;
-  const bc = document.getElementById('bride-contact');
-  bc.href = `tel:${b.contact}`;
+  /* 신부 부모님 */
+  document.getElementById('bride-father').textContent = b.fatherName;
+  document.getElementById('bride-mother').textContent = b.motherName;
+  document.getElementById('bride-name').textContent   = b.name;
+  document.getElementById('bride-contact').href       = `tel:${b.contact}`;
 }
 
 /* ── 날짜 & 달력 ── */
@@ -2080,6 +2191,19 @@ function renderVenue() {
   }
 }
 
+/* 주소 카드 클릭 — 주소 복사 */
+function copyAddr() {
+  const addr = CFG.venue.address;
+  if (!addr) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(addr)
+      .then(() => showToast('주소가 복사되었습니다'))
+      .catch(() => fallbackCopy(addr, '주소가 복사되었습니다'));
+  } else {
+    fallbackCopy(addr, '주소가 복사되었습니다');
+  }
+}
+
 function openNavModal() {
   document.getElementById('nav-addr').textContent =
     CFG.venue.name + ' · ' + CFG.venue.address;
@@ -2093,33 +2217,34 @@ function closeNavModal(e) {
 }
 
 function goNav(app) {
-  const name = CFG.venue.name;
+  /* 길찾기 시 항상 "문수컨벤션웨딩홀"로 검색 — 사용자가 정확히 인지할 수 있는 키워드 */
+  const searchName = '문수컨벤션웨딩홀';
   const addr = CFG.venue.address;
-  const nameEnc = encodeURIComponent(name);
-  const addrEnc = encodeURIComponent(addr);
+  const searchEnc = encodeURIComponent(searchName);
+  const addrEnc   = encodeURIComponent(addr);
   /* setting.json의 좌표 사용 — 카카오내비·티맵 앱 딥링크용 */
   const lat = CFG.venue.lat;
   const lng = CFG.venue.lng;
   let url = '';
 
   if (app === 'naver') {
-    /* 네이버지도 웹 — 주소 검색 후 길찾기 */
-    url = `https://map.naver.com/v5/search/${addrEnc}`;
+    /* 네이버지도 웹 — "문수컨벤션웨딩홀" 검색 */
+    url = `https://map.naver.com/v5/search/${searchEnc}`;
   } else if (app === 'kakao') {
-    /* 카카오맵 웹 — 주소로 목적지 길찾기 */
-    url = `https://map.kakao.com/link/search/${addrEnc}`;
+    /* 카카오맵 웹 — "문수컨벤션웨딩홀" 검색 */
+    url = `https://map.kakao.com/link/search/${searchEnc}`;
   } else if (app === 'kakaonav') {
     /* 카카오내비 앱 딥링크 → 미설치 시 카카오맵 목적지 웹으로 */
-    const fallback = `https://map.kakao.com/link/to/${nameEnc},${lat},${lng}`;
+    const fallback = `https://map.kakao.com/link/to/${searchEnc},${lat},${lng}`;
     window.location.href =
       `kakaomap://route?ep=${lat},${lng}&by=CAR`;
     setTimeout(() => window.open(fallback, '_blank'), 1200);
     closeNavModal(); return;
   } else if (app === 'tmap') {
     /* 티맵 앱 딥링크 → 미설치 시 티맵 웹으로 */
-    const fallback = `https://tmap.life/route?goalname=${nameEnc}&goalx=${lng}&goaly=${lat}`;
+    const fallback = `https://tmap.life/route?goalname=${searchEnc}&goalx=${lng}&goaly=${lat}`;
     window.location.href =
-      `tmap://route?goalname=${nameEnc}&goalx=${lng}&goaly=${lat}&goaladdr=${addrEnc}`;
+      `tmap://route?goalname=${searchEnc}&goalx=${lng}&goaly=${lat}&goaladdr=${addrEnc}`;
     setTimeout(() => window.open(fallback, '_blank'), 1200);
     closeNavModal(); return;
   }
@@ -2170,34 +2295,44 @@ function goPay(method) {
   }
 
   if (method === 'toss') {
-    /* 토스 → 카카오페이 → 복사 순으로 fallback */
+    /* 토스 → 미설치 시 복사 폴백 */
     tryDeepLink(buildTossUrl(bank, num),
-      () => tryDeepLink(buildKakaoPayUrl(bank, num),
-        () => doCopy('토스·카카오페이 미설치 — 계좌번호를 복사했습니다'),
-        '카카오페이로 송금 화면을 엽니다'),
+      () => doCopy('토스 앱이 없어 계좌번호를 복사했습니다'),
       '토스로 송금 화면을 엽니다');
     closePayModal();
     return;
   }
 
   if (method === 'kakaopay') {
-    /* 카카오페이 → 토스 → 복사 순으로 fallback */
-    tryDeepLink(buildKakaoPayUrl(bank, num),
-      () => tryDeepLink(buildTossUrl(bank, num),
-        () => doCopy('카카오페이·토스 미설치 — 계좌번호를 복사했습니다'),
-        '토스로 송금 화면을 엽니다'),
-      '카카오페이로 송금 화면을 엽니다');
+    /* 카카오페이는 공식 송금 딥링크가 없으므로:
+       1) 계좌번호를 즉시 클립보드에 복사
+       2) 카카오톡 앱을 열어서 사용자가 송금 메뉴로 이동 → 붙여넣기
+       3) 카카오톡 미설치 시 안내만 */
+    const text = `${bank} ${number} ${holder}`;
+    const copyMsg = '계좌번호를 복사했어요 · 카카오톡에서 붙여넣어 주세요';
+
+    /* 즉시 복사 */
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text)
+        .then(() => showToast(copyMsg))
+        .catch(() => fallbackCopy(text, copyMsg));
+    } else {
+      fallbackCopy(text, copyMsg);
+    }
+
+    /* 짧은 지연 후 카카오톡 열기 — 토스트가 보이도록 */
+    setTimeout(() => {
+      tryDeepLink('kakaotalk://', null, null);
+    }, 600);
+
     closePayModal();
     return;
   }
 }
 
-/* 딥링크 빌더 */
+/* 딥링크 빌더 — 토스 송금 (계좌번호·은행 자동 입력 지원) */
 function buildTossUrl(bank, accNo) {
   return `supertoss://send?bank=${encodeURIComponent(bank)}&accountNo=${accNo}&amount=`;
-}
-function buildKakaoPayUrl(bank, accNo) {
-  return `kakaotalk://kakaopay/money/to/bank?bank_name=${encodeURIComponent(bank)}&bank_account=${accNo}`;
 }
 
 /* 딥링크 시도 — 일정 시간 내 페이지 숨김 이벤트 안 오면 미설치로 판단 후 onFail 호출 */
@@ -2292,19 +2427,46 @@ function renderRsvp() {
 
 function submitRsvp() {
   const name   = document.getElementById('rsvp-name').value.trim();
-  const phone  = document.getElementById('rsvp-phone').value.trim();
+  const side   = document.querySelector('input[name="side"]:checked');
   const attend = document.querySelector('input[name="attend"]:checked');
-  const count  = document.getElementById('rsvp-count').value;
+  let   count  = parseInt(document.getElementById('rsvp-count').value, 10);
+  /* 인원 수 — 최소 1명 보장 */
+  if (!Number.isFinite(count) || count < 1) count = 1;
+  if (count > 10) count = 10;
 
   /* 필수 입력 검증 */
+  if (!side)            return showToast('신랑측/신부측을 선택해 주세요');
   if (!name)            return showToast('성함을 입력해 주세요');
-  if (!phone)           return showToast('연락처를 입력해 주세요');
   if (!attend)          return showToast('참석 여부를 반드시 선택해 주세요');
   if (attend.value !== 'yes' && attend.value !== 'no') {
     return showToast('참석 여부를 선택해 주세요');
   }
 
-  /* 실제 전송 로직은 백엔드 연동 후 추가 */
+  /* localStorage 저장 — 키: rsvp_responses */
+  const entry = {
+    id:      Date.now(),
+    side:    side.value,
+    name:    name,
+    attend:  attend.value,
+    count:   count,
+    createdAt: new Date().toISOString()
+  };
+
+  try {
+    const list = JSON.parse(localStorage.getItem('rsvp_responses') || '[]');
+    list.push(entry);
+    localStorage.setItem('rsvp_responses', JSON.stringify(list));
+  } catch (e) {
+    console.error('localStorage 저장 실패:', e);
+    return showToast('저장에 실패했습니다');
+  }
+
+  /* 폼 초기화 */
+  document.getElementById('rsvp-name').value  = '';
+  document.getElementById('rsvp-count').value = '1';
+  document.querySelectorAll('input[name="side"]').forEach(r => r.checked = false);
+  document.querySelectorAll('input[name="attend"]').forEach(r => r.checked = false);
+
   const msg = attend.value === 'yes'
     ? `${name}님의 참석 의사가 전달되었습니다 감사합니다 🌸`
     : `${name}님의 회신이 전달되었습니다 감사합니다`;
