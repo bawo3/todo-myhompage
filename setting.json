@@ -1,9 +1,9 @@
 {
   "site": {
-    "url": "https://bawo3.github.io/todo-myhompage/",
+    "url": "https://invite-wedding-jhkim-hjlee.vercel.app/",
     "title": "재현 ♥ 혜주 청첩장",
     "description": "2026.11.07 SAT · 문수컨벤션 1층 블루밍하우스홀 · 12:30",
-    "ogImage": "./images/og-cover.svg"
+    "ogImage": "./images/og-cover.png"
   },
   "wedding": {
     "groom": {
