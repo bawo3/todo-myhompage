@@ -2306,11 +2306,12 @@ function goPay(method) {
   }
 
   if (method === 'kakaopay') {
-    /* 카카오페이 송금:
-       1) 계좌번호 즉시 클립보드 복사 (붙여넣기용)
-       2) 카카오페이 앱 직접 실행 → 미설치 시 카카오톡 → 또 미설치 시 안내 */
+    /* 카카오페이 송금 (카카오톡 내장):
+       1) 계좌번호 즉시 클립보드 복사
+       2) kakaotalk://kakaopay/money/to/bank?bank_name=...&bank_account=...
+          - 카카오톡 송금 화면이 열리며 은행/계좌가 자동 입력됨 */
     const text = `${number}`;
-    const copyMsg = '계좌번호 복사 완료 · 카카오페이에서 붙여넣어 주세요';
+    const copyMsg = '계좌번호 복사 완료';
 
     /* 즉시 복사 */
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2321,10 +2322,10 @@ function goPay(method) {
       fallbackCopy(text, copyMsg);
     }
 
-    /* 0.6초 후 카카오페이 앱 직접 실행 (송금 화면) */
+    /* 0.6초 후 카카오톡 카카오페이 송금 화면 호출 */
     setTimeout(() => {
-      /* 카카오페이 앱 자체 스킴 — 가장 안정적 */
-      tryDeepLink('kakaopay://', null, null);
+      const url = `kakaotalk://kakaopay/money/to/bank?bank_name=${encodeURIComponent(bank)}&bank_account=${num}`;
+      tryDeepLink(url, null, null);
     }, 600);
 
     closePayModal();
