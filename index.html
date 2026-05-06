@@ -144,76 +144,44 @@ body {
    SECTION 1 · 커버
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .cover {
-  min-height: 100svh;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
+  align-items: center;
+  justify-content: flex-start;
   text-align: center;
-  padding: 80px 40px;
+  padding: 0 24px 60px;
   position: relative;
   overflow: hidden;
-  /* JS에서 배경 이미지 주입 전 폴백 */
   background: linear-gradient(160deg, #FAF7F2 0%, #F5EFE6 40%, #F0E8DA 100%);
 }
-/* 배경 이미지 레이어 */
+/* 상단 영상 — 영상 자체 비율 그대로, 잘리지 않음, 좌우반전 */
 .cover-bg {
-  position: absolute; inset: 0; z-index: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transform: scale(1.04);
-  transition: transform 8s ease;
-  filter: brightness(0.55) saturate(0.75);
+  width: 100%;
+  height: auto;
+  /* max-height 없음 — 영상 비율 그대로 */
+  display: block;
+  transform: scaleX(-1);
+  filter: drop-shadow(0 6px 24px rgba(139,111,71,0.18));
+  pointer-events: none;
+  margin: 0;
+  position: relative; z-index: 1;
+  vertical-align: top;
 }
-.cover-bg.loaded { transform: scale(1); }
-/* 다층 오버레이: 상하 크림 페이드 + 중앙 투명 */
-.cover-overlay {
-  position: absolute; inset: 0; z-index: 1;
-  background:
-    linear-gradient(to bottom,
-      rgba(250,247,242,0.45) 0%,
-      rgba(250,247,242,0.05) 25%,
-      rgba(250,247,242,0.00) 45%,
-      rgba(44,36,32,0.10)    70%,
-      rgba(44,36,32,0.55)    100%),
-    radial-gradient(ellipse at center,
-      transparent 30%,
-      rgba(44,36,32,0.18) 100%);
-}
-/* 커버 내 모든 자식을 배경 위로 */
-.cover > *:not(.cover-bg):not(.cover-overlay) { position: relative; z-index: 2; }
+.cover-bg.loaded { transform: scaleX(-1); }
+/* 오버레이 제거 — 영상 아래 빈 페이드 영역을 만들지 않음 */
+.cover-overlay { display: none; }
+/* 커버 자식 콘텐츠 z-index */
+.cover > *:not(.cover-bg) { position: relative; z-index: 2; }
 
-/* 이미지 있을 때 텍스트 색상 조정 */
-.cover.has-photo .cover-eyebrow       { color: var(--gold-light); }
-.cover.has-photo .cover-name-ko       { color: rgba(255,255,255,0.95); }
-.cover.has-photo .cover-name-en       { color: rgba(201,169,110,0.85); }
-.cover.has-photo .cover-ampersand     { color: var(--gold-light); }
-.cover.has-photo .cover-date          { color: rgba(255,255,255,0.80); }
-.cover.has-photo .cover-venue         { color: rgba(201,169,110,0.75); }
-.cover.has-photo .emblem-ring         { border-color: rgba(201,169,110,0.55); }
-.cover.has-photo .emblem-initials .amp  { color: var(--gold-light); }
-.cover.has-photo .emblem-initials .inits { color: rgba(232,213,176,0.9); }
-.cover.has-photo .scroll-hint span    { color: var(--gold-light); }
-.cover.has-photo .scroll-arrow        { background: linear-gradient(to bottom, var(--gold-light), transparent); }
-/* 모서리 장식도 밝게 */
-.cover.has-photo .corner-deco svg path,
-.cover.has-photo .corner-deco svg circle { stroke: rgba(232,213,176,0.7); fill: rgba(232,213,176,0.5); }
+/* 영상이 위쪽에 있고 텍스트는 크림 배경 위에 놓이므로
+   has-photo 모드는 사용하지 않음 — 기본 다크/골드 톤 유지 */
 
-/* 모서리 장식 */
-.corner-deco {
-  position: absolute;
-  width: 80px; height: 80px;
-}
-.corner-deco svg { width: 100%; height: 100%; }
-.corner-deco.tl { top: 24px; left: 24px; }
-.corner-deco.tr { top: 24px; right: 24px; transform: scaleX(-1); }
-.corner-deco.bl { bottom: 24px; left: 24px; transform: scaleY(-1); }
-.corner-deco.br { bottom: 24px; right: 24px; transform: scale(-1,-1); }
 
-/* 상단 라벨 */
+/* 상단 라벨 — 영상 아래 중앙에 자연스럽게 */
 .cover-eyebrow {
   font-family: 'Cormorant Garamond', serif;
   font-size: 11px; letter-spacing: 6px;
   color: var(--gold); text-transform: uppercase;
+  margin-top: 48px;
   margin-bottom: 48px;
   animation: fadeInPage 1s ease 0.8s both;
 }
@@ -306,8 +274,8 @@ body {
 
 /* 스크롤 힌트 */
 .scroll-hint {
-  position: absolute; bottom: 40px; left: 50%;
-  transform: translateX(-50%);
+  /* absolute → static — 영상 높이가 짧아져도 자연스럽게 콘텐츠 아래에 위치 */
+  margin-top: 30px;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   animation: fadeInPage 1s ease 2s both;
 }
@@ -1331,7 +1299,7 @@ body {
    디자인 정책: 신랑/신부 관련 카드(혼주, 마음전하기)는
    모바일에서도 항상 가로 2열로 표기 — PC와 동일한 레이아웃 유지 */
 @media (max-width: 480px) {
-  .cover { padding: 60px 20px; }
+  .cover { padding: 0 20px 60px; }
   .section { padding: 48px 18px; }
   /* 혼주 카드 — 모바일에서도 2열 유지, 패딩·폰트만 축소 */
   .family-grid  { gap: 10px; }
@@ -1358,11 +1326,6 @@ body {
   .date-main-value { font-size: 40px; }
   .date-main-divider { height: 42px; }
   .footer { padding: 48px 24px; }
-  .corner-deco { width: 60px; height: 60px; }
-  .corner-deco.tl { top: 16px; left: 16px; }
-  .corner-deco.tr { top: 16px; right: 16px; }
-  .corner-deco.bl { bottom: 16px; left: 16px; }
-  .corner-deco.br { bottom: 16px; right: 16px; }
 }
 /* 아주 좁은 화면 (360px 미만) — 글자 살짝 더 축소 */
 @media (max-width: 360px) {
@@ -1387,57 +1350,15 @@ body {
 
   <!-- ── 커버 ── -->
   <section class="cover" id="cover">
-    <div class="cover-bg" id="cover-bg"></div>
+    <!-- 배경 영상 (좌우반전, 자동재생, 무한반복, 음소거) -->
+    <video class="cover-bg" id="cover-bg"
+           src="./images/top.mp4"
+           autoplay muted loop playsinline preload="auto"
+           webkit-playsinline="true"
+           disablepictureinpicture></video>
     <div class="cover-overlay"></div>
 
-    <!-- 모서리 장식 -->
-    <div class="corner-deco tl">
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 4 L4 40 M4 4 L40 4" stroke="#C9A96E" stroke-width="0.8" opacity="0.7"/>
-        <path d="M4 4 L20 20" stroke="#C9A96E" stroke-width="0.5" opacity="0.4"/>
-        <circle cx="4" cy="4" r="2" fill="#C9A96E" opacity="0.6"/>
-        <circle cx="40" cy="4" r="1" fill="#C9A96E" opacity="0.3"/>
-        <circle cx="4" cy="40" r="1" fill="#C9A96E" opacity="0.3"/>
-      </svg>
-    </div>
-    <div class="corner-deco tr">
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 4 L4 40 M4 4 L40 4" stroke="#C9A96E" stroke-width="0.8" opacity="0.7"/>
-        <path d="M4 4 L20 20" stroke="#C9A96E" stroke-width="0.5" opacity="0.4"/>
-        <circle cx="4" cy="4" r="2" fill="#C9A96E" opacity="0.6"/>
-        <circle cx="40" cy="4" r="1" fill="#C9A96E" opacity="0.3"/>
-        <circle cx="4" cy="40" r="1" fill="#C9A96E" opacity="0.3"/>
-      </svg>
-    </div>
-    <div class="corner-deco bl">
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 4 L4 40 M4 4 L40 4" stroke="#C9A96E" stroke-width="0.8" opacity="0.7"/>
-        <path d="M4 4 L20 20" stroke="#C9A96E" stroke-width="0.5" opacity="0.4"/>
-        <circle cx="4" cy="4" r="2" fill="#C9A96E" opacity="0.6"/>
-        <circle cx="40" cy="4" r="1" fill="#C9A96E" opacity="0.3"/>
-        <circle cx="4" cy="40" r="1" fill="#C9A96E" opacity="0.3"/>
-      </svg>
-    </div>
-    <div class="corner-deco br">
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 4 L4 40 M4 4 L40 4" stroke="#C9A96E" stroke-width="0.8" opacity="0.7"/>
-        <path d="M4 4 L20 20" stroke="#C9A96E" stroke-width="0.5" opacity="0.4"/>
-        <circle cx="4" cy="4" r="2" fill="#C9A96E" opacity="0.6"/>
-        <circle cx="40" cy="4" r="1" fill="#C9A96E" opacity="0.3"/>
-        <circle cx="4" cy="40" r="1" fill="#C9A96E" opacity="0.3"/>
-      </svg>
-    </div>
-
     <div class="cover-eyebrow">We're Getting Married</div>
-
-    <!-- 엠블럼 -->
-    <div class="emblem">
-      <div class="emblem-ring"></div>
-      <div class="emblem-initials">
-        <span class="amp">&amp;</span>
-        <span class="inits" id="cover-inits">J · S</span>
-      </div>
-    </div>
 
     <!-- 이름 -->
     <div class="cover-names">
@@ -2038,19 +1959,6 @@ async function init() {
 function renderCover() {
   const g = CFG.groom, b = CFG.bride, d = CFG.date, v = CFG.venue;
 
-  /* 이니셜 — 영문 이름의 첫 단어(성)를 사용. 영문 이름이 없으면 한글 한 글자 폴백 */
-  const surnameFromEnglish = (en) => {
-    if (!en) return '';
-    /* "Kim Jae Hyun" → "Kim" / "Jae-hyun Kim" → 마지막이 성 */
-    const parts = en.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0];
-    /* 한국식 표기 "Kim Jae Hyun" 첫 단어가 성 */
-    return parts[0];
-  };
-  const gi = surnameFromEnglish(g.englishName) || g.name.charAt(0);
-  const bi = surnameFromEnglish(b.englishName) || b.name.charAt(0);
-  document.getElementById('cover-inits').textContent = `${gi} . ${bi}`;
-
   /* 이름 */
   document.getElementById('groom-name-cover').textContent = g.name;
   document.getElementById('bride-name-cover').textContent = b.name;
@@ -2166,9 +2074,8 @@ function renderVenue() {
   document.getElementById('naver-map-iframe').src =
     `https://maps.google.com/maps?q=${mapQuery}&z=15&hl=ko&output=embed`;
 
-  /* 웨딩홀 사진 — 오시는 길 + 커버 배경 동시 적용 */
+  /* 오시는 길 섹션 — 웨딩홀 사진 */
   if (v.photo) {
-    /* 오시는 길 섹션 */
     const wrap = document.getElementById('venue-photo-wrap');
     const img  = document.getElementById('venue-photo-img');
     img.src = v.photo;
@@ -2177,19 +2084,19 @@ function renderVenue() {
     document.getElementById('venue-photo-hall').textContent = v.hall;
     wrap.style.display = '';
     img.onerror = () => { wrap.style.display = 'none'; };
+  }
 
-    /* 커버 배경 */
-    const cover = document.getElementById('cover');
-    const bg    = document.getElementById('cover-bg');
-    const probe = new Image();
-    probe.onload = () => {
-      bg.style.backgroundImage = `url('${v.photo}')`;
-      cover.classList.add('has-photo');
-      /* 한 프레임 뒤 scale 트랜지션 시작 */
+  /* 커버 영상 — 자동재생 보장 + 살짝 줌인 트랜지션 */
+  const bg = document.getElementById('cover-bg');
+  if (bg) {
+    bg.addEventListener('loadeddata', () => {
       requestAnimationFrame(() => bg.classList.add('loaded'));
-    };
-    probe.onerror = () => { /* 실패 시 폴백 유지 */ };
-    probe.src = v.photo;
+    }, { once: true });
+    const tryPlay = () => bg.play().catch(() => {});
+    tryPlay();
+    /* iOS 저전력 모드 대응 — 첫 인터랙션 시 재시도 */
+    document.addEventListener('touchstart', tryPlay, { once: true, passive: true });
+    document.addEventListener('click',      tryPlay, { once: true });
   }
 }
 
