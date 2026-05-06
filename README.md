@@ -1,6 +1,7 @@
 # ✅ My Todo — 개인 할 일 관리 홈페이지
 
-🔗 **배포 주소**: https://bawo3.github.io/todo-myhompage/
+🔗 **GitHub Pages**: https://bawo3.github.io/todo-myhompage/
+🔗 **Vercel**: https://todo-myhompage.vercel.app/
 
 ---
 
