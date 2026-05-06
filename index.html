@@ -2306,12 +2306,13 @@ function goPay(method) {
   }
 
   if (method === 'kakaopay') {
-    /* 카카오페이는 공식 송금 딥링크가 없으므로:
-       1) 계좌번호를 즉시 클립보드에 복사
-       2) 카카오톡 앱을 열어서 사용자가 송금 메뉴로 이동 → 붙여넣기
-       3) 카카오톡 미설치 시 안내만 */
-    const text = `${bank} ${number} ${holder}`;
-    const copyMsg = '계좌번호를 복사했어요 · 카카오톡에서 붙여넣어 주세요';
+    /* 카카오페이 송금:
+       1) 계좌번호 즉시 클립보드 복사 (붙여넣기용)
+       2) 카카오페이 송금 화면 딥링크 호출
+          - kakaotalk://kakaopay/money/to_account : 계좌송금 화면
+          - 미동작 시 카카오톡 메인 → 또 미동작 시 안내 토스트만 */
+    const text = `${number}`;
+    const copyMsg = '계좌번호 복사 완료 · 카카오페이에서 붙여넣어 주세요';
 
     /* 즉시 복사 */
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -2322,9 +2323,15 @@ function goPay(method) {
       fallbackCopy(text, copyMsg);
     }
 
-    /* 짧은 지연 후 카카오톡 열기 — 토스트가 보이도록 */
+    /* 0.6초 후 카카오페이 송금 화면 딥링크 — 토스트가 잠깐 보이도록 */
     setTimeout(() => {
-      tryDeepLink('kakaotalk://', null, null);
+      /* 1차: 카카오페이 계좌 송금 화면 */
+      tryDeepLink('kakaotalk://kakaopay/money/to_account',
+        () => {
+          /* 2차 폴백: 카카오톡 메인 */
+          tryDeepLink('kakaotalk://', null, null);
+        },
+        null);
     }, 600);
 
     closePayModal();
