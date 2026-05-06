@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 할 일</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #F4F6F9;
+  --white: #FFFFFF;
+  --primary: #5B6AF0;
+  --primary-light: #EEF0FE;
+  --primary-dark: #3D4EC7;
+  --text: #1A1D2E;
+  --muted: #6B7280;
+  --border: #E5E7EB;
+  --radius: 12px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  --danger: #EF4444;
+  --success: #10B981;
+  --warning: #F59E0B;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 상단 헤더 ── */
+.header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+}
+.header-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.logo {
+  font-size: 16px; font-weight: 700;
+  color: var(--primary);
+  padding: 16px 24px 16px 0;
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+}
+.tab-nav {
+  display: flex;
+  gap: 0;
+  flex: 1;
+  padding-left: 8px;
+}
+.tab-btn {
+  padding: 18px 20px;
+  font-size: 14px; font-weight: 500;
+  color: var(--muted);
+  background: none; border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* ── 페이지 컨테이너 ── */
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* ── 카드 ── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 14px; font-weight: 600;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+
+/* ── 입력 영역 ── */
+.input-row {
+  display: flex; gap: 8px; align-items: stretch;
+}
+.input-main {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg); color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  min-width: 0;
+}
+.input-main:focus { border-color: var(--primary); background: var(--white); }
+.btn-add {
+  padding: 12px 20px;
+  background: var(--primary); color: white;
+  border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 600;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-add:hover { background: var(--primary-dark); }
+.btn-add:active { transform: scale(0.97); }
+
+.meta-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-top: 10px;
+}
+.meta-select {
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg); color: var(--text);
+  outline: none; cursor: pointer;
+  transition: border-color 0.2s;
+  min-width: 0; flex: 1;
+}
+.meta-select:focus { border-color: var(--primary); }
+
+/* ── 필터 바 ── */
+.filter-bar {
+  display: flex; gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.filter-btn {
+  padding: 6px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  font-size: 13px;
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--white); color: var(--muted);
+  cursor: pointer; font-weight: 500;
+  transition: all 0.2s;
+}
+.filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+.filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+.sort-select {
+  margin-left: auto;
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--white); color: var(--text);
+  outline: none; cursor: pointer;
+}
+
+/* ── 태그 필터 칩 ── */
+.tag-filter-bar {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.tag-chip {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px; font-weight: 500;
+  color: white; cursor: pointer;
+  opacity: 0.6; transition: opacity 0.2s;
+  border: none;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.tag-chip.active, .tag-chip:hover { opacity: 1; }
+
+/* ── 할 일 아이템 ── */
+.todo-list { display: flex; flex-direction: column; gap: 8px; }
+.todo-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.todo-item:hover { border-color: #c7cdf8; box-shadow: 0 2px 8px rgba(91,106,240,0.08); }
+.todo-item.done { opacity: 0.5; }
+.todo-item.overdue { border-left: 3px solid var(--danger); }
+.todo-item.due-soon { border-left: 3px solid var(--warning); }
+.todo-item.recur-child { border-left: 3px solid var(--success); }
+
+.chk {
+  width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px;
+  border: 2px solid var(--border); border-radius: 6px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; background: var(--white);
+}
+.chk:hover { border-color: var(--primary); }
+.chk.on { background: var(--primary); border-color: var(--primary); }
+.chk.on::after { content: '✓'; color: white; font-size: 12px; font-weight: 700; }
+
+.todo-body { flex: 1; min-width: 0; }
+.todo-text {
+  font-size: 14px; font-weight: 500; word-break: break-all;
+}
+.done .todo-text { text-decoration: line-through; color: var(--muted); }
+.todo-badges {
+  display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;
+}
+.badge {
+  padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600;
+}
+.b-high { background: #FEE2E2; color: var(--danger); }
+.b-mid  { background: #FEF3C7; color: var(--warning); }
+.b-low  { background: #D1FAE5; color: var(--success); }
+.b-tag  { color: white; }
+.b-over { background: #FEE2E2; color: var(--danger); }
+.b-soon { background: #FEF3C7; color: var(--warning); }
+.b-ok   { background: var(--primary-light); color: var(--primary); }
+.b-today { background: var(--danger); color: white; }
+.b-recur { background: #D1FAE5; color: var(--success); font-size: 10px; }
+
+.del-btn {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border: none; background: none; cursor: pointer;
+  border-radius: 6px; color: var(--muted); font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; opacity: 0.4;
+}
+.del-btn:hover { background: #FEE2E2; color: var(--danger); opacity: 1; }
+
+/* ── 빈 상태 ── */
+.empty {
+  text-align: center; padding: 48px 20px;
+  color: var(--muted); font-size: 14px;
+}
+.empty .ico { font-size: 40px; margin-bottom: 10px; }
+
+/* ── 대시보드 통계 카드 ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 18px; text-align: center;
+}
+.stat-ico { font-size: 24px; margin-bottom: 4px; }
+.stat-val { font-size: 26px; font-weight: 700; color: var(--primary); }
+.stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── 차트 그리드 ── */
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px; margin-bottom: 12px;
+}
+.chart-card {
+  background: var(--white);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 18px;
+}
+.chart-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+.chart-box { position: relative; height: 200px; }
+.no-data {
+  height: 200px; display: flex; align-items: center; justify-content: center;
+  color: var(--muted); font-size: 13px; text-align: center; line-height: 1.8;
+}
+
+/* ── 내보내기 ── */
+.export-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.exp-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 20px 12px;
+  border: 2px dashed var(--border); border-radius: var(--radius);
+  background: var(--bg); cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px; color: var(--muted); font-weight: 500;
+  transition: all 0.2s;
+}
+.exp-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+.exp-btn .eico { font-size: 26px; }
+.exp-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: #FEE2E2; }
+.import-note {
+  font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.8;
+}
+
+/* ── 토스트 ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--text); color: white;
+  padding: 11px 22px; border-radius: 10px;
+  font-size: 13px; z-index: 9999;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+  transition: transform 0.3s ease;
+  font-family: 'Noto Sans KR', sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── 반응형 ── */
+@media (max-width: 600px) {
+  .logo { font-size: 14px; padding: 14px 12px 14px 0; }
+  .tab-btn { padding: 14px 12px; font-size: 13px; }
+  .page { padding: 16px 12px 60px; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+  .sort-select { width: 100%; margin-left: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">✅ My Todo</div>
+    <nav class="tab-nav">
+      <button class="tab-btn active" onclick="showTab('todo')">📋 할 일</button>
+      <button class="tab-btn" onclick="showTab('dashboard')">📊 대시보드</button>
+      <button class="tab-btn" onclick="showTab('export')">💾 내보내기</button>
+    </nav>
+  </div>
+</header>
+
+<!-- 메인 -->
+<div class="page">
+
+  <!-- ── 할 일 탭 ── -->
+  <div id="tab-todo" class="page-section active">
+
+    <!-- 입력 카드 -->
+    <div class="card">
+      <div class="card-title">새 할 일 추가</div>
+      <div class="input-row">
+        <input class="input-main" id="todoInput" type="text"
+          placeholder="할 일 입력... #태그 사용 가능"
+          onkeydown="if(event.key==='Enter') addTodo()">
+        <button class="btn-add" onclick="addTodo()">추가</button>
+      </div>
+      <div class="meta-row">
+        <select class="meta-select" id="selPriority">
+          <option value="high">🔴 높음</option>
+          <option value="mid" selected>🟡 중간</option>
+          <option value="low">🟢 낮음</option>
+        </select>
+        <input type="date" class="meta-select" id="selDate" style="flex:1.5">
+        <select class="meta-select" id="selRecur">
+          <option value="">🔄 반복 없음</option>
+          <option value="daily">매일</option>
+          <option value="weekly">매주</option>
+          <option value="monthly">매월</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 태그 칩 -->
+    <div class="tag-filter-bar" id="tagBar"></div>
+
+    <!-- 필터 + 정렬 -->
+    <div class="filter-bar">
+      <button class="filter-btn active" data-f="all"       onclick="setFilter('all')">전체</button>
+      <button class="filter-btn"        data-f="active"    onclick="setFilter('active')">미완료</button>
+      <button class="filter-btn"        data-f="done"      onclick="setFilter('done')">완료</button>
+      <button class="filter-btn"        data-f="overdue"   onclick="setFilter('overdue')">기한초과</button>
+      <button class="filter-btn"        data-f="today"     onclick="setFilter('today')">오늘마감</button>
+      <select class="sort-select" id="sortSel" onchange="renderList()">
+        <option value="created">등록순</option>
+        <option value="due">마감일순</option>
+        <option value="priority">우선순위순</option>
+      </select>
+    </div>
+
+    <!-- 목록 -->
+    <div class="todo-list" id="todoList"></div>
+  </div>
+
+  <!-- ── 대시보드 탭 ── -->
+  <div id="tab-dashboard" class="page-section">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-ico">📋</div><div class="stat-val" id="sTot">0</div><div class="stat-lbl">전체</div></div>
+      <div class="stat-card"><div class="stat-ico">✅</div><div class="stat-val" id="sDone">0</div><div class="stat-lbl">완료</div></div>
+      <div class="stat-card"><div class="stat-ico">🔥</div><div class="stat-val" id="sRate">0%</div><div class="stat-lbl">완료율</div></div>
+      <div class="stat-card"><div class="stat-ico">⚠️</div><div class="stat-val" id="sOver">0</div><div class="stat-lbl">기한초과</div></div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card"><h3>우선순위 분포</h3><div id="cPri" class="chart-box"></div></div>
+      <div class="chart-card"><h3>태그별 할 일</h3><div id="cTag" class="chart-box"></div></div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card"><h3>요일별 등록 패턴</h3><div id="cWeek" class="chart-box"></div></div>
+      <div class="chart-card"><h3>최근 7일 완료 추이</h3><div id="cTrend" class="chart-box"></div></div>
+    </div>
+  </div>
+
+  <!-- ── 내보내기 탭 ── -->
+  <div id="tab-export" class="page-section">
+    <div class="card">
+      <div class="card-title">📤 내보내기</div>
+      <div class="export-grid">
+        <button class="exp-btn" onclick="exportJSON()"><span class="eico">📦</span>JSON 백업</button>
+        <button class="exp-btn" onclick="exportCSV()"><span class="eico">📊</span>CSV 저장</button>
+        <button class="exp-btn" onclick="exportText()"><span class="eico">📋</span>텍스트 복사</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📥 가져오기</div>
+      <div class="export-grid">
+        <button class="exp-btn" onclick="importJSON()"><span class="eico">📂</span>JSON 불러오기</button>
+      </div>
+      <p class="import-note">⚠️ 기존 데이터에 병합됩니다. 완전 교체를 원하면 먼저 초기화 후 가져오세요.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--danger)">🗑️ 위험 구역</div>
+      <div class="export-grid">
+        <button class="exp-btn danger" onclick="clearAll()"><span class="eico">⚠️</span>전체 초기화</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="impFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ── 상수 ──
+const PAL = ['#5B6AF0','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#84CC16','#F97316','#3B82F6'];
+const PLBL = {high:'높음', mid:'중간', low:'낮음'};
+const PCLS = {high:'b-high', mid:'b-mid', low:'b-low'};
+const PORD = {high:0, mid:1, low:2};
+const RLBL = {daily:'매일', weekly:'매주', monthly:'매월'};
+const WD   = ['일','월','화','수','목','금','토'];
+
+let curFilter = 'all';
+let curTag = null;
+let charts = {};
+
+// ── 색상 ──
+function tc(tag) {
+  let h = 0;
+  for (let i = 0; i < tag.length; i++) h = tag.charCodeAt(i) + ((h << 5) - h);
+  return PAL[Math.abs(h) % PAL.length];
+}
+
+// ── 스토리지 ──
+function load()   { return JSON.parse(localStorage.getItem('td2') || '[]'); }
+function save(a)  { localStorage.setItem('td2', JSON.stringify(a)); }
+function today()  { return new Date().toISOString().slice(0,10); }
+
+// ── 반복 처리 ──
+function runRecurring() {
+  const todos = load(), td = today(); let changed = false;
+  todos.forEach(t => {
+    if (!t.recur || t.done) return;
+    if ((t.lastGen || t.createdAt.slice(0,10)) >= td) return;
+    todos.unshift({ id: Date.now()+Math.random(), text:t.text, tags:t.tags,
+      priority:t.priority, due:td, recur:null, parentId:t.id,
+      done:false, createdAt:new Date().toISOString() });
+    t.lastGen = td; changed = true;
+  });
+  if (changed) save(todos);
+}
+
+// ── 태그 파싱 ──
+function parseTags(s) {
+  return [...new Set((s.match(/#[\w가-힣]+/g)||[]).map(x=>x.slice(1)))];
+}
+function stripTags(s) { return s.replace(/#[\w가-힣]+/g,'').trim(); }
+
+// ── 추가 ──
+function addTodo() {
+  const raw = document.getElementById('todoInput').value.trim();
+  if (!raw) return toast('할 일을 입력해 주세요');
+  const tags = parseTags(raw), text = stripTags(raw);
+  if (!text) return toast('내용을 입력해 주세요');
+  const t = { id:Date.now(), text, tags,
+    priority: document.getElementById('selPriority').value,
+    due:      document.getElementById('selDate').value || null,
+    recur:    document.getElementById('selRecur').value || null,
+    lastGen:  today(), done:false, createdAt:new Date().toISOString() };
+  const a = load(); a.unshift(t); save(a);
+  document.getElementById('todoInput').value = '';
+  document.getElementById('selDate').value = '';
+  document.getElementById('selPriority').value = 'mid';
+  document.getElementById('selRecur').value = '';
+  render(); toast('추가되었습니다 ✓');
+}
+
+// ── 완료 토글 / 삭제 ──
+function toggleDone(id) {
+  const a = load(), t = a.find(x=>x.id===id);
+  if (t) t.done = !t.done; save(a); render();
+}
+function del(id) {
+  save(load().filter(x=>x.id!==id)); render(); toast('삭제되었습니다');
+}
+
+// ── D-day ──
+function dday(due) {
+  if (!due) return null;
+  const a = new Date(); a.setHours(0,0,0,0);
+  const b = new Date(due); b.setHours(0,0,0,0);
+  return Math.ceil((b-a)/86400000);
+}
+function ddayBadge(due) {
+  const d = dday(due);
+  if (d === null) return '';
+  if (d < 0)  return `<span class="badge b-over">D+${-d}</span>`;
+  if (d === 0) return `<span class="badge b-today">D-Day</span>`;
+  if (d <= 3) return `<span class="badge b-soon">D-${d}</span>`;
+  return `<span class="badge b-ok">D-${d}</span>`;
+}
+
+// ── 필터 ──
+function setFilter(f) {
+  curFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.f === f));
+  render();
+}
+
+// ── 태그 칩 렌더 ──
+function renderTagBar() {
+  const all = load();
+  const map = {};
+  all.forEach(t => (t.tags||[]).forEach(g => map[g] = (map[g]||0)+1));
+  const bar = document.getElementById('tagBar');
+  bar.innerHTML = Object.entries(map).map(([g,c]) =>
+    `<button class="tag-chip${curTag===g?' active':''}"
+      style="background:${tc(g)}"
+      onclick="toggleTag('${esc(g)}')">#${esc(g)} ${c}</button>`
+  ).join('');
+}
+function toggleTag(tag) { curTag = curTag===tag?null:tag; render(); }
+
+// ── 목록 렌더 ──
+function render() {
+  const td = today();
+  let a = load();
+
+  if (curFilter==='active')  a = a.filter(t=>!t.done);
+  else if (curFilter==='done')    a = a.filter(t=>t.done);
+  else if (curFilter==='overdue') a = a.filter(t=>!t.done&&t.due&&t.due<td);
+  else if (curFilter==='today')   a = a.filter(t=>!t.done&&t.due===td);
+
+  if (curTag) a = a.filter(t=>(t.tags||[]).includes(curTag));
+
+  const sort = document.getElementById('sortSel').value;
+  if (sort==='priority') a.sort((x,y)=>PORD[x.priority]-PORD[y.priority]);
+  else if (sort==='due') a.sort((x,y)=>{
+    if (!x.due) return 1; if (!y.due) return -1;
+    return x.due.localeCompare(y.due);
+  });
+
+  const el = document.getElementById('todoList');
+  if (!a.length) {
+    el.innerHTML = `<div class="empty"><div class="ico">🎉</div>할 일이 없습니다</div>`;
+    renderTagBar(); return;
+  }
+
+  el.innerHTML = a.map(t => {
+    const d = dday(t.due);
+    let cls = 'todo-item';
+    if (t.done) cls += ' done';
+    else if (d!==null && d<0) cls += ' overdue';
+    else if (d!==null && d<=3) cls += ' due-soon';
+    if (t.parentId) cls += ' recur-child';
+
+    const tags = (t.tags||[]).map(g=>
+      `<span class="badge b-tag" style="background:${tc(g)}" onclick="toggleTag('${esc(g)}')">#${esc(g)}</span>`
+    ).join('');
+    const recBadge = t.recur ? `<span class="badge b-recur">🔄${RLBL[t.recur]}</span>` : '';
+
+    return `<div class="${cls}">
+      <div class="chk${t.done?' on':''}" onclick="toggleDone(${t.id})"></div>
+      <div class="todo-body">
+        <div class="todo-text">${esc(t.text)}</div>
+        <div class="todo-badges">
+          <span class="badge ${PCLS[t.priority]}">${PLBL[t.priority]}</span>
+          ${tags}${ddayBadge(t.due)}${recBadge}
+        </div>
+      </div>
+      <button class="del-btn" onclick="del(${t.id})">✕</button>
+    </div>`;
+  }).join('');
+
+  renderTagBar();
+}
+
+// ── 대시보드 ──
+function renderDashboard() {
+  const all = load(), td = today();
+  const tot  = all.length;
+  const done = all.filter(t=>t.done).length;
+  const over = all.filter(t=>!t.done&&t.due&&t.due<td).length;
+  const rate = tot ? Math.round(done/tot*100) : 0;
+  document.getElementById('sTot').textContent  = tot;
+  document.getElementById('sDone').textContent = done;
+  document.getElementById('sRate').textContent = rate+'%';
+  document.getElementById('sOver').textContent = over;
+
+  Object.values(charts).forEach(c=>c.destroy()); charts={};
+
+  if (tot < 3) {
+    ['cPri','cTag','cWeek','cTrend'].forEach(id=>{
+      document.getElementById(id).innerHTML =
+        '<div class="no-data">데이터가 3개 이상<br>쌓이면 표시됩니다</div>';
+    });
+    return;
+  }
+
+  // 우선순위
+  const pc = {high:0,mid:0,low:0};
+  all.forEach(t=>pc[t.priority]++);
+  setCanvas('cPri');
+  charts.pri = new Chart(document.getElementById('cPri'), {
+    type:'doughnut',
+    data:{ labels:['높음','중간','낮음'],
+      datasets:[{data:[pc.high,pc.mid,pc.low],
+        backgroundColor:['#EF4444','#F59E0B','#10B981'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{font:{size:12}}}}}
+  });
+
+  // 태그
+  const tm={};
+  all.forEach(t=>(t.tags||[]).forEach(g=>tm[g]=(tm[g]||0)+1));
+  const te = Object.entries(tm).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  setCanvas('cTag');
+  if (te.length) {
+    charts.tag = new Chart(document.getElementById('cTag'), {
+      type:'bar',
+      data:{ labels:te.map(([g])=>'#'+g),
+        datasets:[{data:te.map(([,c])=>c),
+          backgroundColor:te.map(([g])=>tc(g)+'CC'),borderRadius:6}]},
+      options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+        plugins:{legend:{display:false}},
+        scales:{x:{ticks:{precision:0},grid:{display:false}}}}
+    });
+  } else {
+    document.getElementById('cTag').outerHTML = '<div class="no-data">태그 없음</div>';
+  }
+
+  // 요일
+  const wc=[0,0,0,0,0,0,0];
+  all.forEach(t=>{ const d=new Date(t.createdAt).getDay(); wc[d]++; });
+  setCanvas('cWeek');
+  charts.week = new Chart(document.getElementById('cWeek'), {
+    type:'bar',
+    data:{ labels:WD,
+      datasets:[{data:wc,backgroundColor:'#5B6AF0AA',borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{ticks:{precision:0},beginAtZero:true}}}
+  });
+
+  // 7일 추이
+  const tr=[];
+  for (let i=6;i>=0;i--) {
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    tr.push({ lbl:`${d.getMonth()+1}/${d.getDate()}`,
+      cnt: all.filter(t=>t.done&&t.createdAt&&t.createdAt.startsWith(ds)).length });
+  }
+  setCanvas('cTrend');
+  charts.trend = new Chart(document.getElementById('cTrend'), {
+    type:'line',
+    data:{ labels:tr.map(x=>x.lbl),
+      datasets:[{data:tr.map(x=>x.cnt),borderColor:'#5B6AF0',
+        backgroundColor:'#5B6AF022',tension:0.4,fill:true,pointRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{ticks:{precision:0},beginAtZero:true}}}
+  });
+}
+
+function setCanvas(id) {
+  document.getElementById(id).innerHTML = `<canvas id="${id}"></canvas>`;
+}
+
+// ── 탭 전환 ──
+function showTab(name) {
+  document.querySelectorAll('.page-section').forEach(el=>{
+    el.classList.toggle('active', el.id==='tab-'+name);
+  });
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    const names=['todo','dashboard','export'];
+    b.classList.toggle('active', names[i]===name);
+  });
+  if (name==='dashboard') renderDashboard();
+}
+
+// ── 내보내기 ──
+function exportJSON() {
+  const blob = new Blob([JSON.stringify({todos:load(),v:2,date:new Date().toISOString()},null,2)],
+    {type:'application/json'});
+  dl(blob, `todos_${today()}.json`);
+  toast('JSON 저장됩니다');
+}
+function exportCSV() {
+  const rows = load().map(t=>[t.id,`"${t.text}"`,
+    (t.tags||[]).join('|'), PLBL[t.priority]||t.priority,
+    t.due||'', t.recur||'', t.done?'완료':'미완료', t.createdAt].join(','));
+  const blob = new Blob(['﻿ID,텍스트,태그,우선순위,마감일,반복,완료,등록일\n'+rows.join('\n')],
+    {type:'text/csv;charset=utf-8;'});
+  dl(blob, `todos_${today()}.csv`);
+  toast('CSV 저장됩니다');
+}
+function exportText() {
+  const a = load();
+  if (!a.length) return toast('할 일이 없습니다');
+  const txt = a.map((t,i)=>{
+    const done = t.done?'[완료]':'[  ]';
+    const tags = (t.tags||[]).map(g=>'#'+g).join(' ');
+    const due  = t.due?` (마감:${t.due})`:'';
+    return `${i+1}. ${done} ${t.text}${tags?' '+tags:''}${due}`;
+  }).join('\n');
+  navigator.clipboard.writeText(txt)
+    .then(()=>toast('클립보드에 복사되었습니다 ✓'))
+    .catch(()=>toast('복사 실패 (HTTPS 필요)'));
+}
+function importJSON() { document.getElementById('impFile').click(); }
+function handleImport(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      const inc = d.todos||[];
+      if (!Array.isArray(inc)) throw 0;
+      const ex = load(), ids = new Set(ex.map(t=>t.id));
+      save([...ex, ...inc.filter(t=>!ids.has(t.id))]);
+      render(); toast(`${inc.length}개 불러왔습니다 ✓`);
+    } catch { toast('올바른 JSON이 아닙니다'); }
+  };
+  r.readAsText(f); e.target.value='';
+}
+function clearAll() {
+  if (!confirm('모든 데이터를 삭제합니까?')) return;
+  localStorage.removeItem('td2'); render(); toast('초기화 완료');
+}
+function dl(blob, name) {
+  const u=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
+}
+
+// ── 유틸 ──
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2500);
+}
+function esc(s) {
+  const d=document.createElement('div'); d.textContent=s; return d.innerHTML;
+}
+
+// ── 초기화 ──
+runRecurring();
+render();
+</script>
+</body>
+</html>
