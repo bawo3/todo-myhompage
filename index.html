@@ -1801,7 +1801,11 @@ body {
       </div>
       <div class="form-field">
         <label class="form-label">성함 <span class="required-mark">*</span></label>
-        <input class="form-input" id="rsvp-name" type="text" placeholder="홍길동">
+        <input class="form-input" id="rsvp-name" name="name" type="text"
+               placeholder="홍길동"
+               autocomplete="name"
+               autocapitalize="words"
+               inputmode="text">
       </div>
       <div class="form-field">
         <label class="form-label">참석 여부 <span class="required-mark">*</span></label>
