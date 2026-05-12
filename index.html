@@ -1791,33 +1791,33 @@ body {
         <!-- 신랑측 -->
         <div class="parents-col">
           <div class="parents-side groom">🤵 신랑측</div>
-          <div class="parent-card" onclick="copyParentAcc('농협','882-12-045-901','김주영')">
+          <div class="parent-card" onclick="openParentPayModal('김주영','신랑 아버지','농협','882-12-045-901')">
             <div class="parent-relation">Father</div>
             <div class="parent-name">김주영</div>
             <div class="parent-bank">농협 882-12-045-901</div>
-            <span class="parent-copy">복사</span>
+            <span class="parent-copy">송금</span>
           </div>
-          <div class="parent-card" onclick="copyParentAcc('우리','184-230012-02-001','강민선')">
+          <div class="parent-card" onclick="openParentPayModal('강민선','신랑 어머니','우리','184-230012-02-001')">
             <div class="parent-relation">Mother</div>
             <div class="parent-name">강민선</div>
             <div class="parent-bank">우리 184-230012-02-001</div>
-            <span class="parent-copy">복사</span>
+            <span class="parent-copy">송금</span>
           </div>
         </div>
         <!-- 신부측 -->
         <div class="parents-col">
           <div class="parents-side bride">👰 신부측</div>
-          <div class="parent-card" onclick="copyParentAcc('농협','001-0001-00010','이홍기')">
+          <div class="parent-card" onclick="openParentPayModal('이홍기','신부 아버지','농협','001-0001-00010')">
             <div class="parent-relation">Father</div>
             <div class="parent-name">이홍기</div>
             <div class="parent-bank">농협 001-0001-00010</div>
-            <span class="parent-copy">복사</span>
+            <span class="parent-copy">송금</span>
           </div>
-          <div class="parent-card" onclick="copyParentAcc('농협','222-000-33333','이은희')">
+          <div class="parent-card" onclick="openParentPayModal('이은희','신부 어머니','농협','222-000-33333')">
             <div class="parent-relation">Mother</div>
             <div class="parent-name">이은희</div>
             <div class="parent-bank">농협 222-000-33333</div>
-            <span class="parent-copy">복사</span>
+            <span class="parent-copy">송금</span>
           </div>
         </div>
       </div>
@@ -2414,16 +2414,13 @@ const TOSS_BANK_CODES = {
   '전북은행':'037', '제주은행':'035', 'KEB하나은행':'081'
 };
 
-/* 부모님 계좌 복사 */
-function copyParentAcc(bank, number, holder) {
-  const text = `${bank} ${number} ${holder}`;
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text)
-      .then(() => showToast('계좌번호가 복사되었습니다'))
-      .catch(() => fallbackCopy(text, '계좌번호가 복사되었습니다'));
-  } else {
-    fallbackCopy(text, '계좌번호가 복사되었습니다');
-  }
+/* 부모님 계좌 — 기존 송금 모달 재사용 */
+function openParentPayModal(name, relation, bank, number) {
+  currentPayAcc = { bank, number, holder: name, name, who: 'parent' };
+  document.getElementById('pay-name').textContent   = `${name} · ${relation}`;
+  document.getElementById('pay-bank').textContent   = bank;
+  document.getElementById('pay-number').textContent = number;
+  document.getElementById('payModal').classList.add('show');
 }
 
 /* navigator.clipboard 미지원 환경 폴백 */
