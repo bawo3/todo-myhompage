@@ -1,4 +1,10 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+/* Vercel 마켓플레이스 Upstash 연동 시 자동 세팅되는 환경변수 사용 */
+const redis = new Redis({
+  url:   process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 const RSVP_KEY = 'rsvp_responses';
 
@@ -13,7 +19,7 @@ export default async function handler(req, res) {
 
   /* 전체 목록 조회 */
   if (req.method === 'GET') {
-    const list = (await kv.get(RSVP_KEY)) || [];
+    const list = (await redis.get(RSVP_KEY)) || [];
     return res.json(list);
   }
 
@@ -23,9 +29,9 @@ export default async function handler(req, res) {
     if (!entry || !entry.name || !entry.side || !entry.attend) {
       return res.status(400).json({ error: '필수 항목이 누락되었습니다' });
     }
-    const list = (await kv.get(RSVP_KEY)) || [];
+    const list = (await redis.get(RSVP_KEY)) || [];
     list.push(entry);
-    await kv.set(RSVP_KEY, list);
+    await redis.set(RSVP_KEY, list);
     return res.json({ ok: true });
   }
 
@@ -33,11 +39,11 @@ export default async function handler(req, res) {
   if (req.method === 'DELETE') {
     const { id } = req.query;
     if (id) {
-      const list = (await kv.get(RSVP_KEY)) || [];
+      const list = (await redis.get(RSVP_KEY)) || [];
       const filtered = list.filter(r => String(r.id) !== String(id));
-      await kv.set(RSVP_KEY, filtered);
+      await redis.set(RSVP_KEY, filtered);
     } else {
-      await kv.set(RSVP_KEY, []);
+      await redis.set(RSVP_KEY, []);
     }
     return res.json({ ok: true });
   }
