@@ -535,6 +535,33 @@ body {
     0 1px 0 rgba(255,255,255,0.8) inset;
 }
 
+/* 날짜 이미지 — 위아래 그라데이션으로 검은 부분 제거 */
+.date-photo-wrap {
+  position: relative;
+  width: 100%;
+  margin: 8px 0 0;
+  overflow: hidden;
+  border-radius: 20px;
+}
+.date-photo-wrap img {
+  width: 100%;
+  display: block;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 22%,
+    black 78%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 22%,
+    black 78%,
+    transparent 100%
+  );
+}
+
 /* 달력 */
 .calendar-wrap {
   margin: 32px 0 0;
@@ -1590,6 +1617,12 @@ body {
       <!-- 디데이 -->
       <div class="dday-badge" id="dday-badge">D - ?</div>
     </div>
+
+    <!-- 날짜 이미지 -->
+    <div class="date-photo-wrap">
+      <img src="./images/1107date.png" alt="2026.11.07 예식일" loading="lazy">
+    </div>
+
     <!-- 달력 -->
     <div class="calendar-wrap">
       <div class="calendar-header" id="cal-header">— 년 — 월</div>
