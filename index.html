@@ -163,21 +163,15 @@ body {
   margin: 0;
   position: relative; z-index: 1;
   vertical-align: top;
-  /* 위아래 그라데이션으로 자연스럽게 페이드 */
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 12%,
-    black 72%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 12%,
-    black 72%,
-    transparent 100%
-  );
+  /* 4면 그라데이션으로 자연스럽게 페이드 */
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, black 12%, black 72%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, black 8%,  black 92%, transparent 100%);
+  -webkit-mask-composite: source-in;
+          mask-image:
+    linear-gradient(to bottom, transparent 0%, black 12%, black 72%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, black 8%,  black 92%, transparent 100%);
+          mask-composite: intersect;
 }
 .cover-bg.loaded { transform: scaleX(-1); }
 .cover-overlay { display: none; }
@@ -547,31 +541,25 @@ body {
     0 1px 0 rgba(255,255,255,0.8) inset;
 }
 
-/* 날짜 이미지 — 위아래 그라데이션으로 검은 부분 제거 */
+/* 날짜 이미지 — 세로형, 4면 그라데이션 페이드 */
 .date-photo-wrap {
   position: relative;
   width: 100%;
-  margin: 8px 0 0;
-  overflow: hidden;
-  border-radius: 20px;
+  max-width: 280px;
+  margin: 20px auto 12px;
 }
 .date-photo-wrap img {
   width: 100%;
+  height: auto;
   display: block;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 22%,
-    black 78%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 22%,
-    black 78%,
-    transparent 100%
-  );
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-composite: source-in;
+          mask-image:
+    linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%),
+    linear-gradient(to right,  transparent 0%, black 10%, black 90%, transparent 100%);
+          mask-composite: intersect;
 }
 
 /* 달력 */
