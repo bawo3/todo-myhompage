@@ -407,15 +407,13 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'rsvp_responses';
 let curFilter = 'all';
 
-function load() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch {
-    return [];
-  }
+/* DB에서 RSVP 목록 가져오기 */
+async function load() {
+  const res = await fetch('/api/rsvp');
+  if (!res.ok) throw new Error('서버 오류');
+  return await res.json();
 }
 
 function fmtTime(iso) {
@@ -524,22 +522,28 @@ function renderRows(list) {
   }).join('');
 }
 
-function render() {
-  const list = load();
-  renderStats(list);
-  renderRows(list);
+async function render() {
+  try {
+    const list = await load();
+    renderStats(list);
+    renderRows(list);
+  } catch (e) {
+    console.error('데이터 로드 실패:', e);
+    document.getElementById('rows').innerHTML =
+      '<div class="empty"><div class="empty-icon">⚠️</div>데이터를 불러오지 못했습니다<br><small style="color:var(--text-light);font-size:11px;margin-top:6px;display:block">잠시 후 새로고침 해주세요</small></div>';
+  }
 }
 
-function setFilter(f) {
+async function setFilter(f) {
   curFilter = f;
   document.querySelectorAll('.filter-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.f === f));
-  render();
+  await render();
 }
 
 /* CSV 내보내기 */
-function exportCSV() {
-  const list = load();
+async function exportCSV() {
+  const list = await load().catch(() => []);
   if (!list.length) return showToast('내보낼 데이터가 없습니다');
 
   const rows = [
@@ -567,11 +571,16 @@ function exportCSV() {
   showToast('CSV 파일이 저장되었습니다');
 }
 
-function clearAll() {
+async function clearAll() {
   if (!confirm('정말 모든 응답을 삭제하시겠어요?\n이 작업은 되돌릴 수 없습니다.')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  render();
-  showToast('모든 데이터가 삭제되었습니다');
+  try {
+    const res = await fetch('/api/rsvp', { method: 'DELETE' });
+    if (!res.ok) throw new Error('서버 오류');
+    await render();
+    showToast('모든 데이터가 삭제되었습니다');
+  } catch (e) {
+    showToast('삭제에 실패했습니다');
+  }
 }
 
 function showToast(msg) {
@@ -581,10 +590,8 @@ function showToast(msg) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
-/* 다른 탭에서 응답 추가 시 자동 갱신 */
-window.addEventListener('storage', (e) => {
-  if (e.key === STORAGE_KEY) render();
-});
+/* 30초마다 자동 갱신 */
+setInterval(render, 30000);
 
 /* 실행 */
 render();

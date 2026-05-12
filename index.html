@@ -2339,7 +2339,7 @@ function renderRsvp() {
   document.getElementById('rsvp-desc').textContent = deadline;
 }
 
-function submitRsvp() {
+async function submitRsvp() {
   const name   = document.getElementById('rsvp-name').value.trim();
   const side   = document.querySelector('input[name="side"]:checked');
   const attend = document.querySelector('input[name="attend"]:checked');
@@ -2356,24 +2356,36 @@ function submitRsvp() {
     return showToast('참석 여부를 선택해 주세요');
   }
 
-  /* localStorage 저장 — 키: rsvp_responses */
   const entry = {
-    id:      Date.now(),
-    side:    side.value,
-    name:    name,
-    attend:  attend.value,
-    count:   count,
+    id:        Date.now(),
+    side:      side.value,
+    name:      name,
+    attend:    attend.value,
+    count:     count,
     createdAt: new Date().toISOString()
   };
 
+  /* 버튼 비활성화 (중복 제출 방지) */
+  const btn = document.querySelector('.rsvp-submit');
+  btn.disabled = true;
+  btn.textContent = '전송 중...';
+
   try {
-    const list = JSON.parse(localStorage.getItem('rsvp_responses') || '[]');
-    list.push(entry);
-    localStorage.setItem('rsvp_responses', JSON.stringify(list));
+    const res = await fetch('/api/rsvp', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(entry)
+    });
+    if (!res.ok) throw new Error('서버 오류');
   } catch (e) {
-    console.error('localStorage 저장 실패:', e);
-    return showToast('저장에 실패했습니다');
+    console.error('RSVP 저장 실패:', e);
+    btn.disabled = false;
+    btn.textContent = '참석 의사 전달하기';
+    return showToast('저장에 실패했습니다. 잠시 후 다시 시도해 주세요');
   }
+
+  btn.disabled = false;
+  btn.textContent = '참석 의사 전달하기';
 
   /* 폼 초기화 */
   document.getElementById('rsvp-name').value  = '';
