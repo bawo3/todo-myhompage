@@ -956,6 +956,69 @@ body {
 }
 .acc-btn-name { font-size: 15px; color: var(--text-dark); letter-spacing: 2px; }
 .acc-btn-bank { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+/* 부모님 계좌 */
+.parents-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(201,169,110,0.2);
+}
+.parents-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px; letter-spacing: 4px;
+  color: var(--gold); text-transform: uppercase;
+  text-align: center; margin-bottom: 16px;
+}
+.parents-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.parents-col { display: flex; flex-direction: column; gap: 8px; }
+.parents-side {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 12px; letter-spacing: 1px;
+  text-align: center; margin-bottom: 2px;
+}
+.parents-side.groom { color: var(--groom-color); }
+.parents-side.bride { color: var(--bride-color); }
+.parent-card {
+  background: linear-gradient(135deg, rgba(250,247,242,0.9), rgba(240,234,224,0.7));
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 12px rgba(139,111,71,0.07), 0 1px 0 rgba(255,255,255,0.9) inset;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  text-align: left;
+}
+.parent-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(139,111,71,0.13);
+}
+.parent-relation {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10px; letter-spacing: 2px;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.parent-name {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 14px; letter-spacing: 2px;
+  color: var(--text-dark);
+}
+.parent-bank {
+  font-size: 10px; color: var(--text-light);
+  margin-top: 2px; letter-spacing: 0.5px;
+}
+.parent-copy {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 10px; color: var(--gold);
+  background: rgba(201,169,110,0.12);
+  padding: 2px 7px; border-radius: 10px;
+  letter-spacing: 0.5px;
+}
+
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -1720,6 +1783,46 @@ body {
         <div class="acc-btn-bank" id="acc-bride-bank">—</div>
       </button>
     </div>
+
+    <!-- 부모님 계좌 -->
+    <div class="parents-section">
+      <div class="parents-label">혼주 계좌</div>
+      <div class="parents-grid">
+        <!-- 신랑측 -->
+        <div class="parents-col">
+          <div class="parents-side groom">🤵 신랑측</div>
+          <div class="parent-card" onclick="copyParentAcc('농협','882-12-045-901','김주영')">
+            <div class="parent-relation">Father</div>
+            <div class="parent-name">김주영</div>
+            <div class="parent-bank">농협 882-12-045-901</div>
+            <span class="parent-copy">복사</span>
+          </div>
+          <div class="parent-card" onclick="copyParentAcc('우리','184-230012-02-001','강민선')">
+            <div class="parent-relation">Mother</div>
+            <div class="parent-name">강민선</div>
+            <div class="parent-bank">우리 184-230012-02-001</div>
+            <span class="parent-copy">복사</span>
+          </div>
+        </div>
+        <!-- 신부측 -->
+        <div class="parents-col">
+          <div class="parents-side bride">👰 신부측</div>
+          <div class="parent-card" onclick="copyParentAcc('농협','001-0001-00010','이홍기')">
+            <div class="parent-relation">Father</div>
+            <div class="parent-name">이홍기</div>
+            <div class="parent-bank">농협 001-0001-00010</div>
+            <span class="parent-copy">복사</span>
+          </div>
+          <div class="parent-card" onclick="copyParentAcc('농협','222-000-33333','이은희')">
+            <div class="parent-relation">Mother</div>
+            <div class="parent-name">이은희</div>
+            <div class="parent-bank">농협 222-000-33333</div>
+            <span class="parent-copy">복사</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </section>
 
   <div class="divider">
@@ -2310,6 +2413,18 @@ const TOSS_BANK_CODES = {
   '부산은행':'032', '대구은행':'031', '광주은행':'034', '경남은행':'039',
   '전북은행':'037', '제주은행':'035', 'KEB하나은행':'081'
 };
+
+/* 부모님 계좌 복사 */
+function copyParentAcc(bank, number, holder) {
+  const text = `${bank} ${number} ${holder}`;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('계좌번호가 복사되었습니다'))
+      .catch(() => fallbackCopy(text, '계좌번호가 복사되었습니다'));
+  } else {
+    fallbackCopy(text, '계좌번호가 복사되었습니다');
+  }
+}
 
 /* navigator.clipboard 미지원 환경 폴백 */
 function fallbackCopy(text, msg) {
