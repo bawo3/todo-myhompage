@@ -2142,9 +2142,6 @@ function renderDateTime() {
   const today = new Date(); today.setHours(0,0,0,0);
   const diff  = Math.ceil((wDate - today) / 86400000);
 
-  /* 연도 */
-  document.getElementById('date-year').textContent = d.year;
-
   /* 월 · 일 · 요일 */
   document.getElementById('date-month').textContent   = String(d.month).padStart(2,'0');
   document.getElementById('date-day').textContent     = String(d.day).padStart(2,'0');
