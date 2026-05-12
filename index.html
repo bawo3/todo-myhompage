@@ -157,17 +157,29 @@ body {
 .cover-bg {
   width: 100%;
   height: auto;
-  /* max-height 없음 — 영상 비율 그대로 */
   display: block;
   transform: scaleX(-1);
-  filter: drop-shadow(0 6px 24px rgba(139,111,71,0.18));
   pointer-events: none;
   margin: 0;
   position: relative; z-index: 1;
   vertical-align: top;
+  /* 위아래 그라데이션으로 자연스럽게 페이드 */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 72%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 72%,
+    transparent 100%
+  );
 }
 .cover-bg.loaded { transform: scaleX(-1); }
-/* 오버레이 제거 — 영상 아래 빈 페이드 영역을 만들지 않음 */
 .cover-overlay { display: none; }
 /* 커버 자식 콘텐츠 z-index */
 .cover > *:not(.cover-bg) { position: relative; z-index: 2; }
