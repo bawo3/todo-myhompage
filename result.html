@@ -268,6 +268,17 @@ body {
 .badge.yes   { background: var(--yes-bg);   color: var(--yes-color); }
 .badge.no    { background: var(--no-bg);    color: var(--no-color); }
 
+/* 개별 삭제 버튼 */
+.del-btn {
+  background: none; border: none;
+  font-size: 14px; cursor: pointer;
+  padding: 4px 8px; border-radius: 8px;
+  color: var(--text-light);
+  transition: background 0.2s, color 0.2s;
+  line-height: 1;
+}
+.del-btn:hover { background: var(--no-bg); color: var(--no-color); }
+
 /* 빈 상태 */
 .empty {
   text-align: center; padding: 60px 20px;
@@ -497,7 +508,7 @@ function renderRows(list) {
     if (!Number.isFinite(cnt) || cnt < 1) cnt = 1;
 
     return `
-      <div class="table-row">
+      <div class="table-row" id="row-${r.id}">
         <div class="row-line">
           <span class="row-label">구분</span>
           <span class="row-value"><span class="badge ${sideCls}">${sideIcon} ${sideLabel}</span></span>
@@ -517,6 +528,9 @@ function renderRows(list) {
         <div class="row-line">
           <span class="row-label">등록</span>
           <span class="row-value time">${fmtTime(r.createdAt)}</span>
+        </div>
+        <div class="row-line" style="justify-content:flex-end;margin-top:4px">
+          <button class="del-btn" onclick="deleteEntry(${r.id})">🗑 삭제</button>
         </div>
       </div>`;
   }).join('');
@@ -569,6 +583,21 @@ async function exportCSV() {
   a.click();
   URL.revokeObjectURL(url);
   showToast('CSV 파일이 저장되었습니다');
+}
+
+/* 개별 항목 삭제 */
+async function deleteEntry(id) {
+  if (!confirm('이 응답을 삭제하시겠어요?')) return;
+  try {
+    const res = await fetch(`/api/rsvp?id=${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('서버 오류');
+    /* 행 즉시 제거 후 통계 갱신 */
+    document.getElementById(`row-${id}`)?.remove();
+    await render();
+    showToast('삭제되었습니다');
+  } catch (e) {
+    showToast('삭제에 실패했습니다');
+  }
 }
 
 async function clearAll() {

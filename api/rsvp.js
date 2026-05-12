@@ -29,9 +29,16 @@ export default async function handler(req, res) {
     return res.json({ ok: true });
   }
 
-  /* 전체 초기화 */
+  /* 개별 삭제: DELETE /api/rsvp?id=123 / 전체 초기화: DELETE /api/rsvp */
   if (req.method === 'DELETE') {
-    await kv.set(RSVP_KEY, []);
+    const { id } = req.query;
+    if (id) {
+      const list = (await kv.get(RSVP_KEY)) || [];
+      const filtered = list.filter(r => String(r.id) !== String(id));
+      await kv.set(RSVP_KEY, filtered);
+    } else {
+      await kv.set(RSVP_KEY, []);
+    }
     return res.json({ ok: true });
   }
 
