@@ -141,6 +141,50 @@ body {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   꽃잎 떨어지는 효과 (전체 페이지 오버레이)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.petals-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 9000;
+}
+.petal {
+  position: absolute;
+  top: -40px;
+  width: 14px; height: 18px;
+  border-radius: 50% 0 50% 50%;
+  opacity: 0;
+  animation-name: petalFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  filter: blur(0.3px) drop-shadow(0 2px 4px rgba(139,111,71,0.15));
+}
+/* 골드 / 로즈 / 크림 톤 교차 */
+.petal.p-gold  { background: linear-gradient(135deg, #E8D5B0, #C9A96E); }
+.petal.p-rose  { background: linear-gradient(135deg, #FCEAEE, #B76E79); }
+.petal.p-cream { background: linear-gradient(135deg, #FFFFFF, #F0E8DA); }
+
+@keyframes petalFall {
+  0% {
+    transform: translateY(-5vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% { opacity: 0.7; }
+  50% { transform: translateY(50vh) translateX(40px) rotate(360deg); }
+  90% { opacity: 0.6; }
+  100% {
+    transform: translateY(110vh) translateX(-30px) rotate(720deg);
+    opacity: 0;
+  }
+}
+/* 모션 줄이기 설정 사용자 — 애니메이션 끔 */
+@media (prefers-reduced-motion: reduce) {
+  .petals-overlay { display: none; }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    SECTION 1 · 커버
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .cover {
@@ -1426,6 +1470,25 @@ body {
 </style>
 </head>
 <body>
+
+<!-- 꽃잎 떨어지는 오버레이 (장식용) -->
+<div class="petals-overlay" aria-hidden="true">
+  <span class="petal p-gold"  style="left:  4%; animation-duration: 14s; animation-delay:  0s; width:12px; height:15px;"></span>
+  <span class="petal p-rose"  style="left: 12%; animation-duration: 18s; animation-delay:  3s; width:10px; height:13px;"></span>
+  <span class="petal p-cream" style="left: 20%; animation-duration: 16s; animation-delay:  6s; width:14px; height:18px;"></span>
+  <span class="petal p-gold"  style="left: 28%; animation-duration: 20s; animation-delay:  1s; width: 9px; height:12px;"></span>
+  <span class="petal p-rose"  style="left: 36%; animation-duration: 15s; animation-delay:  8s; width:13px; height:17px;"></span>
+  <span class="petal p-gold"  style="left: 44%; animation-duration: 17s; animation-delay:  4s; width:11px; height:14px;"></span>
+  <span class="petal p-cream" style="left: 52%; animation-duration: 19s; animation-delay:  7s; width:12px; height:15px;"></span>
+  <span class="petal p-rose"  style="left: 60%; animation-duration: 13s; animation-delay:  2s; width:10px; height:13px;"></span>
+  <span class="petal p-gold"  style="left: 68%; animation-duration: 21s; animation-delay:  5s; width:14px; height:18px;"></span>
+  <span class="petal p-cream" style="left: 76%; animation-duration: 16s; animation-delay:  9s; width:11px; height:14px;"></span>
+  <span class="petal p-rose"  style="left: 84%; animation-duration: 18s; animation-delay:  0s; width: 9px; height:12px;"></span>
+  <span class="petal p-gold"  style="left: 92%; animation-duration: 15s; animation-delay:  6s; width:13px; height:17px;"></span>
+  <span class="petal p-cream" style="left:  8%; animation-duration: 22s; animation-delay: 10s; width:10px; height:13px;"></span>
+  <span class="petal p-gold"  style="left: 48%; animation-duration: 14s; animation-delay: 11s; width:12px; height:15px;"></span>
+  <span class="petal p-rose"  style="left: 72%; animation-duration: 19s; animation-delay: 12s; width:11px; height:14px;"></span>
+</div>
 
 <!-- 로딩 -->
 <div id="loading">
