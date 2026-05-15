@@ -84,12 +84,54 @@ body {
 .guide {
   font-size: 13px; color: var(--text-mid);
   line-height: 1.8; letter-spacing: 0.5px;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 .guide strong { color: var(--text-dark); font-weight: 500; }
 
+/* 캘린더 선택 버튼 */
+.cal-options {
+  display: grid; gap: 10px;
+  margin-bottom: 6px;
+}
+.cal-option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  border: 1px solid rgba(201,169,110,0.22);
+  border-radius: 14px;
+  background: rgba(250,247,242,0.7);
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  text-align: left;
+  width: 100%;
+  transition: all 0.2s;
+}
+.cal-option:hover { background: white; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(139,111,71,0.12); }
+.cal-option:active { transform: translateY(0); }
+
+.cal-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 15px; font-weight: 700;
+  flex-shrink: 0;
+  font-family: 'Cormorant Garamond', serif;
+}
+.cal-icon.google { background: linear-gradient(135deg, #4285F4, #1A73E8); }
+.cal-icon.naver  { background: linear-gradient(135deg, #03C75A, #02A14A); }
+.cal-icon.apple  { background: linear-gradient(135deg, #1A1410, #5C4A3A); }
+
+.cal-text { flex: 1; }
+.cal-name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-dark); letter-spacing: 0.3px;
+}
+.cal-sub {
+  font-size: 11px; color: var(--text-light);
+  margin-top: 2px;
+}
+
 .note {
-  margin-top: 12px;
+  margin-top: 18px;
   padding: 14px 16px;
   background: rgba(250,247,242,0.7);
   border-radius: 12px;
@@ -98,21 +140,6 @@ body {
   text-align: left;
 }
 .note strong { color: var(--gold-dark); font-weight: 500; }
-
-.retry-btn {
-  margin-top: 18px;
-  padding: 12px 26px;
-  border: none;
-  border-radius: 30px;
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: white;
-  font-family: 'Noto Serif KR', sans-serif;
-  font-size: 13px; font-weight: 400;
-  letter-spacing: 2px;
-  cursor: pointer;
-  box-shadow: 0 4px 18px rgba(139,111,71,0.25);
-}
-.retry-btn:hover { transform: translateY(-1px); }
 
 .home-link {
   display: block;
@@ -132,36 +159,95 @@ body {
 <div class="card">
   <div class="check">✓</div>
   <div class="eyebrow">Save the Date</div>
-  <div class="title">캘린더 추가</div>
+  <div class="title">캘린더 등록</div>
   <div class="date">2026.11.07 (토) 오후 12:30</div>
   <div class="line"></div>
 
   <div class="guide">
-    캘린더 앱에서 <strong>[추가]</strong> 버튼을<br>
-    눌러주시면 일정이 저장됩니다.
+    원하시는 <strong>캘린더</strong>를 선택해 주세요.<br>
+    버튼을 누르면 자동으로 일정이 입력됩니다.
   </div>
 
-  <button class="retry-btn" onclick="addToCalendar()">다시 시도</button>
+  <div class="cal-options">
+    <button class="cal-option" onclick="addGoogle()">
+      <div class="cal-icon google">G</div>
+      <div class="cal-text">
+        <div class="cal-name">Google 캘린더</div>
+        <div class="cal-sub">구글 계정 로그인 상태에서 바로 추가</div>
+      </div>
+    </button>
+
+    <button class="cal-option" onclick="addNaver()">
+      <div class="cal-icon naver">N</div>
+      <div class="cal-text">
+        <div class="cal-name">네이버 캘린더</div>
+        <div class="cal-sub">네이버 계정 로그인 상태에서 바로 추가</div>
+      </div>
+    </button>
+
+    <button class="cal-option" onclick="addAppleICS()">
+      <div class="cal-icon apple">★</div>
+      <div class="cal-text">
+        <div class="cal-name">Apple · 기타 캘린더</div>
+        <div class="cal-sub">.ics 파일 다운로드 (iPhone 기본 캘린더 등)</div>
+      </div>
+    </button>
+  </div>
 
   <div class="note">
     💡 <strong>카카오톡 일정과 동기화</strong><br>
     iPhone: 설정 → 캘린더 → 계정 → 카카오 연동<br>
-    Android: 카카오톡 → 더보기 → 톡캘린더 → 동기화 ON<br>
-    설정해두면 카카오톡 일정에도 자동으로 표시됩니다.
+    Android: 카카오톡 → 더보기 → 톡캘린더 → 동기화 ON
   </div>
 
   <a class="home-link" href="/">← 청첩장으로 돌아가기</a>
 </div>
 
 <script>
+/* 이벤트 정보 */
 const EVT = {
   title:    '재현 ♥ 혜주 결혼식',
   location: '문수컨벤션 1층 블루밍하우스홀 · 울산광역시 남구 문수로 44',
   details:  '청첩장: ' + location.origin + '/',
-  startUTC: '20261107T033000Z',  /* KST 2026-11-07 12:30 → UTC 03:30 */
-  endUTC:   '20261107T053000Z',  /* KST 2026-11-07 14:30 → UTC 05:30 */
+  /* 한국 표준시(KST) 기준 시작/종료 시각 */
+  startKST: { date: '2026-11-07', time: '12:30' },
+  endKST:   { date: '2026-11-07', time: '14:30' },
+  /* UTC 변환값 — KST(UTC+9) 기준 -9h */
+  startUTC: '20261107T033000Z',
+  endUTC:   '20261107T053000Z',
 };
 
+/* ── Google 캘린더 ── */
+function addGoogle() {
+  /* Google Calendar 일정 추가 템플릿 URL */
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text:    EVT.title,
+    dates:   `${EVT.startUTC}/${EVT.endUTC}`,
+    details: EVT.details,
+    location: EVT.location,
+    ctz:     'Asia/Seoul'
+  });
+  window.open(
+    `https://calendar.google.com/calendar/render?${params.toString()}`,
+    '_blank',
+    'noopener'
+  );
+}
+
+/* ── 네이버 캘린더 ── */
+function addNaver() {
+  /* 네이버 캘린더는 공식 자연어 일정 추가 엔드포인트(createByPhrase)를 사용한다.
+     phrase 한 줄에 "년/월/일/시간/제목/장소"가 들어가면
+     네이버 캘린더가 자동으로 파싱해 일정 입력 화면을 채워준다. */
+  const phrase =
+    `2026년 11월 7일 토요일 오후 12시 30분 ${EVT.title} @ ${EVT.location}`;
+  const url =
+    `https://m.calendar.naver.com/createByPhrase?phrase=${encodeURIComponent(phrase)}`;
+  window.open(url, '_blank', 'noopener');
+}
+
+/* ── Apple · 기타 캘린더 (.ics 다운로드) ── */
 function buildICS() {
   const esc = s => String(s).replace(/[\\,;]/g, m => '\\' + m).replace(/\n/g, '\\n');
   return [
@@ -188,7 +274,7 @@ function buildICS() {
   ].join('\r\n');
 }
 
-function addToCalendar() {
+function addAppleICS() {
   const blob = new Blob([buildICS()], { type: 'text/calendar;charset=utf-8' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
@@ -199,11 +285,6 @@ function addToCalendar() {
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
-
-/* 페이지 진입과 동시에 자동 다운로드 — 캘린더 앱이 추가 화면 표시 */
-window.addEventListener('load', () => {
-  setTimeout(addToCalendar, 400);
-});
 </script>
 </body>
 </html>
