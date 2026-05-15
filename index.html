@@ -1275,27 +1275,61 @@ body {
    SECTION · 갤러리
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .gallery {
-  background: var(--white);
+  background:
+    radial-gradient(ellipse at 20% 0%,  rgba(232,213,176,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(183,110,121,0.10) 0%, transparent 55%),
+    linear-gradient(180deg, #FBF8F3 0%, #F5EFE6 100%);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+/* 섹션 상단 장식 — 가는 골드 라인 */
+.gallery::before {
+  content: '';
+  display: block;
+  width: 36px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0 auto 20px;
+  opacity: 0.6;
 }
 .gallery-desc {
-  font-family: 'Noto Serif KR', serif;
-  font-size: 13px; font-weight: 300;
-  color: var(--text-light); line-height: 2;
-  margin-bottom: 32px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 14px; font-weight: 300;
+  color: var(--gold-dark); line-height: 2;
+  letter-spacing: 2px;
+  margin-bottom: 40px;
 }
 
-/* 슬라이더 */
+/* 슬라이더 — 매트한 액자 느낌 */
 .slider-wrap {
   position: relative;
   overflow: hidden;
-  border-radius: 28px;
-  background: var(--cream-dark);
-  box-shadow: 0 12px 48px rgba(139,111,71,0.15);
+  border-radius: 4px;
+  background: linear-gradient(135deg, #F5EFE6, #EDE4D2);
+  padding: 14px;
+  box-shadow:
+    0 30px 60px -20px rgba(139,111,71,0.28),
+    0 18px 36px -18px rgba(44,36,32,0.18),
+    0 1px 0 rgba(255,255,255,0.95) inset,
+    0 -1px 0 rgba(139,111,71,0.08) inset;
+}
+/* 액자 내부 가는 골드 보더 */
+.slider-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgba(201,169,110,0.35);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 5;
 }
 .slider-track {
   display: flex;
-  transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+  transition: transform 1s cubic-bezier(0.22, 0.61, 0.36, 1);
+  position: relative;
+  border-radius: 1px;
+  overflow: hidden;
 }
 .slide {
   flex: 0 0 100%;
@@ -1307,82 +1341,139 @@ body {
   aspect-ratio: 4/5;
   object-fit: cover;
   display: block;
+  /* 은은한 필름톤 처리 */
+  filter: saturate(0.9) contrast(0.96) brightness(1.02);
+  transform: scale(1.02);
+  transition: transform 7s ease-out, filter 0.6s;
+}
+/* 현재 슬라이드 — 켄번즈 느린 줌인 */
+.slide.is-active img {
+  transform: scale(1.12);
 }
 /* SVG도 동일 비율 */
 .slide img[src$=".svg"] {
   background: linear-gradient(135deg, var(--cream), var(--cream-dark));
 }
+/* 비네팅 — 사진 외곽을 살짝 어둡게 */
+.slide::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at center,
+      transparent 55%,
+      rgba(44,36,32,0.10) 85%,
+      rgba(44,36,32,0.22) 100%);
+  pointer-events: none;
+}
 .slide-caption {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  padding: 24px 20px 16px;
-  background: linear-gradient(to top, rgba(44,36,32,0.6), transparent);
+  padding: 60px 20px 22px;
+  background: linear-gradient(to top,
+    rgba(44,36,32,0.55) 0%,
+    rgba(44,36,32,0.20) 60%,
+    transparent 100%);
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 16px; letter-spacing: 2px;
-  color: rgba(255,255,255,0.9);
+  font-weight: 300;
+  font-size: 17px; letter-spacing: 3px;
+  color: rgba(255,255,255,0.94);
   text-align: center;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+}
+.slide-caption::before {
+  content: '';
+  display: block;
+  width: 22px; height: 1px;
+  background: rgba(255,255,255,0.55);
+  margin: 0 auto 10px;
 }
 
-/* 이전/다음 버튼 */
+/* 이전/다음 버튼 — 매우 절제된 글래스 */
 .slide-btn {
   position: absolute;
   top: 50%; transform: translateY(-50%);
-  width: 40px; height: 40px;
-  background: rgba(255,255,255,0.85);
-  border: none;
+  width: 38px; height: 38px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.6);
   border-radius: 50%; cursor: pointer;
-  box-shadow: 0 2px 16px rgba(139,111,71,0.15);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
   display: flex; align-items: center; justify-content: center;
-  font-size: 16px; color: var(--gold-dark);
-  transition: all 0.3s; z-index: 10;
-  backdrop-filter: blur(4px);
+  font-size: 18px; font-weight: 300;
+  color: var(--text-dark);
+  transition: all 0.35s ease;
+  z-index: 11;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0.85;
 }
 .slide-btn:hover {
-  background: var(--gold);
-  color: var(--white); border-color: var(--gold);
-  transform: translateY(-50%) scale(1.08);
+  background: rgba(255,255,255,0.85);
+  opacity: 1;
+  transform: translateY(-50%) scale(1.05);
 }
-.slide-btn.prev { left: 12px; }
-.slide-btn.next { right: 12px; }
+.slide-btn.prev { left: 22px; }
+.slide-btn.next { right: 22px; }
 
-/* 인디케이터 점 */
+/* 인디케이터 — 가는 라인 스타일 */
 .slider-dots {
-  display: flex; justify-content: center; gap: 8px;
-  margin-top: 16px;
+  display: flex; justify-content: center; gap: 6px;
+  margin-top: 22px;
 }
 .dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--gold-light);
+  width: 18px; height: 2px;
+  border-radius: 1px;
+  background: rgba(201,169,110,0.3);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.5s ease;
   border: none; padding: 0;
 }
 .dot.active {
-  background: var(--gold);
-  width: 20px; border-radius: 3px;
+  background: var(--gold-dark);
+  width: 36px;
 }
 
-/* 썸네일 스트립 */
+/* 사진 카운터 (n / total) */
+.slide-counter {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 12px; letter-spacing: 4px;
+  color: var(--gold-dark);
+  text-align: center;
+  margin-top: 14px;
+  opacity: 0.7;
+}
+
+/* 썸네일 스트립 — 더 작고 둥글게 */
 .thumb-strip {
-  display: flex; gap: 8px;
-  margin-top: 12px; justify-content: center;
+  display: flex; gap: 6px;
+  margin-top: 18px; justify-content: center;
+  flex-wrap: wrap; max-width: 100%;
+  padding: 0 12px;
 }
 .thumb {
-  width: 60px; height: 75px;
-  border-radius: 12px; overflow: hidden;
+  width: 44px; height: 56px;
+  border-radius: 2px; overflow: hidden;
   cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.3s; flex-shrink: 0;
+  border: 1px solid rgba(201,169,110,0.25);
+  transition: all 0.4s ease;
+  flex-shrink: 0;
+  opacity: 0.5;
+  filter: saturate(0.85);
 }
 .thumb img {
   width: 100%; height: 100%;
   object-fit: cover;
   display: block;
 }
-.thumb.active { border-color: var(--gold); }
-.thumb:hover { border-color: var(--gold-light); }
+.thumb.active {
+  opacity: 1;
+  filter: saturate(1);
+  border-color: var(--gold);
+  box-shadow: 0 4px 14px rgba(139,111,71,0.22);
+  transform: translateY(-2px);
+}
+.thumb:hover { opacity: 0.85; }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    FOOTER
@@ -1940,16 +2031,17 @@ body {
 
   <!-- ── 갤러리 ── -->
   <section class="section gallery" id="gallery-section" style="display:none">
-    <div class="section-label">Gallery</div>
+    <div class="section-label">Our Memories</div>
     <div class="section-title">우리의 이야기</div>
-    <p class="gallery-desc">소중한 순간들을 담았습니다</p>
+    <p class="gallery-desc">함께 머문 모든 순간들</p>
 
     <div class="slider-wrap">
       <div class="slider-track" id="sliderTrack"></div>
-      <button class="slide-btn prev" onclick="slidePrev()">&#8249;</button>
-      <button class="slide-btn next" onclick="slideNext()">&#8250;</button>
+      <button class="slide-btn prev" onclick="slidePrev()" aria-label="이전">&#8249;</button>
+      <button class="slide-btn next" onclick="slideNext()" aria-label="다음">&#8250;</button>
     </div>
 
+    <div class="slide-counter" id="slideCounter"></div>
     <div class="slider-dots" id="sliderDots"></div>
     <div class="thumb-strip" id="thumbStrip"></div>
   </section>
@@ -2676,6 +2768,10 @@ function goSlide(idx) {
   document.getElementById('sliderTrack').style.transform =
     `translateX(-${slideIndex * 100}%)`;
 
+  /* 활성 슬라이드 — 켄번즈 줌인 효과 */
+  document.querySelectorAll('.slide').forEach((s, i) =>
+    s.classList.toggle('is-active', i === slideIndex));
+
   /* 점 업데이트 */
   document.querySelectorAll('.dot').forEach((d, i) =>
     d.classList.toggle('active', i === slideIndex));
@@ -2683,6 +2779,14 @@ function goSlide(idx) {
   /* 썸네일 업데이트 */
   document.querySelectorAll('.thumb').forEach((t, i) =>
     t.classList.toggle('active', i === slideIndex));
+
+  /* 카운터 (01 / 12 형식) */
+  const counter = document.getElementById('slideCounter');
+  if (counter) {
+    const cur = String(slideIndex + 1).padStart(2, '0');
+    const tot = String(slideTotal).padStart(2, '0');
+    counter.textContent = `${cur}  /  ${tot}`;
+  }
 }
 
 function slideNext() { goSlide(slideIndex + 1); resetAutoSlide(); }
@@ -2690,7 +2794,8 @@ function slidePrev() { goSlide(slideIndex - 1); resetAutoSlide(); }
 
 function startAutoSlide() {
   if (slideTotal <= 1) return;
-  slideTimer = setInterval(() => goSlide(slideIndex + 1), 4000);
+  /* 사진을 충분히 감상할 수 있게 6초 간격 */
+  slideTimer = setInterval(() => goSlide(slideIndex + 1), 6000);
 }
 function resetAutoSlide() {
   clearInterval(slideTimer);
