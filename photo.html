@@ -248,6 +248,17 @@ body {
   .acc-row .acc-input:first-of-type { grid-column: 1 / -1; }
 }
 
+/* 부모님 연락처 입력 — 성함/전화 2열 */
+.parent-phone-row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+@media (max-width: 520px) {
+  .parent-phone-row { grid-template-columns: 1fr; gap: 6px; }
+}
+
 .acc-actions {
   display: flex; gap: 8px;
   margin-top: 18px;
@@ -488,6 +499,49 @@ body {
     </div>
   </div>
 
+  <!-- 부모님 연락처 관리 -->
+  <div class="acc-card">
+    <div class="acc-card-header">
+      <div class="acc-card-title">📞 혼주 연락처 관리</div>
+    </div>
+
+    <!-- 신랑측 부모님 연락처 -->
+    <div class="acc-group">
+      <div class="acc-group-label groom">🤵 신랑 아버지</div>
+      <div class="parent-phone-row">
+        <input class="acc-input" id="ph-gf-name"  placeholder="성함"   value="김주영">
+        <input class="acc-input" id="ph-gf-phone" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
+      </div>
+    </div>
+    <div class="acc-group">
+      <div class="acc-group-label groom">🤵 신랑 어머니</div>
+      <div class="parent-phone-row">
+        <input class="acc-input" id="ph-gm-name"  placeholder="성함"   value="강민선">
+        <input class="acc-input" id="ph-gm-phone" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
+      </div>
+    </div>
+
+    <!-- 신부측 부모님 연락처 -->
+    <div class="acc-group">
+      <div class="acc-group-label bride">👰 신부 아버지</div>
+      <div class="parent-phone-row">
+        <input class="acc-input" id="ph-bf-name"  placeholder="성함"   value="이홍기">
+        <input class="acc-input" id="ph-bf-phone" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
+      </div>
+    </div>
+    <div class="acc-group">
+      <div class="acc-group-label bride">👰 신부 어머니</div>
+      <div class="parent-phone-row">
+        <input class="acc-input" id="ph-bm-name"  placeholder="성함"   value="이은희">
+        <input class="acc-input" id="ph-bm-phone" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
+      </div>
+    </div>
+
+    <div class="acc-actions">
+      <button class="btn-primary" id="parentsSaveBtn" onclick="saveParents()">저장</button>
+    </div>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -507,6 +561,7 @@ function checkAuth() {
     document.getElementById('authGate').style.display = 'none';
     loadPhotos();
     loadAccounts();
+    loadParents();
   } else {
     err.textContent = '비밀번호가 일치하지 않습니다';
     input.value = '';
@@ -738,10 +793,65 @@ async function saveAccounts() {
   }
 }
 
+/* ── 부모님 연락처 관리 ──
+   /api/parents 엔드포인트(Vercel KV)와 동기화
+   필드: groomFather/groomMother/brideFather/brideMother 각각 { name, phone } */
+const PARENT_FIELDS = [
+  ['groomFather', 'ph-gf-name', 'ph-gf-phone'],
+  ['groomMother', 'ph-gm-name', 'ph-gm-phone'],
+  ['brideFather', 'ph-bf-name', 'ph-bf-phone'],
+  ['brideMother', 'ph-bm-name', 'ph-bm-phone'],
+];
+
+async function loadParents() {
+  try {
+    const res = await fetch('/api/parents');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data) return;
+    PARENT_FIELDS.forEach(([key, nameId, phoneId]) => {
+      const p = data[key];
+      if (!p) return;
+      if (p.name)  document.getElementById(nameId).value  = p.name;
+      if (p.phone) document.getElementById(phoneId).value = p.phone;
+    });
+  } catch (e) {
+    console.error('부모님 연락처 로드 실패:', e);
+  }
+}
+
+async function saveParents() {
+  const btn = document.getElementById('parentsSaveBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+  const data = {};
+  PARENT_FIELDS.forEach(([key, nameId, phoneId]) => {
+    data[key] = {
+      name:  document.getElementById(nameId).value.trim(),
+      phone: document.getElementById(phoneId).value.trim(),
+    };
+  });
+  try {
+    const res = await fetch('/api/parents', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('서버 오류');
+    showToast('부모님 연락처가 저장되었습니다');
+  } catch (e) {
+    showToast('저장에 실패했습니다');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '저장';
+  }
+}
+
 /* ── 시작 ── (인증된 세션일 때만 자동 로드) */
 if (sessionStorage.getItem(AUTH_KEY) === '1') {
   loadPhotos();
   loadAccounts();
+  loadParents();
 }
 </script>
 </body>
