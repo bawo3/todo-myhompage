@@ -514,6 +514,24 @@ body {
   text-align: center;
   word-break: keep-all;
 }
+/* 부모님 성함 아래 작은 📞 아이콘 — tel: 링크 */
+.family-parent-phone {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  margin: 6px auto 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: white; font-size: 13px;
+  text-decoration: none;
+  box-shadow: 0 2px 10px rgba(139,111,71,0.25);
+  transition: all 0.25s;
+  justify-self: center;
+}
+.family-parent-phone:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(139,111,71,0.38);
+}
+.family-parent-phone[hidden] { display: none; }
 /* 부모님 ↔ 자녀 사이 짧은 골드 구분선 */
 .family-name-divider {
   width: 32px; height: 1px;
@@ -1720,6 +1738,7 @@ body {
   .family-parents { gap: 5px 8px; }
   .family-parent-label { font-size: 10px; letter-spacing: 2px; }
   .family-parent-name  { font-size: 13.5px; letter-spacing: 1px; }
+  .family-parent-phone { width: 28px; height: 28px; font-size: 12px; margin: 4px auto 0; }
   .family-name-divider { margin: 10px auto 8px; }
   .family-name    { font-size: 18.5px; letter-spacing: 3px; }
   .family-contact { font-size: 10px; padding: 6px 12px; }
@@ -1889,24 +1908,28 @@ body {
     <div class="family-grid">
       <!-- 신랑측 -->
       <div class="family-card">
-        <div class="family-role">Groom</div>
+        <div class="family-role">신랑</div>
         <div class="family-parents">
           <div class="family-parent-label">아버지</div>
           <div class="family-parent-label">어머니</div>
           <div class="family-parent-name" id="groom-father">—</div>
           <div class="family-parent-name" id="groom-mother">—</div>
+          <a class="family-parent-phone" id="phone-groom-father" href="#" aria-label="신랑 아버지께 전화">📞</a>
+          <a class="family-parent-phone" id="phone-groom-mother" href="#" aria-label="신랑 어머니께 전화">📞</a>
         </div>
         <div class="family-name-divider"></div>
         <div class="family-name" id="groom-name">—</div>
       </div>
       <!-- 신부측 -->
       <div class="family-card">
-        <div class="family-role">Bride</div>
+        <div class="family-role">신부</div>
         <div class="family-parents">
           <div class="family-parent-label">아버지</div>
           <div class="family-parent-label">어머니</div>
           <div class="family-parent-name" id="bride-father">—</div>
           <div class="family-parent-name" id="bride-mother">—</div>
+          <a class="family-parent-phone" id="phone-bride-father" href="#" aria-label="신부 아버지께 전화">📞</a>
+          <a class="family-parent-phone" id="phone-bride-mother" href="#" aria-label="신부 어머니께 전화">📞</a>
         </div>
         <div class="family-name-divider"></div>
         <div class="family-name" id="bride-name">—</div>
@@ -2418,6 +2441,7 @@ async function init() {
     renderCover();
     renderGreeting();
     renderFamily();
+    renderParentPhones();    /* 부모님 4명 📞 아이콘 (혼주 grid 내부) */
     renderDateTime();
     renderVenue();
     renderGallery();
@@ -2480,6 +2504,46 @@ function renderFamily() {
   document.getElementById('bride-father').textContent = b.fatherName;
   document.getElementById('bride-mother').textContent = b.motherName;
   document.getElementById('bride-name').textContent   = b.name;
+}
+
+/* ── 부모님 전화 아이콘 — 혼주 grid 내부의 4명 부모 ──
+   1) setting.json fallback 으로 placeholder 부터 채우고
+   2) /api/parents (Vercel KV) 의 값이 있으면 그것으로 덮어쓴다.
+   placeholder("010-0000-...") 인 경우엔 아이콘을 숨긴다. */
+async function renderParentPhones() {
+  const g = CFG.groom, b = CFG.bride;
+  const phones = {
+    'groom-father': g.fatherPhone || '',
+    'groom-mother': g.motherPhone || '',
+    'bride-father': b.fatherPhone || '',
+    'bride-mother': b.motherPhone || '',
+  };
+  try {
+    const res = await fetch('/api/parents');
+    if (res.ok) {
+      const data = await res.json();
+      if (data) {
+        if (data.groomFather?.phone) phones['groom-father'] = data.groomFather.phone;
+        if (data.groomMother?.phone) phones['groom-mother'] = data.groomMother.phone;
+        if (data.brideFather?.phone) phones['bride-father'] = data.brideFather.phone;
+        if (data.brideMother?.phone) phones['bride-mother'] = data.brideMother.phone;
+      }
+    }
+  } catch (e) { console.warn('부모님 연락처 로드 실패:', e); }
+
+  ['groom-father','groom-mother','bride-father','bride-mother'].forEach(k => {
+    const el = document.getElementById('phone-' + k);
+    if (!el) return;
+    const p = (phones[k] || '').trim();
+    /* 빈 값이거나 placeholder(010-0000-...) 이면 아이콘 숨김 */
+    if (!p || /^0?10[-\s]?0{4}/.test(p)) {
+      el.hidden = true;
+    } else {
+      el.href  = 'tel:' + p.replace(/[^0-9+]/g, '');
+      el.title = p;
+      el.hidden = false;
+    }
+  });
 }
 
 /* ── 날짜 & 달력 ── */

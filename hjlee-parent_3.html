@@ -514,6 +514,24 @@ body {
   text-align: center;
   word-break: keep-all;
 }
+/* 부모님 성함 아래 작은 📞 아이콘 — tel: 링크 */
+.family-parent-phone {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  margin: 6px auto 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: white; font-size: 13px;
+  text-decoration: none;
+  box-shadow: 0 2px 10px rgba(139,111,71,0.25);
+  transition: all 0.25s;
+  justify-self: center;
+}
+.family-parent-phone:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(139,111,71,0.38);
+}
+.family-parent-phone[hidden] { display: none; }
 /* 부모님 ↔ 자녀 사이 짧은 골드 구분선 */
 .family-name-divider {
   width: 32px; height: 1px;
@@ -1780,6 +1798,7 @@ body {
   .family-parents { gap: 5px 8px; }
   .family-parent-label { font-size: 10px; letter-spacing: 2px; }
   .family-parent-name  { font-size: 13.5px; letter-spacing: 1px; }
+  .family-parent-phone { width: 28px; height: 28px; font-size: 12px; margin: 4px auto 0; }
   .family-name-divider { margin: 10px auto 8px; }
   .family-name    { font-size: 18.5px; letter-spacing: 3px; }
   .family-contact { font-size: 10px; padding: 6px 12px; }
@@ -1949,41 +1968,31 @@ body {
     <div class="family-grid">
       <!-- 신랑측 -->
       <div class="family-card">
-        <div class="family-role">Groom</div>
+        <div class="family-role">신랑</div>
         <div class="family-parents">
           <div class="family-parent-label">아버지</div>
           <div class="family-parent-label">어머니</div>
           <div class="family-parent-name" id="groom-father">—</div>
           <div class="family-parent-name" id="groom-mother">—</div>
+          <a class="family-parent-phone" id="phone-groom-father" href="#" aria-label="신랑 아버지께 전화">📞</a>
+          <a class="family-parent-phone" id="phone-groom-mother" href="#" aria-label="신랑 어머니께 전화">📞</a>
         </div>
         <div class="family-name-divider"></div>
         <div class="family-name" id="groom-name">—</div>
       </div>
       <!-- 신부측 -->
       <div class="family-card">
-        <div class="family-role">Bride</div>
+        <div class="family-role">신부</div>
         <div class="family-parents">
           <div class="family-parent-label">아버지</div>
           <div class="family-parent-label">어머니</div>
           <div class="family-parent-name" id="bride-father">—</div>
           <div class="family-parent-name" id="bride-mother">—</div>
+          <a class="family-parent-phone" id="phone-bride-father" href="#" aria-label="신부 아버지께 전화">📞</a>
+          <a class="family-parent-phone" id="phone-bride-mother" href="#" aria-label="신부 어머니께 전화">📞</a>
         </div>
         <div class="family-name-divider"></div>
         <div class="family-name" id="bride-name">—</div>
-      </div>
-    </div>
-
-    <!-- 부모님 연락처 (신부측 부모님용 청첩장 전용) -->
-    <div class="parent-contact-row">
-      <div class="parent-contact-item">
-        <div class="parent-contact-role">신부 아버지</div>
-        <div class="parent-contact-name" id="pc-father-name">—</div>
-        <a class="parent-contact-phone" id="pc-father-phone" href="#" aria-label="전화 걸기">📞</a>
-      </div>
-      <div class="parent-contact-item">
-        <div class="parent-contact-role">신부 어머니</div>
-        <div class="parent-contact-name" id="pc-mother-name">—</div>
-        <a class="parent-contact-phone" id="pc-mother-phone" href="#" aria-label="전화 걸기">📞</a>
       </div>
     </div>
   </section>
@@ -2492,7 +2501,7 @@ async function init() {
     renderCover();
     renderGreeting();
     renderFamily();
-    renderParentContact();   /* 부모님 연락처 섹션 (부모님용 청첩장) */
+    renderParentPhones();    /* 부모님 4명 📞 아이콘 (혼주 grid 내부) */
     renderDateTime();
     renderVenue();
     renderGallery();
@@ -2557,60 +2566,43 @@ function renderFamily() {
   document.getElementById('bride-name').textContent   = b.name;
 }
 
-/* ── 부모님 연락처 (부모님용 청첩장 전용 섹션) ──
-   이 파일(hjlee-parent_3.html)은 "신부측 부모님용" 청첩장.
-   따라서 신부측 아버지/어머니 연락처를 노출한다.
-   1) setting.json 의 placeholder 부터 그리고
-   2) /api/parents (Vercel KV) 의 값이 있으면 그것으로 덮어쓴다. */
-const PARENT_CONTACT_SIDE = 'bride';   /* 'groom' | 'bride' — 페이지별 차이 */
-
-async function renderParentContact() {
-  const side = PARENT_CONTACT_SIDE;
-  const src  = side === 'groom' ? CFG.groom : CFG.bride;
-
-  /* 1차: setting.json fallback */
-  let fatherName  = src.fatherName  || '—';
-  let motherName  = src.motherName  || '—';
-  let fatherPhone = src.fatherPhone || '';
-  let motherPhone = src.motherPhone || '';
-
-  /* 2차: /api/parents 우선 적용 */
+/* ── 부모님 전화 아이콘 — 혼주 grid 내부의 4명 부모 ──
+   1) setting.json fallback 으로 placeholder 부터 채우고
+   2) /api/parents (Vercel KV) 의 값이 있으면 그것으로 덮어쓴다.
+   placeholder("010-0000-...") 인 경우엔 아이콘을 숨긴다. */
+async function renderParentPhones() {
+  const g = CFG.groom, b = CFG.bride;
+  const phones = {
+    'groom-father': g.fatherPhone || '',
+    'groom-mother': g.motherPhone || '',
+    'bride-father': b.fatherPhone || '',
+    'bride-mother': b.motherPhone || '',
+  };
   try {
     const res = await fetch('/api/parents');
     if (res.ok) {
       const data = await res.json();
       if (data) {
-        const fk = side === 'groom' ? 'groomFather' : 'brideFather';
-        const mk = side === 'groom' ? 'groomMother' : 'brideMother';
-        if (data[fk]?.name)  fatherName  = data[fk].name;
-        if (data[fk]?.phone) fatherPhone = data[fk].phone;
-        if (data[mk]?.name)  motherName  = data[mk].name;
-        if (data[mk]?.phone) motherPhone = data[mk].phone;
+        if (data.groomFather?.phone) phones['groom-father'] = data.groomFather.phone;
+        if (data.groomMother?.phone) phones['groom-mother'] = data.groomMother.phone;
+        if (data.brideFather?.phone) phones['bride-father'] = data.brideFather.phone;
+        if (data.brideMother?.phone) phones['bride-mother'] = data.brideMother.phone;
       }
     }
-  } catch (e) {
-    console.warn('부모님 연락처 API 로드 실패:', e);
-  }
+  } catch (e) { console.warn('부모님 연락처 로드 실패:', e); }
 
-  /* DOM 반영 */
-  document.getElementById('pc-father-name').textContent = fatherName;
-  document.getElementById('pc-mother-name').textContent = motherName;
-
-  const fEl = document.getElementById('pc-father-phone');
-  const mEl = document.getElementById('pc-mother-phone');
-  /* 아이콘만 표시 — title 속성으로 번호 노출, tel: 링크로 통화 가능 */
-  if (fatherPhone) {
-    fEl.href = 'tel:' + fatherPhone.replace(/[^0-9+]/g, '');
-    fEl.title = fatherPhone;
-  } else {
-    fEl.style.display = 'none';
-  }
-  if (motherPhone) {
-    mEl.href = 'tel:' + motherPhone.replace(/[^0-9+]/g, '');
-    mEl.title = motherPhone;
-  } else {
-    mEl.style.display = 'none';
-  }
+  ['groom-father','groom-mother','bride-father','bride-mother'].forEach(k => {
+    const el = document.getElementById('phone-' + k);
+    if (!el) return;
+    const p = (phones[k] || '').trim();
+    if (!p || /^0?10[-\s]?0{4}/.test(p)) {
+      el.hidden = true;
+    } else {
+      el.href  = 'tel:' + p.replace(/[^0-9+]/g, '');
+      el.title = p;
+      el.hidden = false;
+    }
+  });
 }
 
 /* ── 날짜 & 달력 ── */
