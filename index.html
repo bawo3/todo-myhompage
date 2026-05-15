@@ -2908,8 +2908,8 @@ function shareKakao() {
   const siteUrl = base;
   const mapUrl  = `${location.origin}/nav.html`;
   const calUrl  = `${location.origin}/cal.html`;
-  /* 이미지 URL — siteUrl 에 쿼리 안 붙도록 분리 */
-  const imageUrl = `${base}images/og-cover.png?v=4`;
+  /* 이미지 URL — 캐시 강제 무효화 */
+  const imageUrl = `${base}images/og-cover.png?v=5`;
 
   try {
     Kakao.Share.sendDefault({
@@ -2918,8 +2918,7 @@ function shareKakao() {
         title: `${CFG.groom.name} ♥ ${CFG.bride.name} 청첩장`,
         description: `${dateStr}\n${v.name} ${v.hall}`,
         imageUrl: imageUrl,
-        imageWidth:  1200,
-        imageHeight:  630,
+        /* imageWidth/Height 미지정 — Kakao 가 자동으로 와이드(1.91:1)로 렌더링 */
         link: { mobileWebUrl: siteUrl, webUrl: siteUrl }
       },
       /* Kakao Share feed 템플릿은 최대 2개 버튼.
