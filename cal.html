@@ -27,6 +27,7 @@ body {
   padding: 40px 24px;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
+  -webkit-font-smoothing: antialiased;
 }
 
 .card {
@@ -34,31 +35,45 @@ body {
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(12px);
   border-radius: 28px;
-  padding: 36px 28px;
+  padding: 44px 28px;
   box-shadow: 0 20px 60px rgba(139,111,71,0.16), 0 1px 0 rgba(255,255,255,0.9) inset;
   text-align: center;
 }
+
+/* 체크 마크 애니메이션 */
+.check {
+  width: 70px; height: 70px;
+  margin: 0 auto 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: 34px;
+  box-shadow: 0 8px 24px rgba(201,169,110,0.35);
+  animation: pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes pop {
+  0%   { transform: scale(0);   opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
 .eyebrow {
   font-family: 'Cormorant Garamond', serif;
   font-size: 11px; letter-spacing: 5px;
   color: var(--gold); text-transform: uppercase;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 .title {
   font-family: 'Noto Serif KR', serif;
   font-size: 20px; font-weight: 400;
   color: var(--text-dark); letter-spacing: 3px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .date {
   font-family: 'Cormorant Garamond', serif; font-style: italic;
   font-size: 14px; color: var(--gold-dark);
   letter-spacing: 1px;
-  margin-bottom: 4px;
-}
-.venue {
-  font-size: 12px; color: var(--text-light);
-  letter-spacing: 0.5px;
   margin-bottom: 24px;
 }
 .line {
@@ -66,148 +81,90 @@ body {
   background: var(--gold-light);
   margin: 0 auto 24px;
 }
-
-.btn-grid {
-  display: grid; gap: 10px;
-}
-.cal-btn {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 18px;
-  border: 1px solid rgba(201,169,110,0.2);
-  border-radius: 14px;
-  background: rgba(250,247,242,0.6);
-  cursor: pointer;
-  font-family: 'Noto Sans KR', sans-serif;
+.guide {
   font-size: 13px; color: var(--text-mid);
-  letter-spacing: 0.5px;
-  text-align: left;
-  text-decoration: none;
-  transition: all 0.2s;
+  line-height: 1.8; letter-spacing: 0.5px;
+  margin-bottom: 20px;
 }
-.cal-btn:hover, .cal-btn:active {
-  background: white; transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(139,111,71,0.12);
-}
-.cal-btn-icon {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-size: 14px; font-weight: 600;
-  flex-shrink: 0;
-  font-family: 'Cormorant Garamond', serif;
-}
-.cal-btn-icon.apple  { background: linear-gradient(135deg, #1A1410, #5C4A3A); }
-.cal-btn-icon.google { background: linear-gradient(135deg, #4285F4, #1A73E8); }
-.cal-btn-icon.naver  { background: linear-gradient(135deg, #03C75A, #02A14A); }
-.cal-btn-name { flex: 1; }
-.cal-btn-sub  { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.guide strong { color: var(--text-dark); font-weight: 500; }
 
 .note {
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(201,169,110,0.18);
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: rgba(250,247,242,0.7);
+  border-radius: 12px;
   font-size: 11px; color: var(--text-light);
   line-height: 1.7; letter-spacing: 0.3px;
+  text-align: left;
 }
 .note strong { color: var(--gold-dark); font-weight: 500; }
 
+.retry-btn {
+  margin-top: 18px;
+  padding: 12px 26px;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: white;
+  font-family: 'Noto Serif KR', sans-serif;
+  font-size: 13px; font-weight: 400;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(139,111,71,0.25);
+}
+.retry-btn:hover { transform: translateY(-1px); }
+
 .home-link {
   display: block;
-  margin-top: 24px;
+  margin-top: 22px;
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 12px; letter-spacing: 2px;
   color: var(--gold-dark);
   text-decoration: none;
-  text-align: center;
-  opacity: 0.7;
+  opacity: 0.75;
 }
 .home-link:hover { opacity: 1; }
-
-.toast {
-  position: fixed; bottom: 32px; left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: var(--text-dark); color: var(--cream);
-  padding: 12px 24px; border-radius: 30px;
-  font-size: 12px; letter-spacing: 1px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-  z-index: 9999; pointer-events: none;
-  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
 <div class="card">
+  <div class="check">✓</div>
   <div class="eyebrow">Save the Date</div>
-  <div class="title">재현 ♥ 혜주 결혼식</div>
-  <div class="date">2026. 11. 07 (토) 오후 12:30</div>
-  <div class="venue">문수컨벤션 1층 블루밍하우스홀</div>
+  <div class="title">캘린더 추가</div>
+  <div class="date">2026.11.07 (토) 오후 12:30</div>
   <div class="line"></div>
 
-  <div class="btn-grid">
-    <a class="cal-btn" href="#" onclick="downloadICS(event)">
-      <div class="cal-btn-icon apple">📅</div>
-      <div>
-        <div class="cal-btn-name">iPhone · 시스템 캘린더</div>
-        <div class="cal-btn-sub">카카오톡 일정과 자동 동기화</div>
-      </div>
-    </a>
-    <a class="cal-btn" id="cal-google" href="#" target="_blank" rel="noopener">
-      <div class="cal-btn-icon google">G</div>
-      <div>
-        <div class="cal-btn-name">Google 캘린더</div>
-        <div class="cal-btn-sub">Gmail 계정에 추가</div>
-      </div>
-    </a>
-    <a class="cal-btn" id="cal-naver" href="#" target="_blank" rel="noopener">
-      <div class="cal-btn-icon naver">N</div>
-      <div>
-        <div class="cal-btn-name">네이버 캘린더</div>
-        <div class="cal-btn-sub">네이버 계정에 추가</div>
-      </div>
-    </a>
+  <div class="guide">
+    캘린더 앱에서 <strong>[추가]</strong> 버튼을<br>
+    눌러주시면 일정이 저장됩니다.
   </div>
 
+  <button class="retry-btn" onclick="addToCalendar()">다시 시도</button>
+
   <div class="note">
-    💡 <strong>카카오톡 일정에 등록하려면?</strong><br>
-    iPhone은 [설정 → 캘린더 → 계정]에서 카카오 계정 연동을,
-    Android는 카카오톡 [더보기 → 톡캘린더]에서 시스템 캘린더 동기화를 켜두시면
-    위 버튼으로 추가한 일정이 자동으로 카카오톡에 표시됩니다.
+    💡 <strong>카카오톡 일정과 동기화</strong><br>
+    iPhone: 설정 → 캘린더 → 계정 → 카카오 연동<br>
+    Android: 카카오톡 → 더보기 → 톡캘린더 → 동기화 ON<br>
+    설정해두면 카카오톡 일정에도 자동으로 표시됩니다.
   </div>
 
   <a class="home-link" href="/">← 청첩장으로 돌아가기</a>
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-/* 결혼식 일정 정보 */
 const EVT = {
   title:    '재현 ♥ 혜주 결혼식',
   location: '문수컨벤션 1층 블루밍하우스홀 · 울산광역시 남구 문수로 44',
   details:  '청첩장: ' + location.origin + '/',
-  /* KST 2026-11-07 12:30 ~ 14:30 → UTC 03:30 ~ 05:30 */
-  startUTC: '20261107T033000Z',
-  endUTC:   '20261107T053000Z',
-  /* 네이버 캘린더용 KST 표기 */
-  startKST: '20261107T123000',
-  endKST:   '20261107T143000',
+  startUTC: '20261107T033000Z',  /* KST 2026-11-07 12:30 → UTC 03:30 */
+  endUTC:   '20261107T053000Z',  /* KST 2026-11-07 14:30 → UTC 05:30 */
 };
 
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2500);
-}
-
-/* ICS 파일 생성 + 다운로드 */
-function downloadICS(e) {
-  if (e) e.preventDefault();
+function buildICS() {
   const esc = s => String(s).replace(/[\\,;]/g, m => '\\' + m).replace(/\n/g, '\\n');
-  const ics = [
+  return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//Wedding Invite//KR',
@@ -229,8 +186,10 @@ function downloadICS(e) {
     'END:VEVENT',
     'END:VCALENDAR'
   ].join('\r\n');
+}
 
-  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+function addToCalendar() {
+  const blob = new Blob([buildICS()], { type: 'text/calendar;charset=utf-8' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
@@ -239,30 +198,12 @@ function downloadICS(e) {
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1500);
-  showToast('캘린더 파일을 다운로드합니다');
 }
 
-/* Google 캘린더 URL */
-document.getElementById('cal-google').href =
-  'https://calendar.google.com/calendar/render?' + new URLSearchParams({
-    action:   'TEMPLATE',
-    text:     EVT.title,
-    dates:    `${EVT.startUTC}/${EVT.endUTC}`,
-    details:  EVT.details,
-    location: EVT.location,
-    ctz:      'Asia/Seoul'
-  });
-
-/* Naver 캘린더 URL */
-document.getElementById('cal-naver').href =
-  'https://calendar.naver.com/schedule/createByPhone.nhn?' + new URLSearchParams({
-    title:    EVT.title,
-    body:     EVT.details,
-    location: EVT.location,
-    start:    EVT.startKST,
-    end:      EVT.endKST,
-    allDay:   'false'
-  });
+/* 페이지 진입과 동시에 자동 다운로드 — 캘린더 앱이 추가 화면 표시 */
+window.addEventListener('load', () => {
+  setTimeout(addToCalendar, 400);
+});
 </script>
 </body>
 </html>
