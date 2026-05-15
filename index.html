@@ -1609,7 +1609,6 @@ body {
           <div class="family-parent-name" id="groom-mother">—</div>
         </div>
         <div class="family-name" id="groom-name">—</div>
-        <a class="family-contact" id="groom-contact" href="#">📞 연락하기</a>
       </div>
       <!-- 신부측 -->
       <div class="family-card">
@@ -1621,7 +1620,6 @@ body {
           <div class="family-parent-name" id="bride-mother">—</div>
         </div>
         <div class="family-name" id="bride-name">—</div>
-        <a class="family-contact" id="bride-contact" href="#">📞 연락하기</a>
       </div>
     </div>
   </section>
@@ -2189,13 +2187,11 @@ function renderFamily() {
   document.getElementById('groom-father').textContent = g.fatherName;
   document.getElementById('groom-mother').textContent = g.motherName;
   document.getElementById('groom-name').textContent   = g.name;
-  document.getElementById('groom-contact').href       = `tel:${g.contact}`;
 
   /* 신부 부모님 */
   document.getElementById('bride-father').textContent = b.fatherName;
   document.getElementById('bride-mother').textContent = b.motherName;
   document.getElementById('bride-name').textContent   = b.name;
-  document.getElementById('bride-contact').href       = `tel:${b.contact}`;
 }
 
 /* ── 날짜 & 달력 ── */
@@ -2623,15 +2619,27 @@ let slideIndex = 0;
 let slideTotal = 0;
 let slideTimer = null;
 
-function renderGallery() {
-  const g = CFG.gallery;
-  if (!g || !g.enabled || !g.photos || g.photos.length === 0) return;
+async function renderGallery() {
+  /* API에서 사진 목록 가져오기 (photo.html에서 등록한 사진) */
+  let photos = [];
+  try {
+    const res = await fetch('/api/photos');
+    if (res.ok) photos = await res.json();
+  } catch (e) {
+    console.error('사진 목록 로드 실패:', e);
+  }
+
+  /* API에 사진이 없으면 setting.json 의 기본 사진 사용 (폴백) */
+  if (!photos || photos.length === 0) {
+    const g = CFG.gallery;
+    if (!g || !g.enabled || !g.photos || g.photos.length === 0) return;
+    photos = g.photos;
+  }
 
   /* 섹션 표시 */
   document.getElementById('gallery-section').style.display = '';
   document.getElementById('gallery-divider').style.display = '';
 
-  const photos = g.photos;
   slideTotal = photos.length;
 
   const track = document.getElementById('sliderTrack');
