@@ -2922,12 +2922,12 @@ function shareKakao() {
         imageHeight:  630,
         link: { mobileWebUrl: siteUrl, webUrl: siteUrl }
       },
-      /* Kakao Share 카드는 최대 2개 버튼 지원.
-         3개 입력 시 자동으로 처음 2개만 표시될 수 있음. */
+      /* Kakao Share feed 템플릿은 최대 2개 버튼.
+         카드 본문(이미지/제목/설명) 클릭 시 청첩장이 열리므로
+         버튼 2개는 길찾기 + 일정 등록 로 구성. */
       buttons: [
-        { title: '청첩장 보기',   link: { mobileWebUrl: siteUrl, webUrl: siteUrl } },
-        { title: '🧭 길찾기',     link: { mobileWebUrl: mapUrl,  webUrl: mapUrl  } },
-        { title: '📅 일정 등록',  link: { mobileWebUrl: calUrl,  webUrl: calUrl  } }
+        { title: '🧭 길찾기',    link: { mobileWebUrl: mapUrl, webUrl: mapUrl } },
+        { title: '📅 일정 등록', link: { mobileWebUrl: calUrl, webUrl: calUrl } }
       ]
     });
   } catch (e) {
