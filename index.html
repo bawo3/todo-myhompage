@@ -188,6 +188,37 @@ body {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   캡쳐 방지 — 가능한 범위에서
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* 텍스트·이미지 선택 / 길게누르기 메뉴 차단 (입력창은 예외) */
+body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea { -webkit-user-select: text; user-select: text; }
+img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
+
+/* 검은 오버레이 — 탭/앱 전환·스크린샷 키 감지 시 표시 */
+#blackout-overlay {
+  position: fixed; inset: 0;
+  background: #000;
+  z-index: 999999;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.08s linear;
+}
+#blackout-overlay.active {
+  opacity: 1; pointer-events: all;
+}
+
+/* 인쇄 — 검은 페이지로 대체 */
+@media print {
+  body * { visibility: hidden !important; }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: #000;
+    visibility: visible !important;
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    SECTION 1 · 커버
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .cover {
@@ -1770,6 +1801,9 @@ body {
 </head>
 <body>
 
+<!-- 캡쳐 방지용 검은 오버레이 (visibilitychange / 스크린샷 키 감지 시 표시) -->
+<div id="blackout-overlay" aria-hidden="true"></div>
+
 <!-- 꽃잎 떨어지는 오버레이 (장식용) -->
 <div class="petals-overlay" aria-hidden="true">
   <span class="petal p-gold"  style="left:  4%; animation-duration: 14s; animation-delay:  0s; width:12px; height:15px;"></span>
@@ -3205,7 +3239,50 @@ function setupScrollObserver() {
 /* ── 실행 ── */
 window.addEventListener('DOMContentLoaded', () => {
   init().then(() => setupScrollObserver());
+  setupCaptureProtection();
 });
+
+/* ── 캡쳐 방지 ──
+   완벽 차단은 불가(모바일 하드웨어 캡쳐는 OS 레벨). 가능한 범위:
+   - 우클릭/길게누르기 메뉴 차단
+   - 탭/앱 전환(visibility hidden) 시 검은 화면
+   - PrintScreen / Cmd+Shift+3,4,5 키 감지 시 검은 화면 + 클립보드 클리어 시도
+   - 인쇄 시 검은 페이지 (CSS @media print)
+   - 이미지 드래그 저장 차단 */
+function setupCaptureProtection() {
+  const overlay = document.getElementById('blackout-overlay');
+  if (!overlay) return;
+
+  /* 우클릭 / 길게누르기 차단 */
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('dragstart',   e => e.preventDefault());
+
+  /* 탭·앱 전환 — 페이지가 hidden 이 되면 즉시 검은 화면 */
+  const show = () => overlay.classList.add('active');
+  const hide = () => overlay.classList.remove('active');
+  document.addEventListener('visibilitychange', () => {
+    document.hidden ? show() : setTimeout(hide, 30);
+  });
+  window.addEventListener('blur',  show);
+  window.addEventListener('focus', () => setTimeout(hide, 30));
+
+  /* 스크린샷 키 감지 — Windows PrintScreen, macOS Cmd+Shift+3/4/5 */
+  document.addEventListener('keydown', e => {
+    const isPrtSc = e.key === 'PrintScreen';
+    const isMacShot = e.metaKey && e.shiftKey &&
+                      (e.key === '3' || e.key === '4' || e.key === '5');
+    if (isPrtSc || isMacShot) {
+      show();
+      setTimeout(hide, 1500);
+    }
+  });
+  document.addEventListener('keyup', e => {
+    if (e.key === 'PrintScreen' &&
+        navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText('').catch(() => {});
+    }
+  });
+}
 </script>
 </body>
 </html>

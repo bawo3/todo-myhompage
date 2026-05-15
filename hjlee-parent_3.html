@@ -188,6 +188,28 @@ body {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   캡쳐 방지 — 가능한 범위에서
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea { -webkit-user-select: text; user-select: text; }
+img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
+#blackout-overlay {
+  position: fixed; inset: 0;
+  background: #000;
+  z-index: 999999;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.08s linear;
+}
+#blackout-overlay.active { opacity: 1; pointer-events: all; }
+@media print {
+  body * { visibility: hidden !important; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background: #000; visibility: visible !important;
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    SECTION 1 · 커버
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .cover {
@@ -1830,6 +1852,9 @@ body {
 </head>
 <body>
 
+<!-- 캡쳐 방지용 검은 오버레이 -->
+<div id="blackout-overlay" aria-hidden="true"></div>
+
 <!-- 꽃잎 떨어지는 오버레이 (장식용) -->
 <div class="petals-overlay" aria-hidden="true">
   <span class="petal p-gold"  style="left:  4%; animation-duration: 14s; animation-delay:  0s; width:12px; height:15px;"></span>
@@ -3258,7 +3283,38 @@ function setupScrollObserver() {
 /* ── 실행 ── */
 window.addEventListener('DOMContentLoaded', () => {
   init().then(() => setupScrollObserver());
+  setupCaptureProtection();
 });
+
+/* ── 캡쳐 방지 (가능 범위) ── */
+function setupCaptureProtection() {
+  const overlay = document.getElementById('blackout-overlay');
+  if (!overlay) return;
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('dragstart',   e => e.preventDefault());
+  const show = () => overlay.classList.add('active');
+  const hide = () => overlay.classList.remove('active');
+  document.addEventListener('visibilitychange', () => {
+    document.hidden ? show() : setTimeout(hide, 30);
+  });
+  window.addEventListener('blur',  show);
+  window.addEventListener('focus', () => setTimeout(hide, 30));
+  document.addEventListener('keydown', e => {
+    const isPrtSc = e.key === 'PrintScreen';
+    const isMacShot = e.metaKey && e.shiftKey &&
+                      (e.key === '3' || e.key === '4' || e.key === '5');
+    if (isPrtSc || isMacShot) {
+      show();
+      setTimeout(hide, 1500);
+    }
+  });
+  document.addEventListener('keyup', e => {
+    if (e.key === 'PrintScreen' &&
+        navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText('').catch(() => {});
+    }
+  });
+}
 </script>
 </body>
 </html>
