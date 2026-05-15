@@ -309,20 +309,47 @@ body {
   line-height: 1;
 }
 
-/* 날짜 & 장소 */
+/* 날짜 · 시간 · 장소 — 강조 디자인 */
 .cover-info {
   animation: fadeInPage 1s ease 1.4s both;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+  margin-top: 4px;
 }
 .cover-date {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 15px; letter-spacing: 4px;
-  color: var(--text-mid);
-  margin-bottom: 8px;
+  font-size: 32px; font-weight: 300;
+  letter-spacing: 6px; line-height: 1;
+  background: linear-gradient(135deg, var(--text-dark) 0%, var(--gold-dark) 60%, var(--gold) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+/* 가로 골드 라인 사이에 요일·시간 */
+.cover-time-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.cover-divider-line {
+  width: 32px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+}
+.cover-time {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 14px; font-weight: 400;
+  color: var(--text-dark); letter-spacing: 3px;
 }
 .cover-venue {
+  text-align: center; margin-top: 2px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.cover-venue-name {
   font-family: 'Noto Serif KR', serif;
+  font-size: 15px; font-weight: 500;
+  color: var(--text-dark); letter-spacing: 3px;
+}
+.cover-venue-hall {
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 12px; font-weight: 300;
-  color: var(--text-light); letter-spacing: 2px;
+  color: var(--text-light); letter-spacing: 1.5px;
 }
 
 /* 스크롤 힌트 */
@@ -435,10 +462,10 @@ body {
   gap: 16px; margin-top: 32px;
 }
 .family-card {
-  background: rgba(255,255,255,0.72);
+  background: rgba(255,255,255,0.78);
   backdrop-filter: blur(12px);
   border-radius: 24px;
-  padding: 28px 18px;
+  padding: 22px 14px 24px;
   box-shadow:
     0 4px 32px rgba(139,111,71,0.08),
     0 1px 0 rgba(255,255,255,0.9) inset;
@@ -462,36 +489,42 @@ body {
 }
 .family-role {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 11px; letter-spacing: 3px;
+  font-size: 11px; letter-spacing: 4px;
   color: var(--gold); text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 /* 부모님 정보 — 2x2 그리드 (위: 아버지/어머니 라벨, 아래: 성함) */
 .family-parents {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px 14px;
+  gap: 5px 14px;
   margin-top: 4px;
   font-family: 'Noto Serif KR', serif;
 }
 .family-parent-label {
-  font-size: 10px; font-weight: 400;
-  color: var(--gold);
-  letter-spacing: 2px;
+  font-size: 11px; font-weight: 400;
+  color: var(--gold-dark);
+  letter-spacing: 3px;
   text-align: center;
 }
 .family-parent-name {
-  font-size: 13px; font-weight: 500;
-  color: var(--text-mid);
-  letter-spacing: 1.5px;
+  font-size: 15px; font-weight: 500;
+  color: var(--text-dark);
+  letter-spacing: 2px;
   text-align: center;
   word-break: keep-all;
 }
+/* 부모님 ↔ 자녀 사이 짧은 골드 구분선 */
+.family-name-divider {
+  width: 32px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  margin: 14px auto 12px;
+}
 .family-name {
   font-family: 'Noto Serif KR', serif;
-  font-size: 20px; font-weight: 400;
+  font-size: 21px; font-weight: 500;
   color: var(--text-dark);
-  letter-spacing: 4px; margin-top: 8px;
+  letter-spacing: 5px;
 }
 .family-contact {
   display: inline-flex; align-items: center; gap: 6px;
@@ -1681,13 +1714,14 @@ body {
 @media (max-width: 480px) {
   .cover { padding: 0 20px 60px; }
   .section { padding: 48px 18px; }
-  /* 혼주 카드 — 모바일에서도 2열 유지, 패딩·폰트만 축소 */
+  /* 혼주 카드 — 모바일: 2열 유지, 폰트는 가독성 우선해 충분히 키움 */
   .family-grid  { gap: 10px; }
-  .family-card  { padding: 22px 10px; }
-  .family-parents { gap: 4px 8px; }
-  .family-parent-label { font-size: 9px; letter-spacing: 1px; }
-  .family-parent-name  { font-size: 12px; letter-spacing: 1px; }
-  .family-name    { font-size: 17px; letter-spacing: 2px; }
+  .family-card  { padding: 18px 10px 20px; }
+  .family-parents { gap: 5px 8px; }
+  .family-parent-label { font-size: 10px; letter-spacing: 2px; }
+  .family-parent-name  { font-size: 13.5px; letter-spacing: 1px; }
+  .family-name-divider { margin: 10px auto 8px; }
+  .family-name    { font-size: 18.5px; letter-spacing: 3px; }
   .family-contact { font-size: 10px; padding: 6px 12px; }
   /* 마음 전하기 카드 — 모바일에서도 2열 유지 */
   .account-toggle { gap: 10px; }
@@ -1774,10 +1808,18 @@ body {
       </div>
     </div>
 
-    <!-- 날짜 & 장소 -->
+    <!-- 날짜 · 시간 · 장소 -->
     <div class="cover-info">
       <div class="cover-date" id="cover-date">—</div>
-      <div class="cover-venue" id="cover-venue">—</div>
+      <div class="cover-time-row">
+        <span class="cover-divider-line"></span>
+        <span class="cover-time" id="cover-time">—</span>
+        <span class="cover-divider-line"></span>
+      </div>
+      <div class="cover-venue">
+        <span class="cover-venue-name" id="cover-venue-name">—</span>
+        <span class="cover-venue-hall" id="cover-venue-hall">—</span>
+      </div>
     </div>
 
     <!-- 스크롤 힌트 -->
@@ -1854,6 +1896,7 @@ body {
           <div class="family-parent-name" id="groom-father">—</div>
           <div class="family-parent-name" id="groom-mother">—</div>
         </div>
+        <div class="family-name-divider"></div>
         <div class="family-name" id="groom-name">—</div>
       </div>
       <!-- 신부측 -->
@@ -1865,6 +1908,7 @@ body {
           <div class="family-parent-name" id="bride-father">—</div>
           <div class="family-parent-name" id="bride-mother">—</div>
         </div>
+        <div class="family-name-divider"></div>
         <div class="family-name" id="bride-name">—</div>
       </div>
     </div>
@@ -2402,12 +2446,17 @@ function renderCover() {
   document.getElementById('groom-en-cover').textContent   = g.englishName || '';
   document.getElementById('bride-en-cover').textContent   = b.englishName || '';
 
-  /* 날짜 */
+  /* 날짜 — 큰 골드 그라데이션으로 강조 */
   document.getElementById('cover-date').textContent =
-    `${d.year}.${String(d.month).padStart(2,'0')}.${String(d.day).padStart(2,'0')}  ${d.dayOfWeek}  ${d.time}`;
+    `${d.year}.${String(d.month).padStart(2,'0')}.${String(d.day).padStart(2,'0')}`;
 
-  /* 장소 */
-  document.getElementById('cover-venue').textContent = `${v.name} ${v.hall}`;
+  /* 요일 · 시간 — 좌우 골드 라인 사이 강조 */
+  document.getElementById('cover-time').textContent =
+    `${d.dayOfWeek} · ${d.time}`;
+
+  /* 장소 — 식장명 / 홀명 2단 분리 */
+  document.getElementById('cover-venue-name').textContent = v.name;
+  document.getElementById('cover-venue-hall').textContent = v.hall;
 }
 
 /* ── 인사말 ── */
