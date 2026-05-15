@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(New-Item *)",
+      "Read(//mnt/c/Users/bawo3/OneDrive/Desktop/0506/**)",
+      "Bash(node -e ' *)",
+      "Bash(git *)",
+      "Bash(curl -s -I \"https://bawo3.github.io/todo-myhompage/images/og-cover.svg\")",
+      "Bash(curl -s -o \"C:/Users/bawo3/OneDrive/Desktop/0506/my-hompage/_ref_panda.jpg\" \"https://tse3.mm.bing.net/th/id/OIP.K8I_2nlLycd_RtddUtEIlgAAAA?pid=ImgDet&w=203&h=203&c=7&o=7&rm=3\")",
+      "Bash(curl -s -o \"C:/Users/bawo3/OneDrive/Desktop/0506/my-hompage/_ref_rabbit.jpg\" \"https://ae01.alicdn.com/kf/S5f92e4f8d74040d48fe7378163fb5c51F/Cute-Kitten-Rabbit-Panda-Phone-Case-For-Redmi-A1-NOTE-13-12-12S-11-11T-10.jpg\")",
+      "Bash(curl -s \"https://invite-wedding-jhkim-hjlee.vercel.app/\")",
+      "Bash(ls \"C:\\\\Users\\\\bawo3\\\\OneDrive\\\\Desktop\\\\0506\\\\my-hompage\" /B)",
+      "Bash(dir \"C:\\\\Users\\\\bawo3\\\\OneDrive\\\\Desktop\\\\0506\\\\my-hompage\" /B)",
+      "PowerShell(Get-Item *)",
+      "PowerShell(ffmpeg *)"
+    ]
+  }
+}

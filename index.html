@@ -1301,26 +1301,37 @@ body {
   margin-bottom: 40px;
 }
 
-/* 슬라이더 — 매트한 액자 느낌 */
+/* 슬라이더 — 은은한 부드러운 카드 */
 .slider-wrap {
   position: relative;
   overflow: hidden;
-  border-radius: 4px;
-  background: linear-gradient(135deg, #F5EFE6, #EDE4D2);
-  padding: 14px;
+  border-radius: 28px;
+  background: transparent;
+  padding: 0;
   box-shadow:
-    0 30px 60px -20px rgba(139,111,71,0.28),
-    0 18px 36px -18px rgba(44,36,32,0.18),
-    0 1px 0 rgba(255,255,255,0.95) inset,
-    0 -1px 0 rgba(139,111,71,0.08) inset;
+    0 40px 80px -30px rgba(139,111,71,0.22),
+    0 20px 40px -20px rgba(183,110,121,0.10),
+    0 8px 24px -12px rgba(44,36,32,0.08);
 }
-/* 액자 내부 가는 골드 보더 */
+/* 사진 가장자리에 은은한 골드 글로우 */
 .slider-wrap::before {
   content: '';
   position: absolute;
-  inset: 9px;
-  border: 1px solid rgba(201,169,110,0.35);
-  border-radius: 2px;
+  inset: 0;
+  border-radius: 28px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(232,213,176,0.45),
+    rgba(255,255,255,0.15) 35%,
+    rgba(183,110,121,0.20) 70%,
+    rgba(232,213,176,0.4)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
   pointer-events: none;
   z-index: 5;
 }
@@ -1328,7 +1339,7 @@ body {
   display: flex;
   transition: transform 1s cubic-bezier(0.22, 0.61, 0.36, 1);
   position: relative;
-  border-radius: 1px;
+  border-radius: 28px;
   overflow: hidden;
 }
 .slide {
@@ -1966,41 +1977,19 @@ body {
       </button>
     </div>
 
-    <!-- 부모님 계좌 -->
+    <!-- 부모님 계좌 (renderAccount 에서 동적 채움) -->
     <div class="parents-section">
       <div class="parents-label">혼주 계좌</div>
       <div class="parents-grid">
-        <!-- 신랑측 -->
         <div class="parents-col">
           <div class="parents-side groom">🤵 신랑측</div>
-          <div class="parent-card" onclick="openParentPayModal('김주영','신랑 아버지','농협','882-12-045-901')">
-            <div class="parent-relation">Father</div>
-            <div class="parent-name">김주영</div>
-            <div class="parent-bank">농협 882-12-045-901</div>
-            <span class="parent-copy">송금</span>
-          </div>
-          <div class="parent-card" onclick="openParentPayModal('강민선','신랑 어머니','우리','184-230012-02-001')">
-            <div class="parent-relation">Mother</div>
-            <div class="parent-name">강민선</div>
-            <div class="parent-bank">우리 184-230012-02-001</div>
-            <span class="parent-copy">송금</span>
-          </div>
+          <div class="parent-card" id="parent-card-gf"><div class="parent-relation">Father</div><div class="parent-name">—</div><div class="parent-bank">—</div><span class="parent-copy">송금</span></div>
+          <div class="parent-card" id="parent-card-gm"><div class="parent-relation">Mother</div><div class="parent-name">—</div><div class="parent-bank">—</div><span class="parent-copy">송금</span></div>
         </div>
-        <!-- 신부측 -->
         <div class="parents-col">
           <div class="parents-side bride">👰 신부측</div>
-          <div class="parent-card" onclick="openParentPayModal('이홍기','신부 아버지','농협','001-0001-00010')">
-            <div class="parent-relation">Father</div>
-            <div class="parent-name">이홍기</div>
-            <div class="parent-bank">농협 001-0001-00010</div>
-            <span class="parent-copy">송금</span>
-          </div>
-          <div class="parent-card" onclick="openParentPayModal('이은희','신부 어머니','농협','222-000-33333')">
-            <div class="parent-relation">Mother</div>
-            <div class="parent-name">이은희</div>
-            <div class="parent-bank">농협 222-000-33333</div>
-            <span class="parent-copy">송금</span>
-          </div>
+          <div class="parent-card" id="parent-card-bf"><div class="parent-relation">Father</div><div class="parent-name">—</div><div class="parent-bank">—</div><span class="parent-copy">송금</span></div>
+          <div class="parent-card" id="parent-card-bm"><div class="parent-relation">Mother</div><div class="parent-name">—</div><div class="parent-bank">—</div><span class="parent-copy">송금</span></div>
         </div>
       </div>
     </div>
@@ -2448,24 +2437,75 @@ function goNav(app) {
 }
 
 /* ── 계좌 ── */
-function renderAccount() {
-  const a = CFG.account;
-  document.getElementById('acc-groom-name').textContent = CFG.groom.name;
-  document.getElementById('acc-groom-bank').textContent = `${a.groom.bank} ${a.groom.number}`;
+/* API에서 로드한 계좌 데이터를 캐싱 (송금 모달에서 재사용) */
+let ACCOUNTS = null;
 
-  document.getElementById('acc-bride-name').textContent = CFG.bride.name;
-  document.getElementById('acc-bride-bank').textContent = `${a.bride.bank} ${a.bride.number}`;
+async function renderAccount() {
+  /* API에서 계좌 데이터 가져오기 (없으면 setting.json 폴백) */
+  let api = null;
+  try {
+    const res = await fetch('/api/accounts');
+    if (res.ok) api = await res.json();
+  } catch (e) {
+    console.warn('계좌 API 로드 실패, setting.json 사용');
+  }
+
+  /* setting.json 폴백을 같은 구조로 변환 */
+  const cfgAcc = CFG.account || {};
+  const fallback = {
+    groom:       { name: CFG.groom?.name || '',  bank: cfgAcc.groom?.bank || '',  number: cfgAcc.groom?.number || ''  },
+    bride:       { name: CFG.bride?.name || '',  bank: cfgAcc.bride?.bank || '',  number: cfgAcc.bride?.number || ''  },
+    groomFather: { name: CFG.groom?.fatherName || '', bank: '', number: '' },
+    groomMother: { name: CFG.groom?.motherName || '', bank: '', number: '' },
+    brideFather: { name: CFG.bride?.fatherName || '', bank: '', number: '' },
+    brideMother: { name: CFG.bride?.motherName || '', bank: '', number: '' },
+  };
+
+  /* 빈 값은 폴백으로 채움 */
+  ACCOUNTS = {};
+  ['groom','bride','groomFather','groomMother','brideFather','brideMother'].forEach(k => {
+    const a = (api && api[k]) || {};
+    const f = fallback[k] || {};
+    ACCOUNTS[k] = {
+      name:   a.name   || f.name   || '',
+      bank:   a.bank   || f.bank   || '',
+      number: a.number || f.number || '',
+    };
+  });
+
+  /* 신랑/신부 본인 카드 */
+  document.getElementById('acc-groom-name').textContent = ACCOUNTS.groom.name;
+  document.getElementById('acc-groom-bank').textContent = `${ACCOUNTS.groom.bank} ${ACCOUNTS.groom.number}`;
+  document.getElementById('acc-bride-name').textContent = ACCOUNTS.bride.name;
+  document.getElementById('acc-bride-bank').textContent = `${ACCOUNTS.bride.bank} ${ACCOUNTS.bride.number}`;
+
+  /* 부모님 카드 동적 채우기 */
+  const parentMap = [
+    ['parent-card-gf', ACCOUNTS.groomFather, '신랑 아버지'],
+    ['parent-card-gm', ACCOUNTS.groomMother, '신랑 어머니'],
+    ['parent-card-bf', ACCOUNTS.brideFather, '신부 아버지'],
+    ['parent-card-bm', ACCOUNTS.brideMother, '신부 어머니'],
+  ];
+  parentMap.forEach(([id, acc, relation]) => {
+    const el = document.getElementById(id);
+    if (!el || !acc) return;
+    el.querySelector('.parent-name').textContent = acc.name || '—';
+    el.querySelector('.parent-bank').textContent =
+      (acc.bank || acc.number) ? `${acc.bank} ${acc.number}` : '—';
+    el.onclick = () => openParentPayModal(acc.name, relation, acc.bank, acc.number);
+  });
 }
 
 /* 현재 모달에 표시 중인 계좌 정보 */
 let currentPayAcc = null;
 
 function openPayModal(who) {
-  const a = CFG.account[who];
+  /* API 로드된 ACCOUNTS 사용 (없으면 CFG 폴백) */
+  const a = (ACCOUNTS && ACCOUNTS[who]) || CFG.account[who];
   const name = (who === 'groom' ? CFG.groom.name : CFG.bride.name);
   currentPayAcc = { ...a, name, who };
 
-  document.getElementById('pay-name').textContent   = `${name} · ${who === 'groom' ? '신랑' : '신부'}`;
+  document.getElementById('pay-name').textContent   = `${a.name || name} · ${who === 'groom' ? '신랑' : '신부'}`;
   document.getElementById('pay-bank').textContent   = a.bank;
   document.getElementById('pay-number').textContent = a.number;
 

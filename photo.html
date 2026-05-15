@@ -182,6 +182,93 @@ body {
 }
 .empty-icon { font-size: 32px; margin-bottom: 10px; opacity: 0.4; }
 
+/* 계좌 관리 카드 */
+.acc-card {
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 22px 20px;
+  margin-top: 20px;
+  box-shadow: 0 6px 32px rgba(139,111,71,0.10), 0 1px 0 rgba(255,255,255,0.9) inset;
+}
+.acc-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+}
+.acc-card-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 14px; letter-spacing: 2px;
+  color: var(--text-dark);
+}
+.acc-group {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(201,169,110,0.18);
+}
+.acc-group:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+.acc-group-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px; letter-spacing: 3px;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.acc-group-label.groom { color: #3A6FB5; }
+.acc-group-label.bride { color: #C84050; }
+.acc-row {
+  display: grid;
+  grid-template-columns: 80px 90px 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.acc-row.with-name {
+  grid-template-columns: 80px 90px 1fr;
+}
+.acc-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.85);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 12px;
+  color: var(--text-dark);
+  outline: none;
+  transition: border 0.2s;
+}
+.acc-input:focus { border-color: var(--gold); }
+.acc-input::placeholder { color: var(--text-light); opacity: 0.6; }
+.acc-row-label {
+  display: flex; align-items: center;
+  font-size: 12px; color: var(--text-mid);
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 520px) {
+  .acc-row { grid-template-columns: 70px 1fr; gap: 6px; }
+  .acc-row .acc-input:first-of-type { grid-column: 1 / -1; }
+}
+
+.acc-actions {
+  display: flex; gap: 8px;
+  margin-top: 18px;
+  justify-content: flex-end;
+}
+.btn-primary {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: white;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px; font-weight: 500;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(139,111,71,0.25);
+  transition: all 0.2s;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(139,111,71,0.32); }
+.btn-primary:disabled { opacity: 0.6; cursor: wait; }
+
 /* 토스트 */
 .toast {
   position: fixed; bottom: 32px; left: 50%;
@@ -244,6 +331,71 @@ body {
       </div>
     </div>
     <div class="photos-grid" id="photosGrid"></div>
+  </div>
+
+  <!-- 계좌 관리 -->
+  <div class="acc-card">
+    <div class="acc-card-header">
+      <div class="acc-card-title">💳 계좌번호 관리</div>
+    </div>
+
+    <!-- 신랑/신부 본인 -->
+    <div class="acc-group">
+      <div class="acc-group-label groom">🤵 신랑 본인</div>
+      <div class="acc-row">
+        <input class="acc-input" id="acc-groom-name"   placeholder="예금주" value="김재현">
+        <input class="acc-input" id="acc-groom-bank"   placeholder="은행"   value="농협">
+        <input class="acc-input" id="acc-groom-number" placeholder="계좌번호">
+      </div>
+    </div>
+    <div class="acc-group">
+      <div class="acc-group-label bride">👰 신부 본인</div>
+      <div class="acc-row">
+        <input class="acc-input" id="acc-bride-name"   placeholder="예금주" value="이혜주">
+        <input class="acc-input" id="acc-bride-bank"   placeholder="은행"   value="카카오뱅크">
+        <input class="acc-input" id="acc-bride-number" placeholder="계좌번호">
+      </div>
+    </div>
+
+    <!-- 신랑측 부모님 -->
+    <div class="acc-group">
+      <div class="acc-group-label groom">🤵 신랑 아버지</div>
+      <div class="acc-row">
+        <input class="acc-input" id="acc-gf-name"   placeholder="성함" value="김주영">
+        <input class="acc-input" id="acc-gf-bank"   placeholder="은행" value="농협">
+        <input class="acc-input" id="acc-gf-number" placeholder="계좌번호">
+      </div>
+    </div>
+    <div class="acc-group">
+      <div class="acc-group-label groom">🤵 신랑 어머니</div>
+      <div class="acc-row">
+        <input class="acc-input" id="acc-gm-name"   placeholder="성함" value="강민선">
+        <input class="acc-input" id="acc-gm-bank"   placeholder="은행" value="우리">
+        <input class="acc-input" id="acc-gm-number" placeholder="계좌번호">
+      </div>
+    </div>
+
+    <!-- 신부측 부모님 -->
+    <div class="acc-group">
+      <div class="acc-group-label bride">👰 신부 아버지</div>
+      <div class="acc-row">
+        <input class="acc-input" id="acc-bf-name"   placeholder="성함" value="이홍기">
+        <input class="acc-input" id="acc-bf-bank"   placeholder="은행" value="농협">
+        <input class="acc-input" id="acc-bf-number" placeholder="계좌번호">
+      </div>
+    </div>
+    <div class="acc-group">
+      <div class="acc-group-label bride">👰 신부 어머니</div>
+      <div class="acc-row">
+        <input class="acc-input" id="acc-bm-name"   placeholder="성함" value="이은희">
+        <input class="acc-input" id="acc-bm-bank"   placeholder="은행" value="농협">
+        <input class="acc-input" id="acc-bm-number" placeholder="계좌번호">
+      </div>
+    </div>
+
+    <div class="acc-actions">
+      <button class="btn-primary" id="accSaveBtn" onclick="saveAccounts()">저장</button>
+    </div>
   </div>
 
 </div>
@@ -403,8 +555,65 @@ async function clearAll() {
   }
 }
 
+/* ── 계좌 관리 ── */
+const ACC_FIELDS = [
+  ['groom',       'acc-groom-name',  'acc-groom-bank',  'acc-groom-number'],
+  ['bride',       'acc-bride-name',  'acc-bride-bank',  'acc-bride-number'],
+  ['groomFather', 'acc-gf-name',     'acc-gf-bank',     'acc-gf-number'],
+  ['groomMother', 'acc-gm-name',     'acc-gm-bank',     'acc-gm-number'],
+  ['brideFather', 'acc-bf-name',     'acc-bf-bank',     'acc-bf-number'],
+  ['brideMother', 'acc-bm-name',     'acc-bm-bank',     'acc-bm-number'],
+];
+
+async function loadAccounts() {
+  try {
+    const res = await fetch('/api/accounts');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data) return;
+    ACC_FIELDS.forEach(([key, nameId, bankId, numId]) => {
+      const acc = data[key];
+      if (!acc) return;
+      if (acc.name)   document.getElementById(nameId).value   = acc.name;
+      if (acc.bank)   document.getElementById(bankId).value   = acc.bank;
+      if (acc.number) document.getElementById(numId).value    = acc.number;
+    });
+  } catch (e) {
+    console.error('계좌 로드 실패:', e);
+  }
+}
+
+async function saveAccounts() {
+  const btn = document.getElementById('accSaveBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+  const data = {};
+  ACC_FIELDS.forEach(([key, nameId, bankId, numId]) => {
+    data[key] = {
+      name:   document.getElementById(nameId).value.trim(),
+      bank:   document.getElementById(bankId).value.trim(),
+      number: document.getElementById(numId).value.trim(),
+    };
+  });
+  try {
+    const res = await fetch('/api/accounts', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('서버 오류');
+    showToast('계좌 정보가 저장되었습니다');
+  } catch (e) {
+    showToast('저장에 실패했습니다');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '저장';
+  }
+}
+
 /* ── 시작 ── */
 loadPhotos();
+loadAccounts();
 </script>
 </body>
 </html>
