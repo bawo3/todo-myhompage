@@ -2507,9 +2507,16 @@ function renderFamily() {
 }
 
 /* ── 부모님 전화 아이콘 — 혼주 grid 내부의 4명 부모 ──
-   1) setting.json fallback 으로 placeholder 부터 채우고
-   2) /api/parents (Vercel KV) 의 값이 있으면 그것으로 덮어쓴다.
-   placeholder("010-0000-...") 인 경우엔 아이콘을 숨긴다. */
+   PHONE_DISPLAY_SIDE: 'both' | 'groom' | 'bride'
+     - 'both'  → 양측 모두 표시 (index.html)
+     - 'groom' → 신랑측 부모만 (jhkim-parent_2.html)
+     - 'bride' → 신부측 부모만 (hjlee-parent_3.html)
+
+   숨길 때는 visibility:hidden 을 써서 grid 자리를 유지한다.
+   hidden 속성(display:none) 으로 가리면 옆 칸이 빈자리를 차지해
+   '어머니 아이콘이 아버지 자리로 이동'하는 reflow 버그가 발생함. */
+const PHONE_DISPLAY_SIDE = 'both';
+
 async function renderParentPhones() {
   const g = CFG.groom, b = CFG.bride;
   const phones = {
@@ -2534,14 +2541,19 @@ async function renderParentPhones() {
   ['groom-father','groom-mother','bride-father','bride-mother'].forEach(k => {
     const el = document.getElementById('phone-' + k);
     if (!el) return;
-    const p = (phones[k] || '').trim();
-    /* 빈 값이거나 placeholder(010-0000-...) 이면 아이콘 숨김 */
-    if (!p || /^0?10[-\s]?0{4}/.test(p)) {
-      el.hidden = true;
-    } else {
+    const side      = k.startsWith('groom') ? 'groom' : 'bride';
+    const p         = (phones[k] || '').trim();
+    const inScope   = (PHONE_DISPLAY_SIDE === 'both' || PHONE_DISPLAY_SIDE === side);
+    const hasNumber = p && !/^0?10[-\s]?0{4}/.test(p);
+    if (inScope && hasNumber) {
       el.href  = 'tel:' + p.replace(/[^0-9+]/g, '');
       el.title = p;
-      el.hidden = false;
+      el.style.visibility = '';
+      el.style.pointerEvents = '';
+    } else {
+      /* 자리는 유지 (옆칸 아이콘 reflow 방지) — 클릭만 차단 */
+      el.style.visibility = 'hidden';
+      el.style.pointerEvents = 'none';
     }
   });
 }
