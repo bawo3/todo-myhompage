@@ -200,6 +200,21 @@ const EVT = {
   endUTC:   '20261107T053000Z',
 };
 
+/* ── 브라우저 환경 감지 ──
+   카카오톡 내장 브라우저는 별도 WebView 라서 Chrome/Safari 의
+   Google 로그인 세션과 분리되어 있다.
+   → Android: Chrome 인텐트로 강제 전환
+   → iOS:     googlechromes:// 스킴으로 Chrome 시도, 미설치 시 안내 */
+function isKakaoBrowser() {
+  return /KAKAOTALK/i.test(navigator.userAgent);
+}
+function isAndroid() {
+  return /Android/i.test(navigator.userAgent);
+}
+function isIOS() {
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 /* ── Google 캘린더 일정 추가 ── */
 function addGoogle() {
   const params = new URLSearchParams({
@@ -210,11 +225,44 @@ function addGoogle() {
     location: EVT.location,
     ctz:     'Asia/Seoul'
   });
-  window.open(
-    `https://calendar.google.com/calendar/render?${params.toString()}`,
-    '_blank',
-    'noopener'
-  );
+  const query   = params.toString();
+  const httpsUrl = `https://calendar.google.com/calendar/render?${query}`;
+
+  /* ① 카카오톡 내장 브라우저 + Android — Chrome 인텐트로 강제 */
+  if (isKakaoBrowser() && isAndroid()) {
+    /* intent:// 스킴: Chrome 으로 같은 URL 열기 */
+    location.href =
+      `intent://calendar.google.com/calendar/render?${query}` +
+      `#Intent;scheme=https;package=com.android.chrome;end`;
+    return;
+  }
+
+  /* ② 카카오톡 내장 브라우저 + iOS — googlechromes:// 시도 후 미설치 안내 */
+  if (isKakaoBrowser() && isIOS()) {
+    const chromeUrl = `googlechromes://calendar.google.com/calendar/render?${query}`;
+
+    /* Chrome 으로 전환되면 페이지가 hidden 상태로 바뀜.
+       1.5초 안에 안 바뀌면 Chrome 미설치로 판단 → 안내 알림 */
+    let didLeave = false;
+    const onHide = () => { didLeave = true; };
+    document.addEventListener('visibilitychange', onHide, { once: true });
+    window.addEventListener('pagehide', onHide, { once: true });
+
+    location.href = chromeUrl;
+
+    setTimeout(() => {
+      if (!didLeave) {
+        alert(
+          'Chrome 앱이 설치되어 있지 않은 것 같습니다.\n\n' +
+          '카카오톡 우측 상단 ⋮ 메뉴 →\n"다른 브라우저로 열기" 를 선택해주세요.'
+        );
+      }
+    }, 1500);
+    return;
+  }
+
+  /* ③ 일반 브라우저 — 새 탭으로 정상 열기 */
+  window.open(httpsUrl, '_blank', 'noopener');
 }
 </script>
 </body>
