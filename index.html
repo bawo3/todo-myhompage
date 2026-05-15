@@ -1274,6 +1274,98 @@ body {
 }
 .rsvp-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(139,111,71,0.4); }
 
+/* ── 캘린더 추가 모달 ── */
+.cal-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(44,36,32,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 9500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.cal-modal-backdrop.show { opacity: 1; pointer-events: all; }
+.cal-modal {
+  width: 100%; max-width: 380px;
+  background: rgba(255,255,255,0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 28px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+  transform: translateY(40px) scale(0.95);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.cal-modal-backdrop.show .cal-modal { transform: translateY(0) scale(1); }
+.cal-modal-eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px; letter-spacing: 5px;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.cal-modal-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 18px; font-weight: 400;
+  color: var(--text-dark); letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.cal-modal-sub {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 13px; color: var(--gold-dark);
+  margin-bottom: 22px;
+}
+.cal-modal-line {
+  width: 28px; height: 1px;
+  background: var(--gold-light);
+  margin: 0 auto 22px;
+}
+.cal-btn-grid {
+  display: grid; gap: 8px;
+}
+.cal-btn {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  border: 1px solid rgba(201,169,110,0.2);
+  border-radius: 14px;
+  background: rgba(250,247,242,0.6);
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px; color: var(--text-mid);
+  letter-spacing: 0.5px;
+  text-align: left;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.cal-btn:hover { background: white; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(139,111,71,0.12); }
+.cal-btn-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 13px; font-weight: 600;
+  flex-shrink: 0;
+  font-family: 'Cormorant Garamond', serif;
+}
+.cal-btn-icon.apple   { background: linear-gradient(135deg, #1A1410, #5C4A3A); }
+.cal-btn-icon.google  { background: linear-gradient(135deg, #4285F4, #1A73E8); }
+.cal-btn-icon.naver   { background: linear-gradient(135deg, #03C75A, #02A14A); }
+.cal-btn-icon.kakao   { background: linear-gradient(135deg, #FEE500, #F0D000); color: #3A1D1D; }
+.cal-btn-name { flex: 1; }
+.cal-btn-sub  { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+.cal-close {
+  display: block;
+  margin: 18px auto 0;
+  padding: 8px 18px;
+  background: transparent;
+  border: none;
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 13px; color: var(--text-light);
+  letter-spacing: 2px;
+  cursor: pointer;
+}
+.cal-close:hover { color: var(--gold-dark); }
+
 /* ── 공유하기 섹션 ── */
 .share-section {
   background: var(--white);
@@ -2155,6 +2247,42 @@ body {
     </div>
   </section>
 
+  <!-- 캘린더 추가 모달 -->
+  <div class="cal-modal-backdrop" id="calModal" onclick="closeCalModal(event)">
+    <div class="cal-modal" onclick="event.stopPropagation()">
+      <div class="cal-modal-eyebrow">Save the Date</div>
+      <div class="cal-modal-title">캘린더에 일정 추가</div>
+      <div class="cal-modal-sub" id="calModalDate">2026.11.07 (토) 오후 12:30</div>
+      <div class="cal-modal-line"></div>
+
+      <div class="cal-btn-grid">
+        <a class="cal-btn" id="cal-apple" href="#" onclick="addToAppleCalendar(event)">
+          <div class="cal-btn-icon apple">📅</div>
+          <div>
+            <div class="cal-btn-name">iPhone · 시스템 캘린더</div>
+            <div class="cal-btn-sub">카카오톡 일정과 자동 동기화</div>
+          </div>
+        </a>
+        <a class="cal-btn" id="cal-google" href="#" target="_blank" rel="noopener">
+          <div class="cal-btn-icon google">G</div>
+          <div>
+            <div class="cal-btn-name">Google 캘린더</div>
+            <div class="cal-btn-sub">Gmail 계정에 추가</div>
+          </div>
+        </a>
+        <a class="cal-btn" id="cal-naver" href="#" target="_blank" rel="noopener">
+          <div class="cal-btn-icon naver">N</div>
+          <div>
+            <div class="cal-btn-name">네이버 캘린더</div>
+            <div class="cal-btn-sub">네이버 계정에 추가</div>
+          </div>
+        </a>
+      </div>
+
+      <button class="cal-close" onclick="closeCalModal()">닫기</button>
+    </div>
+  </div>
+
   <!-- ── 공유하기 ── -->
   <section class="share-section">
     <div class="section-label">Share</div>
@@ -2165,6 +2293,7 @@ body {
     </p>
     <div class="share-btn-grid">
       <button class="share-btn kakao" onclick="shareKakao()">카카오톡 공유</button>
+      <button class="share-btn copy"  onclick="openCalModal()">📅 일정 추가</button>
       <button class="share-btn copy"  onclick="copyInviteLink()">📋 링크 복사</button>
     </div>
   </section>
@@ -2811,9 +2940,9 @@ function shareKakao() {
   }
   const d = CFG.date, v = CFG.venue;
   const dateStr = `${d.year}.${String(d.month).padStart(2,'0')}.${String(d.day).padStart(2,'0')} (${(d.dayOfWeek||'').replace('요일','')}) ${d.time}`;
-  const siteUrl = location.origin + '/';
-  /* 길찾기는 우리 사이트의 nav.html 로 보내 — 등록된 도메인이라야 카카오 공유에서 동작
-     nav.html 이 다시 카카오맵 앱/웹으로 자동 라우팅 */
+  /* 청첩장 보기 → addCal 파라미터로 진입 시 캘린더 추가 모달 자동 노출 */
+  const siteUrl = location.origin + '/?addCal=1';
+  /* 길찾기는 우리 사이트의 nav.html 로 보내 — 등록된 도메인이라야 카카오 공유에서 동작 */
   const mapUrl = `${location.origin}/nav.html`;
 
   try {
@@ -2841,6 +2970,124 @@ function shareKakao() {
     showToast('공유에 실패했습니다');
   }
 }
+
+/* ── 캘린더 일정 추가 ──
+   - iOS/Android: ICS 파일 다운로드 → 시스템 캘린더 추가
+     (카카오톡 일정은 시스템 캘린더와 자동 동기화되어 함께 표시됨)
+   - Google / Naver: 웹 일정 추가 페이지로 이동 */
+
+function getEventInfo() {
+  const d = CFG.date, v = CFG.venue;
+  /* KST 12:30 → UTC 03:30 (KST = UTC+9). 식 시간을 2시간으로 설정 */
+  const start = new Date(Date.UTC(d.year, d.month - 1, d.day, 3, 30));  /* 시작: KST 12:30 */
+  const end   = new Date(Date.UTC(d.year, d.month - 1, d.day, 5, 30));  /* 종료: KST 14:30 */
+  const fmt   = dt => dt.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  return {
+    title:    `${CFG.groom.name} ♥ ${CFG.bride.name} 결혼식`,
+    location: `${v.name} ${v.hall} · ${v.address}`,
+    details:  `청첩장: ${location.origin}/`,
+    startUTC: fmt(start),  /* 20261107T033000Z */
+    endUTC:   fmt(end),
+  };
+}
+
+function buildICS() {
+  const e = getEventInfo();
+  const escape = s => String(s).replace(/[\\,;]/g, m => '\\' + m).replace(/\n/g, '\\n');
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Wedding Invite//KR',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:wedding-${e.startUTC}@invite`,
+    `DTSTAMP:${e.startUTC}`,
+    `DTSTART:${e.startUTC}`,
+    `DTEND:${e.endUTC}`,
+    `SUMMARY:${escape(e.title)}`,
+    `LOCATION:${escape(e.location)}`,
+    `DESCRIPTION:${escape(e.details)}`,
+    'BEGIN:VALARM',
+    'ACTION:DISPLAY',
+    'TRIGGER:-P1D',
+    `DESCRIPTION:내일은 ${escape(e.title)}`,
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+}
+
+function addToAppleCalendar(ev) {
+  if (ev) ev.preventDefault();
+  const ics  = buildICS();
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'wedding.ics';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function buildGoogleCalendarUrl() {
+  const e = getEventInfo();
+  const params = new URLSearchParams({
+    action:   'TEMPLATE',
+    text:     e.title,
+    dates:    `${e.startUTC}/${e.endUTC}`,
+    details:  e.details,
+    location: e.location,
+    ctz:      'Asia/Seoul'
+  });
+  return `https://calendar.google.com/calendar/render?${params}`;
+}
+
+function buildNaverCalendarUrl() {
+  const e = getEventInfo();
+  /* 네이버 캘린더 schedule URL — 사전 정의된 파라미터 */
+  const params = new URLSearchParams({
+    title:    e.title,
+    body:     e.details,
+    location: e.location,
+    /* yyyyMMddTHHmmss 한국시간 기준 (Z 없이) */
+    start:    `${CFG.date.year}${String(CFG.date.month).padStart(2,'0')}${String(CFG.date.day).padStart(2,'0')}T123000`,
+    end:      `${CFG.date.year}${String(CFG.date.month).padStart(2,'0')}${String(CFG.date.day).padStart(2,'0')}T143000`,
+    allDay:   'false'
+  });
+  return `https://calendar.naver.com/schedule/createByPhone.nhn?${params}`;
+}
+
+function openCalModal() {
+  /* Google/Naver 링크 동적 설정 */
+  document.getElementById('cal-google').href = buildGoogleCalendarUrl();
+  document.getElementById('cal-naver').href  = buildNaverCalendarUrl();
+  /* 날짜 라벨 갱신 */
+  const d = CFG.date;
+  const dayKo = (d.dayOfWeek || '').replace('요일','');
+  document.getElementById('calModalDate').textContent =
+    `${d.year}.${String(d.month).padStart(2,'0')}.${String(d.day).padStart(2,'0')} (${dayKo}) ${d.time}`;
+
+  document.getElementById('calModal').classList.add('show');
+}
+function closeCalModal(e) {
+  if (e && e.target !== document.getElementById('calModal')) return;
+  document.getElementById('calModal').classList.remove('show');
+  /* URL 의 addCal 파라미터 정리 (뒤로가기 시 다시 안 뜨도록) */
+  if (location.search.includes('addCal')) {
+    history.replaceState(null, '', location.pathname);
+  }
+}
+
+/* 페이지 로드 시 ?addCal=1 있으면 모달 자동 표시 (카카오 공유에서 진입) */
+(function autoShowCalModal() {
+  if (new URLSearchParams(location.search).get('addCal') === '1') {
+    /* 다른 컨텐츠 살짝 보이고 나서 띄움 */
+    setTimeout(openCalModal, 800);
+  }
+})();
 
 function copyInviteLink() {
   const url = location.origin + '/';
