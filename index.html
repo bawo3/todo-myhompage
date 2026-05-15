@@ -156,29 +156,32 @@ body {
 .petal {
   position: absolute;
   top: -40px;
-  width: 14px; height: 18px;
+  width: 12px; height: 15px;
   border-radius: 50% 0 50% 50%;
   opacity: 0;
   animation-name: petalFall;
-  animation-timing-function: linear;
+  animation-timing-function: ease-in-out;   /* 살랑살랑 — linear → ease */
   animation-iteration-count: infinite;
-  filter: blur(0.3px) drop-shadow(0 2px 4px rgba(139,111,71,0.15));
+  filter: blur(0.5px) drop-shadow(0 2px 5px rgba(139,111,71,0.14));
 }
-/* 골드 / 로즈 / 크림 톤 교차 */
-.petal.p-gold  { background: linear-gradient(135deg, #E8D5B0, #C9A96E); }
-.petal.p-rose  { background: linear-gradient(135deg, #FCEAEE, #B76E79); }
-.petal.p-cream { background: linear-gradient(135deg, #FFFFFF, #F0E8DA); }
+/* 가을 톤 — 골드 / 구리 / 크림(따뜻) 교차 */
+.petal.p-gold   { background: linear-gradient(135deg, #E8D5B0, #B8884A); }
+.petal.p-rose   { background: linear-gradient(135deg, #D4A574, #8B5A2B); } /* rose 클래스 재활용: 구리톤 */
+.petal.p-cream  { background: linear-gradient(135deg, #FAF4E8, #DDC9A8); }
 
 @keyframes petalFall {
   0% {
     transform: translateY(-5vh) translateX(0) rotate(0deg);
     opacity: 0;
   }
-  10% { opacity: 0.7; }
-  50% { transform: translateY(50vh) translateX(40px) rotate(360deg); }
-  90% { opacity: 0.6; }
+  10% { opacity: 0.55; }
+  /* 좌우로 흔들리며 천천히 떨어지는 살랑살랑 패턴 */
+  25% { transform: translateY(25vh) translateX(22px)  rotate(110deg); }
+  50% { transform: translateY(50vh) translateX(-26px) rotate(220deg); }
+  75% { transform: translateY(75vh) translateX(18px)  rotate(340deg); }
+  90% { opacity: 0.5; }
   100% {
-    transform: translateY(110vh) translateX(-30px) rotate(720deg);
+    transform: translateY(110vh) translateX(-12px) rotate(460deg);
     opacity: 0;
   }
 }
