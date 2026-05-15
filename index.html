@@ -1352,8 +1352,8 @@ body {
   aspect-ratio: 4/5;
   object-fit: cover;
   display: block;
-  /* 은은한 필름톤 처리 */
-  filter: saturate(0.9) contrast(0.96) brightness(1.02);
+  /* 화사한 톤 — 채도·밝기·대비 살짝 올려서 생기있게 */
+  filter: saturate(1.12) brightness(1.06) contrast(1.04);
   transform: scale(1.02);
   transition: transform 7s ease-out, filter 0.6s;
 }
@@ -1365,15 +1365,15 @@ body {
 .slide img[src$=".svg"] {
   background: linear-gradient(135deg, var(--cream), var(--cream-dark));
 }
-/* 비네팅 — 사진 외곽을 살짝 어둡게 */
+/* 비네팅 — 매우 부드럽게 (사진 화사함 유지) */
 .slide::after {
   content: '';
   position: absolute; inset: 0;
   background:
     radial-gradient(ellipse at center,
-      transparent 55%,
-      rgba(44,36,32,0.10) 85%,
-      rgba(44,36,32,0.22) 100%);
+      transparent 70%,
+      rgba(44,36,32,0.05) 92%,
+      rgba(44,36,32,0.10) 100%);
   pointer-events: none;
 }
 .slide-caption {
