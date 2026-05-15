@@ -3030,6 +3030,7 @@ async function submitRsvp() {
     name:      name,
     attend:    attend.value,
     count:     count,
+    source:    'groom-parent',            /* 신랑측 부모님용 청첩장에서 전달 */
     createdAt: new Date().toISOString()
   };
 

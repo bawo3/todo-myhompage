@@ -2899,6 +2899,7 @@ async function submitRsvp() {
     name:      name,
     attend:    attend.value,
     count:     count,
+    source:    'main',                    /* 메인 청첩장에서 전달 */
     createdAt: new Date().toISOString()
   };
 

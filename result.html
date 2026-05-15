@@ -267,6 +267,10 @@ body {
 .badge.bride { background: var(--bride-bg); color: var(--bride-color); }
 .badge.yes   { background: var(--yes-bg);   color: var(--yes-color); }
 .badge.no    { background: var(--no-bg);    color: var(--no-color); }
+/* 출처 뱃지 — 메인/신랑부모님/신부부모님 */
+.badge.src-main    { background: rgba(232,213,176,0.45); color: var(--gold-dark); }
+.badge.src-gparent { background: rgba(58,111,181,0.12);  color: #3A6FB5; }
+.badge.src-bparent { background: rgba(200,64,80,0.12);   color: #C84050; }
 
 /* 개별 삭제 버튼 */
 .del-btn {
@@ -391,11 +395,14 @@ body {
 
   <!-- 필터 + 액션 -->
   <div class="toolbar">
-    <button class="filter-btn active" data-f="all"   onclick="setFilter('all')">전체</button>
-    <button class="filter-btn"        data-f="groom" onclick="setFilter('groom')">🤵 신랑측</button>
-    <button class="filter-btn"        data-f="bride" onclick="setFilter('bride')">👰 신부측</button>
-    <button class="filter-btn"        data-f="yes"   onclick="setFilter('yes')">참석</button>
-    <button class="filter-btn"        data-f="no"    onclick="setFilter('no')">불참</button>
+    <button class="filter-btn active" data-f="all"     onclick="setFilter('all')">전체</button>
+    <button class="filter-btn"        data-f="groom"   onclick="setFilter('groom')">🤵 신랑측</button>
+    <button class="filter-btn"        data-f="bride"   onclick="setFilter('bride')">👰 신부측</button>
+    <button class="filter-btn"        data-f="yes"     onclick="setFilter('yes')">참석</button>
+    <button class="filter-btn"        data-f="no"      onclick="setFilter('no')">불참</button>
+    <button class="filter-btn"        data-f="main"    onclick="setFilter('main')">📜 메인</button>
+    <button class="filter-btn"        data-f="gparent" onclick="setFilter('gparent')">🤵 신랑 부모님</button>
+    <button class="filter-btn"        data-f="bparent" onclick="setFilter('bparent')">👰 신부 부모님</button>
     <div class="toolbar-spacer"></div>
     <button class="action-btn" onclick="exportCSV()">📥 CSV</button>
     <button class="action-btn danger" onclick="clearAll()">🗑 초기화</button>
@@ -475,14 +482,27 @@ function renderStats(list) {
     `— 신랑측 ${stat.groom.yes}명 · 신부측 ${stat.bride.yes}명 —`;
 }
 
+/* 출처 메타 — id, 라벨, 뱃지 클래스 */
+const SOURCE_META = {
+  'main':         { label: '📜 메인 청첩장',    cls: 'src-main'    },
+  'groom-parent': { label: '🤵 신랑 부모님 청첩장', cls: 'src-gparent' },
+  'bride-parent': { label: '👰 신부 부모님 청첩장', cls: 'src-bparent' },
+};
+function srcMeta(s) {
+  return SOURCE_META[s] || { label: '— 미상 —', cls: 'src-main' };
+}
+
 /* 행 갱신 */
 function renderRows(list) {
   /* 필터 */
   let filtered = list;
-  if      (curFilter === 'groom') filtered = list.filter(r => r.side === 'groom');
-  else if (curFilter === 'bride') filtered = list.filter(r => r.side === 'bride');
-  else if (curFilter === 'yes')   filtered = list.filter(r => r.attend === 'yes');
-  else if (curFilter === 'no')    filtered = list.filter(r => r.attend === 'no');
+  if      (curFilter === 'groom')   filtered = list.filter(r => r.side === 'groom');
+  else if (curFilter === 'bride')   filtered = list.filter(r => r.side === 'bride');
+  else if (curFilter === 'yes')     filtered = list.filter(r => r.attend === 'yes');
+  else if (curFilter === 'no')      filtered = list.filter(r => r.attend === 'no');
+  else if (curFilter === 'main')    filtered = list.filter(r => (r.source || 'main') === 'main');
+  else if (curFilter === 'gparent') filtered = list.filter(r => r.source === 'groom-parent');
+  else if (curFilter === 'bparent') filtered = list.filter(r => r.source === 'bride-parent');
 
   /* 최신순 정렬 */
   filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
@@ -507,11 +527,16 @@ function renderRows(list) {
     let cnt = parseInt(r.count, 10);
     if (!Number.isFinite(cnt) || cnt < 1) cnt = 1;
 
+    const src = srcMeta(r.source);
     return `
       <div class="table-row" id="row-${r.id}">
         <div class="row-line">
           <span class="row-label">구분</span>
           <span class="row-value"><span class="badge ${sideCls}">${sideIcon} ${sideLabel}</span></span>
+        </div>
+        <div class="row-line">
+          <span class="row-label">출처</span>
+          <span class="row-value"><span class="badge ${src.cls}">${src.label}</span></span>
         </div>
         <div class="row-line">
           <span class="row-label">성함</span>
@@ -561,12 +586,13 @@ async function exportCSV() {
   if (!list.length) return showToast('내보낼 데이터가 없습니다');
 
   const rows = [
-    ['구분', '성함', '참석여부', '인원', '등록시간'].join(','),
+    ['구분', '출처', '성함', '참석여부', '인원', '등록시간'].join(','),
     ...list.map(r => {
       let cnt = parseInt(r.count, 10);
       if (!Number.isFinite(cnt) || cnt < 1) cnt = 1;
       return [
         r.side === 'bride' ? '신부측' : '신랑측',
+        `"${srcMeta(r.source).label.replace(/^[^\s]+\s/, '')}"`,   /* 이모지 제거 후 라벨만 */
         `"${(r.name || '').replace(/"/g, '""')}"`,
         r.attend === 'yes' ? '참석' : '불참',
         cnt,
