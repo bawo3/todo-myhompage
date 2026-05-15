@@ -242,27 +242,37 @@ function addGoogle() {
     return;
   }
 
-  /* ② 카카오톡 내장 브라우저 + iOS — googlechromes:// 시도 후 미설치 안내 */
+  /* ② 카카오톡 내장 브라우저 + iOS — Chrome → Safari → 수동 안내 순으로 시도
+     iOS 는 공식 Safari URL 스킴이 없지만 비공식 `x-safari-https://` 가
+     카카오 WebView 에서 동작하는 경우가 많아 2차 시도로 사용한다. */
   if (isKakaoBrowser() && isIOS()) {
     const chromeUrl = `googlechromes://calendar.google.com/calendar/render?${query}`;
+    const safariUrl = `x-safari-https://calendar.google.com/calendar/render?${query}`;
 
-    /* Chrome 으로 전환되면 페이지가 hidden 상태로 바뀜.
-       1.5초 안에 안 바뀌면 Chrome 미설치로 판단 → 안내 알림 */
+    /* 페이지가 hidden/pagehide 상태로 바뀌면 외부 브라우저 전환 성공으로 간주 */
     let didLeave = false;
     const onHide = () => { didLeave = true; };
     document.addEventListener('visibilitychange', onHide, { once: true });
     window.addEventListener('pagehide', onHide, { once: true });
 
+    /* 1단계 — Chrome 시도 */
     location.href = chromeUrl;
 
+    /* 2단계 — 0.8초 내 Chrome 전환 실패 시 Safari 시도 */
     setTimeout(() => {
-      if (!didLeave) {
+      if (didLeave) return;
+      location.href = safariUrl;
+
+      /* 3단계 — 다시 0.8초 내 Safari 전환도 실패 시 수동 안내 */
+      setTimeout(() => {
+        if (didLeave) return;
         alert(
-          'Chrome 앱이 설치되어 있지 않은 것 같습니다.\n\n' +
-          '카카오톡 우측 상단 ⋮ 메뉴 →\n"다른 브라우저로 열기" 를 선택해주세요.'
+          '외부 브라우저로 자동 전환에 실패했습니다.\n\n' +
+          '카카오톡 우측 상단 ⋮ 메뉴 →\n' +
+          '"다른 브라우저로 열기" 를 선택해주세요.'
         );
-      }
-    }, 1500);
+      }, 800);
+    }, 800);
     return;
   }
 
