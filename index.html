@@ -2812,8 +2812,9 @@ function shareKakao() {
   const d = CFG.date, v = CFG.venue;
   const dateStr = `${d.year}.${String(d.month).padStart(2,'0')}.${String(d.day).padStart(2,'0')} (${(d.dayOfWeek||'').replace('요일','')}) ${d.time}`;
   const siteUrl = location.origin + '/';
-  /* 카카오맵 길찾기 딥링크 — 좌표 기반 */
-  const mapUrl = `https://map.kakao.com/link/to/${encodeURIComponent('문수컨벤션웨딩홀')},${v.lat},${v.lng}`;
+  /* 길찾기는 우리 사이트의 nav.html 로 보내 — 등록된 도메인이라야 카카오 공유에서 동작
+     nav.html 이 다시 카카오맵 앱/웹으로 자동 라우팅 */
+  const mapUrl = `${location.origin}/nav.html`;
 
   try {
     Kakao.Share.sendDefault({
