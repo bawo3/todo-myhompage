@@ -269,6 +269,84 @@ body {
 .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(139,111,71,0.32); }
 .btn-primary:disabled { opacity: 0.6; cursor: wait; }
 
+/* 비밀번호 잠금 화면 */
+.auth-gate {
+  position: fixed; inset: 0;
+  z-index: 10000;
+  background:
+    radial-gradient(ellipse at 30% 0%, rgba(232,213,176,0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 100%, rgba(183,110,121,0.22) 0%, transparent 55%),
+    linear-gradient(160deg, #FAF7F2 0%, #F0EAE0 100%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.auth-card {
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(16px);
+  border-radius: 24px;
+  padding: 48px 32px;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(139,111,71,0.18), 0 1px 0 rgba(255,255,255,0.9) inset;
+}
+.auth-eyebrow {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px; letter-spacing: 5px;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.auth-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px; font-weight: 400;
+  color: var(--text-dark); letter-spacing: 3px;
+  margin-bottom: 6px;
+}
+.auth-sub {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 13px; color: var(--gold-dark);
+  letter-spacing: 1px;
+  margin-bottom: 28px;
+}
+.auth-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(201,169,110,0.4);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.9);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 16px;
+  letter-spacing: 4px;
+  color: var(--text-dark);
+  text-align: center;
+  outline: none;
+  margin-bottom: 14px;
+  transition: border 0.2s;
+}
+.auth-input:focus { border-color: var(--gold); }
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: white;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px; font-weight: 500;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(139,111,71,0.25);
+  transition: all 0.2s;
+}
+.auth-btn:hover { transform: translateY(-1px); }
+.auth-err {
+  font-size: 12px;
+  color: var(--no-color);
+  margin-top: 12px;
+  min-height: 16px;
+  letter-spacing: 0.5px;
+}
+
 /* 토스트 */
 .toast {
   position: fixed; bottom: 32px; left: 50%;
@@ -300,6 +378,18 @@ body {
 </style>
 </head>
 <body>
+
+<!-- 비밀번호 잠금 화면 -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-card">
+    <div class="auth-eyebrow">Photo Manager</div>
+    <div class="auth-title">관리자 인증</div>
+    <div class="auth-sub">비밀번호를 입력해 주세요</div>
+    <input type="password" class="auth-input" id="authInput" inputmode="numeric" autocomplete="off" placeholder="• • • • • • • •">
+    <button class="auth-btn" onclick="checkAuth()">확인</button>
+    <div class="auth-err" id="authErr">&nbsp;</div>
+  </div>
+</div>
 
 <!-- 헤더 -->
 <header class="head">
@@ -403,6 +493,43 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
+/* ── 비밀번호 인증 ──
+   주의: 클라이언트 사이드 잠금이라 완벽한 보안은 아님.
+   하지만 일반 하객이 우연히 접근하는 것을 막는 용도로는 충분. */
+const ADMIN_PW = '01120309';
+const AUTH_KEY = 'photoAdminAuth';
+
+function checkAuth() {
+  const input = document.getElementById('authInput');
+  const err   = document.getElementById('authErr');
+  if (input.value === ADMIN_PW) {
+    sessionStorage.setItem(AUTH_KEY, '1');
+    document.getElementById('authGate').style.display = 'none';
+    loadPhotos();
+    loadAccounts();
+  } else {
+    err.textContent = '비밀번호가 일치하지 않습니다';
+    input.value = '';
+    input.focus();
+    setTimeout(() => { err.textContent = ' '; }, 3000);
+  }
+}
+
+/* 엔터 키로 제출 */
+document.getElementById('authInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkAuth();
+});
+
+/* 페이지 로드 시 — 이미 인증된 세션이면 잠금 해제 */
+(function initAuth() {
+  if (sessionStorage.getItem(AUTH_KEY) === '1') {
+    document.getElementById('authGate').style.display = 'none';
+  } else {
+    /* 인증 전에는 자동 호출 막기 위해 input 에 포커스만 */
+    setTimeout(() => document.getElementById('authInput').focus(), 200);
+  }
+})();
+
 /* ── 토스트 ── */
 function showToast(msg) {
   const el = document.getElementById('toast');
@@ -611,9 +738,11 @@ async function saveAccounts() {
   }
 }
 
-/* ── 시작 ── */
-loadPhotos();
-loadAccounts();
+/* ── 시작 ── (인증된 세션일 때만 자동 로드) */
+if (sessionStorage.getItem(AUTH_KEY) === '1') {
+  loadPhotos();
+  loadAccounts();
+}
 </script>
 </body>
 </html>
