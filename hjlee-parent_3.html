@@ -153,36 +153,34 @@ body {
   overflow: hidden;
   z-index: 9000;
 }
+/* 단풍잎 — 화면 곳곳에 분산 배치, 제자리에서 살랑살랑 */
 .petal {
   position: absolute;
-  top: -40px;
-  width: 12px; height: 15px;
-  border-radius: 50% 0 50% 50%;
+  width: 16px; height: 16px;
+  clip-path: polygon(
+    50%  2%,
+    62% 30%, 92% 30%,
+    75% 52%, 86% 82%,
+    60% 66%, 50% 98%, 40% 66%,
+    14% 82%, 25% 52%,
+     8% 30%, 38% 30%
+  );
   opacity: 0;
-  animation-name: petalFall;
+  animation-name: gentleSway;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
-  filter: blur(0.5px) drop-shadow(0 2px 5px rgba(139,111,71,0.14));
+  filter: drop-shadow(0 2px 5px rgba(139,72,45,0.20));
 }
-/* 가을 톤 — 골드 / 구리 / 크림(따뜻) 교차 */
-.petal.p-gold   { background: linear-gradient(135deg, #E8D5B0, #B8884A); }
-.petal.p-rose   { background: linear-gradient(135deg, #D4A574, #8B5A2B); }
-.petal.p-cream  { background: linear-gradient(135deg, #FAF4E8, #DDC9A8); }
+/* 메이플 톤 */
+.petal.p-gold   { background: linear-gradient(135deg, #D4A574, #8B6F47); }
+.petal.p-rose   { background: linear-gradient(135deg, #B85048, #7A2C25); }
+.petal.p-cream  { background: linear-gradient(135deg, #D4854F, #A0552A); }
 
-@keyframes petalFall {
-  0% {
-    transform: translateY(-5vh) translateX(0) rotate(0deg);
-    opacity: 0;
-  }
-  10% { opacity: 0.55; }
-  25% { transform: translateY(25vh) translateX(22px)  rotate(110deg); }
-  50% { transform: translateY(50vh) translateX(-26px) rotate(220deg); }
-  75% { transform: translateY(75vh) translateX(18px)  rotate(340deg); }
-  90% { opacity: 0.5; }
-  100% {
-    transform: translateY(110vh) translateX(-12px) rotate(460deg);
-    opacity: 0;
-  }
+@keyframes gentleSway {
+  0%, 100% { transform: translate(0, 0)        rotate(0deg);   opacity: 0.20; }
+  25%      { transform: translate(9px, -10px)  rotate(15deg);  opacity: 0.55; }
+  50%      { transform: translate(-7px, -16px) rotate(-10deg); opacity: 0.42; }
+  75%      { transform: translate(11px, -6px)  rotate(18deg);  opacity: 0.48; }
 }
 /* 모션 줄이기 설정 사용자 — 애니메이션 끔 */
 @media (prefers-reduced-motion: reduce) {
@@ -1857,23 +1855,22 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
 <!-- 캡쳐 방지용 검은 오버레이 -->
 <div id="blackout-overlay" aria-hidden="true"></div>
 
-<!-- 꽃잎 떨어지는 오버레이 (장식용) -->
+<!-- 단풍잎 오버레이 — 화면 곳곳에 분산, 제자리 살랑살랑 -->
 <div class="petals-overlay" aria-hidden="true">
-  <span class="petal p-gold"  style="left:  4%; animation-duration: 14s; animation-delay:  0s; width:12px; height:15px;"></span>
-  <span class="petal p-rose"  style="left: 12%; animation-duration: 18s; animation-delay:  3s; width:10px; height:13px;"></span>
-  <span class="petal p-cream" style="left: 20%; animation-duration: 16s; animation-delay:  6s; width:14px; height:18px;"></span>
-  <span class="petal p-gold"  style="left: 28%; animation-duration: 20s; animation-delay:  1s; width: 9px; height:12px;"></span>
-  <span class="petal p-rose"  style="left: 36%; animation-duration: 15s; animation-delay:  8s; width:13px; height:17px;"></span>
-  <span class="petal p-gold"  style="left: 44%; animation-duration: 17s; animation-delay:  4s; width:11px; height:14px;"></span>
-  <span class="petal p-cream" style="left: 52%; animation-duration: 19s; animation-delay:  7s; width:12px; height:15px;"></span>
-  <span class="petal p-rose"  style="left: 60%; animation-duration: 13s; animation-delay:  2s; width:10px; height:13px;"></span>
-  <span class="petal p-gold"  style="left: 68%; animation-duration: 21s; animation-delay:  5s; width:14px; height:18px;"></span>
-  <span class="petal p-cream" style="left: 76%; animation-duration: 16s; animation-delay:  9s; width:11px; height:14px;"></span>
-  <span class="petal p-rose"  style="left: 84%; animation-duration: 18s; animation-delay:  0s; width: 9px; height:12px;"></span>
-  <span class="petal p-gold"  style="left: 92%; animation-duration: 15s; animation-delay:  6s; width:13px; height:17px;"></span>
-  <span class="petal p-cream" style="left:  8%; animation-duration: 22s; animation-delay: 10s; width:10px; height:13px;"></span>
-  <span class="petal p-gold"  style="left: 48%; animation-duration: 14s; animation-delay: 11s; width:12px; height:15px;"></span>
-  <span class="petal p-rose"  style="left: 72%; animation-duration: 19s; animation-delay: 12s; width:11px; height:14px;"></span>
+  <span class="petal p-gold"  style="top:  6%; left:  7%; animation-duration: 7s;   animation-delay: 0s;   width: 14px; height: 14px;"></span>
+  <span class="petal p-rose"  style="top: 13%; left: 28%; animation-duration: 9s;   animation-delay: 1.5s; width: 16px; height: 16px;"></span>
+  <span class="petal p-cream" style="top: 22%; left: 58%; animation-duration: 8s;   animation-delay: 3s;   width: 15px; height: 15px;"></span>
+  <span class="petal p-gold"  style="top: 10%; left: 82%; animation-duration: 6.5s; animation-delay: 0.5s; width: 14px; height: 14px;"></span>
+  <span class="petal p-rose"  style="top: 30%; left: 14%; animation-duration: 10s;  animation-delay: 2s;   width: 18px; height: 18px;"></span>
+  <span class="petal p-cream" style="top: 38%; left: 42%; animation-duration: 7.5s; animation-delay: 4s;   width: 16px; height: 16px;"></span>
+  <span class="petal p-gold"  style="top: 28%; left: 72%; animation-duration: 8.5s; animation-delay: 2.5s; width: 15px; height: 15px;"></span>
+  <span class="petal p-rose"  style="top: 48%; left:  9%; animation-duration: 9.5s; animation-delay: 1s;   width: 17px; height: 17px;"></span>
+  <span class="petal p-cream" style="top: 52%; left: 60%; animation-duration: 7s;   animation-delay: 3.5s; width: 14px; height: 14px;"></span>
+  <span class="petal p-gold"  style="top: 58%; left: 88%; animation-duration: 8s;   animation-delay: 5s;   width: 15px; height: 15px;"></span>
+  <span class="petal p-rose"  style="top: 68%; left: 22%; animation-duration: 9s;   animation-delay: 2s;   width: 16px; height: 16px;"></span>
+  <span class="petal p-cream" style="top: 75%; left: 50%; animation-duration: 6s;   animation-delay: 0s;   width: 14px; height: 14px;"></span>
+  <span class="petal p-gold"  style="top: 82%; left: 78%; animation-duration: 10s;  animation-delay: 4.5s; width: 17px; height: 17px;"></span>
+  <span class="petal p-rose"  style="top: 90%; left: 36%; animation-duration: 7.5s; animation-delay: 1.5s; width: 15px; height: 15px;"></span>
 </div>
 
 <!-- 로딩 -->
