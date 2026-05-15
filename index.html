@@ -29,6 +29,9 @@
 <!-- 테마 컬러 (모바일 브라우저 상단바) -->
 <meta name="theme-color" content="#C9A96E">
 
+<!-- 카카오톡 공유 SDK -->
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;600&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;family=Noto+Sans+KR:wght@300;400;500&amp;display=swap" rel="stylesheet">
 <style>
 /* ── 전역 변수 & 리셋 ── */
@@ -1271,6 +1274,55 @@ body {
 }
 .rsvp-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(139,111,71,0.4); }
 
+/* ── 공유하기 섹션 ── */
+.share-section {
+  background: var(--white);
+  text-align: center;
+  padding: 60px 24px;
+}
+.share-desc {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 13px; font-weight: 300;
+  color: var(--text-light); line-height: 2;
+  margin-bottom: 24px;
+}
+.share-btn-grid {
+  display: flex; gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 360px;
+  margin: 0 auto;
+}
+.share-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Noto Serif KR', serif;
+  font-size: 13px; font-weight: 400;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(139,111,71,0.12);
+  transition: all 0.25s;
+  min-width: 140px;
+  justify-content: center;
+}
+.share-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139,111,71,0.20); }
+.share-btn.kakao {
+  background: #FEE500;
+  color: #3A1D1D;
+}
+.share-btn.kakao::before {
+  content: ''; width: 18px; height: 18px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%233A1D1D' d='M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6-.2.7-.7 2.6-.8 3 0 0-.1.3.1.4.2.1.4 0 .4 0 .5-.1 3-2 3.4-2.3.7.1 1.4.2 2.2.2 5.5 0 10-3.5 10-7.8S17.5 3 12 3z'/></svg>");
+  background-size: contain; background-repeat: no-repeat;
+}
+.share-btn.copy {
+  background: rgba(250,247,242,0.9);
+  color: var(--text-mid);
+  border: 1px solid rgba(201,169,110,0.25);
+}
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    SECTION · 갤러리
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -2103,6 +2155,20 @@ body {
     </div>
   </section>
 
+  <!-- ── 공유하기 ── -->
+  <section class="share-section">
+    <div class="section-label">Share</div>
+    <div class="section-title">청첩장 공유</div>
+    <p class="share-desc">
+      소중한 분들께 청첩장을 전해 주세요<br>
+      <span style="font-size:11px; color: var(--gold-dark); letter-spacing:1px;">길찾기 버튼이 포함된 카드로 전송됩니다</span>
+    </p>
+    <div class="share-btn-grid">
+      <button class="share-btn kakao" onclick="shareKakao()">카카오톡 공유</button>
+      <button class="share-btn copy"  onclick="copyInviteLink()">📋 링크 복사</button>
+    </div>
+  </section>
+
   <!-- ── 푸터 ── -->
   <footer class="footer">
     <div class="footer-names" id="footer-names">— &amp; —</div>
@@ -2727,6 +2793,63 @@ async function submitRsvp() {
     ? `${name}님의 참석 의사가 전달되었습니다 감사합니다 🌸`
     : `${name}님의 회신이 전달되었습니다 감사합니다`;
   showToast(msg);
+}
+
+/* ── 카카오톡 공유 ── */
+const KAKAO_JS_KEY = 'dcd1c068f6af150c317890b1ad802bf2';
+
+(function initKakao() {
+  if (window.Kakao && !Kakao.isInitialized()) {
+    try { Kakao.init(KAKAO_JS_KEY); } catch (e) { console.warn('Kakao init 실패:', e); }
+  }
+})();
+
+function shareKakao() {
+  if (!window.Kakao || !Kakao.isInitialized()) {
+    showToast('카카오 SDK가 아직 로드되지 않았습니다');
+    return;
+  }
+  const d = CFG.date, v = CFG.venue;
+  const dateStr = `${d.year}.${String(d.month).padStart(2,'0')}.${String(d.day).padStart(2,'0')} (${(d.dayOfWeek||'').replace('요일','')}) ${d.time}`;
+  const siteUrl = location.origin + '/';
+  /* 카카오맵 길찾기 딥링크 — 좌표 기반 */
+  const mapUrl = `https://map.kakao.com/link/to/${encodeURIComponent('문수컨벤션웨딩홀')},${v.lat},${v.lng}`;
+
+  try {
+    Kakao.Share.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: `${CFG.groom.name} ♥ ${CFG.bride.name} 청첩장`,
+        description: `${dateStr}\n${v.name} ${v.hall}`,
+        imageUrl: `${siteUrl}images/og-cover.png?v=3`,
+        link: { mobileWebUrl: siteUrl, webUrl: siteUrl }
+      },
+      buttons: [
+        {
+          title: '청첩장 보기',
+          link:  { mobileWebUrl: siteUrl, webUrl: siteUrl }
+        },
+        {
+          title: '🧭 길찾기',
+          link:  { mobileWebUrl: mapUrl, webUrl: mapUrl }
+        }
+      ]
+    });
+  } catch (e) {
+    console.error('카카오 공유 실패:', e);
+    showToast('공유에 실패했습니다');
+  }
+}
+
+function copyInviteLink() {
+  const url = location.origin + '/';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url)
+      .then(() => showToast('청첩장 링크가 복사되었습니다'))
+      .catch(() => fallbackCopy(url, '청첩장 링크가 복사되었습니다'));
+  } else {
+    fallbackCopy(url, '청첩장 링크가 복사되었습니다');
+  }
 }
 
 /* ── 푸터 ── */
