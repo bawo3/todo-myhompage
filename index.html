@@ -173,16 +173,16 @@ body {
   animation-iteration-count: infinite;
   filter: drop-shadow(0 2px 5px rgba(139,72,45,0.20));
 }
-/* 메이플 톤 — 가을 단풍의 깊은 색감 (골드/메이플레드/번트오렌지) */
-.petal.p-gold   { background: linear-gradient(135deg, #D4A574, #8B6F47); }   /* 가을 골드-브라운 */
-.petal.p-rose   { background: linear-gradient(135deg, #B85048, #7A2C25); }   /* 메이플 레드 */
-.petal.p-cream  { background: linear-gradient(135deg, #D4854F, #A0552A); }   /* 번트 오렌지 */
+/* 메이플 톤 — 더 연하게 (은은한 느낌) */
+.petal.p-gold   { background: linear-gradient(135deg, #E2C19A, #B49274); }   /* 옅은 가을 골드 */
+.petal.p-rose   { background: linear-gradient(135deg, #D08077, #9B564E); }   /* 옅은 메이플 레드 */
+.petal.p-cream  { background: linear-gradient(135deg, #E2A57B, #BE7E55); }   /* 옅은 번트 오렌지 */
 
 @keyframes gentleSway {
-  0%, 100% { transform: translate(0, 0)        rotate(0deg);   opacity: 0.20; }
-  25%      { transform: translate(9px, -10px)  rotate(15deg);  opacity: 0.55; }
-  50%      { transform: translate(-7px, -16px) rotate(-10deg); opacity: 0.42; }
-  75%      { transform: translate(11px, -6px)  rotate(18deg);  opacity: 0.48; }
+  0%, 100% { transform: translate(0, 0)        rotate(0deg);   opacity: 0.10; }
+  25%      { transform: translate(9px, -10px)  rotate(15deg);  opacity: 0.32; }
+  50%      { transform: translate(-7px, -16px) rotate(-10deg); opacity: 0.24; }
+  75%      { transform: translate(11px, -6px)  rotate(18deg);  opacity: 0.28; }
 }
 /* 모션 줄이기 설정 사용자 — 애니메이션 끔 */
 @media (prefers-reduced-motion: reduce) {
@@ -2542,15 +2542,14 @@ function renderFamily() {
 }
 
 /* ── 부모님 전화 아이콘 — 혼주 grid 내부의 4명 부모 ──
-   PHONE_DISPLAY_SIDE: 'both' | 'groom' | 'bride'
-     - 'both'  → 양측 모두 표시 (index.html)
+   PHONE_DISPLAY_SIDE: 'none' | 'both' | 'groom' | 'bride'
+     - 'none'  → 아무도 노출 X (index.html 메인 정책)
+     - 'both'  → 양측 모두 표시
      - 'groom' → 신랑측 부모만 (jhkim-parent_2.html)
      - 'bride' → 신부측 부모만 (hjlee-parent_3.html)
 
-   숨길 때는 visibility:hidden 을 써서 grid 자리를 유지한다.
-   hidden 속성(display:none) 으로 가리면 옆 칸이 빈자리를 차지해
-   '어머니 아이콘이 아버지 자리로 이동'하는 reflow 버그가 발생함. */
-const PHONE_DISPLAY_SIDE = 'both';
+   숨길 때는 visibility:hidden 을 써서 grid 자리를 유지한다. */
+const PHONE_DISPLAY_SIDE = 'none';
 
 async function renderParentPhones() {
   const g = CFG.groom, b = CFG.bride;

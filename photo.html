@@ -593,14 +593,17 @@ function showToast(msg) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
-/* ── 이미지 리사이즈 + JPEG 변환 (브라우저에서) ── */
-async function compressImage(file, maxSize = 1400, quality = 0.82) {
+/* ── 이미지 리사이즈 + JPEG 변환 (브라우저에서) ──
+   maxSize 1080px / quality 0.72 — 청첩장 갤러리 용도로 충분.
+   결과 base64 한 장 당 보통 60~200KB 수준이라 KV 누적 부담↓ + 로딩 빠름.
+   목표 사이즈 초과 시 quality 를 자동으로 더 내리는 폴백 포함. */
+async function compressImage(file, maxSize = 1080, quality = 0.72, maxBytes = 350 * 1024) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = e => { img.src = e.target.result; };
-    img.onerror = () => reject(new Error('이미지를 읽을 수 없습니다'));
+    reader.onerror = () => reject(new Error('파일 읽기 실패'));
+    reader.onload  = e => { img.src = e.target.result; };
+    img.onerror = () => reject(new Error('이미지를 디코딩할 수 없습니다 (손상되었거나 미지원 포맷)'));
     img.onload = () => {
       let { width, height } = img;
       if (width > maxSize || height > maxSize) {
@@ -612,8 +615,20 @@ async function compressImage(file, maxSize = 1400, quality = 0.82) {
       canvas.width  = width;
       canvas.height = height;
       const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0, width, height);
-      resolve(canvas.toDataURL('image/jpeg', quality));
+
+      /* 사이즈가 maxBytes(약 350KB) 초과면 quality 단계적으로 내림 */
+      let q = quality;
+      let dataUrl = canvas.toDataURL('image/jpeg', q);
+      let approxBytes = Math.round(dataUrl.length * 0.75);
+      while (approxBytes > maxBytes && q > 0.45) {
+        q -= 0.08;
+        dataUrl = canvas.toDataURL('image/jpeg', q);
+        approxBytes = Math.round(dataUrl.length * 0.75);
+      }
+      resolve({ src: dataUrl, kb: Math.round(approxBytes / 1024), w: width, h: height });
     };
     reader.readAsDataURL(file);
   });
@@ -621,27 +636,32 @@ async function compressImage(file, maxSize = 1400, quality = 0.82) {
 
 /* ── 사진 1장 업로드 ── */
 async function uploadOne(file, progressEl) {
+  const statusEl = progressEl.querySelector('.progress-status');
+  const setStatus = (txt, cls = 'wait') => {
+    statusEl.textContent = txt;
+    statusEl.className   = 'progress-status ' + cls;
+  };
   try {
-    progressEl.querySelector('.progress-status').textContent = '압축...';
-    progressEl.querySelector('.progress-status').className = 'progress-status wait';
-    const src = await compressImage(file);
+    setStatus('압축...', 'wait');
+    const { src, kb, w, h } = await compressImage(file);
 
-    progressEl.querySelector('.progress-status').textContent = '업로드...';
+    setStatus(`업로드 ${kb}KB (${w}×${h})...`, 'wait');
     const res = await fetch('/api/photos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ src })
     });
-    if (!res.ok) throw new Error('서버 오류');
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status} ${res.statusText} ${errBody}`);
+    }
 
-    progressEl.querySelector('.progress-status').textContent = '완료 ✓';
-    progressEl.querySelector('.progress-status').className = 'progress-status ok';
-    setTimeout(() => progressEl.remove(), 1500);
+    setStatus(`완료 ✓ ${kb}KB`, 'ok');
+    setTimeout(() => progressEl.remove(), 2000);
     return true;
   } catch (e) {
-    console.error(e);
-    progressEl.querySelector('.progress-status').textContent = '실패';
-    progressEl.querySelector('.progress-status').className = 'progress-status err';
+    console.error('업로드 실패:', file.name, e);
+    setStatus('실패: ' + (e.message || e), 'err');
     return false;
   }
 }
