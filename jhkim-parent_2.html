@@ -3165,8 +3165,8 @@ function showToast(msg) {
   setTimeout(() => el.classList.remove('show'), 2800);
 }
 
-/* 진단용 — 스크립트 로드 즉시 표시되는 마커 */
-console.log('🟢 jhkim-parent_2.html JS v=20260517-2 loaded');
+/* [diag 이력 2026-05-17] 갤러리 2번째 사진 로드 안 됨 버그 진단용 — 스크립트 로드 즉시 표시되는 마커 */
+// console.log('🟢 jhkim-parent_2.html JS v=20260517-2 loaded');
 
 /* ── 갤러리 슬라이더 ── */
 let slideIndex = 0;
@@ -3174,7 +3174,8 @@ let slideTotal = 0;
 let slideTimer = null;
 
 async function renderGallery() {
-  console.log('🔵 renderGallery() called');
+  /* [diag 이력 2026-05-17] renderGallery 진입 추적 */
+  // console.log('🔵 renderGallery() called');
   /* API에서 사진 목록 가져오기 (photo.html에서 등록한 사진) */
   let photos = [];
   try {
@@ -3184,14 +3185,14 @@ async function renderGallery() {
     console.error('사진 목록 로드 실패:', e);
   }
 
-  /* 진단 로그 — 각 사진의 src 유효성 확인 */
-  console.log(`📸 갤러리 사진 ${photos.length}장 로드됨`);
-  photos.forEach((p, i) => {
-    const srcLen   = p.src?.length || 0;
-    const srcStart = (p.src || '').substring(0, 50);
-    const isData   = (p.src || '').startsWith('data:image');
-    console.log(`  [${i+1}] id=${p.id || '?'} len=${srcLen} ${isData ? '(base64)' : '(url)'} ${srcStart}...`);
-  });
+  /* [diag 이력 2026-05-17] 각 사진 src 유효성 진단 — base64 vs URL 구분 + 길이 출력 */
+  // console.log(`📸 갤러리 사진 ${photos.length}장 로드됨`);
+  // photos.forEach((p, i) => {
+  //   const srcLen   = p.src?.length || 0;
+  //   const srcStart = (p.src || '').substring(0, 50);
+  //   const isData   = (p.src || '').startsWith('data:image');
+  //   console.log(`  [${i+1}] id=${p.id || '?'} len=${srcLen} ${isData ? '(base64)' : '(url)'} ${srcStart}...`);
+  // });
 
   /* API에 사진이 없으면 setting.json 의 기본 사진 사용 (폴백) */
   if (!photos || photos.length === 0) {
@@ -3210,11 +3211,12 @@ async function renderGallery() {
   const dots  = document.getElementById('sliderDots');
   const thumbs = document.getElementById('thumbStrip');
 
-  /* 슬라이드 생성 — lazy 제거 (off-screen lazy 미로드 회피) */
-  track.innerHTML = photos.map((p, i) => `
+  /* 슬라이드 생성 — lazy 제거 (off-screen lazy 미로드 회피)
+     [diag 이력 2026-05-17] 과거 onerror 핸들러에 console.error('slide image load failed:', i) 함께 호출했었음 (배경 폴백만 유지) */
+  track.innerHTML = photos.map(p => `
     <div class="slide">
       <img src="${p.src}" alt="${p.caption || ''}" decoding="async"
-           onerror="console.error('slide image load failed:', ${i}); this.parentElement.style.background='linear-gradient(135deg,#FAF7F2,#F0EAE0)'">
+           onerror="this.parentElement.style.background='linear-gradient(135deg,#FAF7F2,#F0EAE0)'">
       ${p.caption ? `<div class="slide-caption">${p.caption}</div>` : ''}
     </div>
   `).join('');
