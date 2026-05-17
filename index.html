@@ -1567,8 +1567,8 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
   display: flex;
   transition: transform 1s cubic-bezier(0.22, 0.61, 0.36, 1);
   position: relative;
-  border-radius: 28px;
-  overflow: hidden;
+  /* overflow:hidden 제거 — 이게 있으면 2번째 슬라이드가 track 경계 밖이라 영구히 클리핑됨.
+     외곽 라운드는 부모 .slider-wrap 의 overflow:hidden 으로 처리. */
 }
 .slide {
   flex: 0 0 100%;

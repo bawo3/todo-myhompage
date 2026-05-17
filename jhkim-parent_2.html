@@ -1616,8 +1616,7 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
   display: flex;
   transition: transform 1s cubic-bezier(0.22, 0.61, 0.36, 1);
   position: relative;
-  border-radius: 28px;
-  overflow: hidden;
+  /* overflow:hidden 제거 — 2번째 슬라이드 클리핑 버그 수정 */
 }
 .slide {
   flex: 0 0 100%;
