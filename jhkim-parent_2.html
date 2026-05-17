@@ -3166,12 +3166,16 @@ function showToast(msg) {
   setTimeout(() => el.classList.remove('show'), 2800);
 }
 
+/* 진단용 — 스크립트 로드 즉시 표시되는 마커 */
+console.log('🟢 jhkim-parent_2.html JS v=20260517-2 loaded');
+
 /* ── 갤러리 슬라이더 ── */
 let slideIndex = 0;
 let slideTotal = 0;
 let slideTimer = null;
 
 async function renderGallery() {
+  console.log('🔵 renderGallery() called');
   /* API에서 사진 목록 가져오기 (photo.html에서 등록한 사진) */
   let photos = [];
   try {
@@ -3180,6 +3184,15 @@ async function renderGallery() {
   } catch (e) {
     console.error('사진 목록 로드 실패:', e);
   }
+
+  /* 진단 로그 — 각 사진의 src 유효성 확인 */
+  console.log(`📸 갤러리 사진 ${photos.length}장 로드됨`);
+  photos.forEach((p, i) => {
+    const srcLen   = p.src?.length || 0;
+    const srcStart = (p.src || '').substring(0, 50);
+    const isData   = (p.src || '').startsWith('data:image');
+    console.log(`  [${i+1}] id=${p.id || '?'} len=${srcLen} ${isData ? '(base64)' : '(url)'} ${srcStart}...`);
+  });
 
   /* API에 사진이 없으면 setting.json 의 기본 사진 사용 (폴백) */
   if (!photos || photos.length === 0) {
