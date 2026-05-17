@@ -3138,6 +3138,16 @@ async function renderGallery() {
     console.error('사진 목록 로드 실패:', e);
   }
 
+  /* 진단 로그 — 각 사진의 src 유효성 확인 */
+  console.log(`📸 갤러리 사진 ${photos.length}장 로드됨`);
+  photos.forEach((p, i) => {
+    const srcLen   = p.src?.length || 0;
+    const srcStart = (p.src || '').substring(0, 50);
+    const isData   = (p.src || '').startsWith('data:image');
+    const isUrl    = (p.src || '').startsWith('http') || (p.src || '').startsWith('./');
+    console.log(`  [${i+1}] id=${p.id || '?'} len=${srcLen} ${isData ? '(base64)' : isUrl ? '(url)' : '(?)'} ${srcStart}...`);
+  });
+
   /* API에 사진이 없으면 setting.json 의 기본 사진 사용 (폴백) */
   if (!photos || photos.length === 0) {
     const g = CFG.gallery;
