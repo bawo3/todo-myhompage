@@ -3155,11 +3155,14 @@ async function renderGallery() {
   const dots  = document.getElementById('sliderDots');
   const thumbs = document.getElementById('thumbStrip');
 
-  /* 슬라이드 생성 */
+  /* 슬라이드 생성
+     주의: loading="lazy" 사용하면 transform 으로 화면 밖에 있는 슬라이드의
+           이미지가 영구히 안 로드되는 케이스가 있어 제거.
+           대신 decoding="async" 로 디코딩 비동기 처리 → 첫 페인트 빠르게. */
   track.innerHTML = photos.map((p, i) => `
     <div class="slide">
-      <img src="${p.src}" alt="${p.caption || ''}" loading="lazy"
-           onerror="this.parentElement.style.background='linear-gradient(135deg,#FAF7F2,#F0EAE0)'">
+      <img src="${p.src}" alt="${p.caption || ''}" decoding="async"
+           onerror="console.error('slide image load failed:', ${i}); this.parentElement.style.background='linear-gradient(135deg,#FAF7F2,#F0EAE0)'">
       ${p.caption ? `<div class="slide-caption">${p.caption}</div>` : ''}
     </div>
   `).join('');
@@ -3169,15 +3172,61 @@ async function renderGallery() {
     `<button class="dot${i===0?' active':''}" onclick="goSlide(${i})"></button>`
   ).join('');
 
-  /* 썸네일 */
+  /* 썸네일 — 작은 이미지라 lazy 유지 (성능 OK) */
   thumbs.innerHTML = photos.map((p, i) =>
     `<div class="thumb${i===0?' active':''}" onclick="goSlide(${i})">
-       <img src="${p.src}" alt="${p.caption||''}" loading="lazy">
+       <img src="${p.src}" alt="${p.caption||''}" loading="lazy" decoding="async">
      </div>`
   ).join('');
 
+  setupSliderSwipe();   /* 양옆 스와이프로 사진 넘기기 (touch + mouse drag) */
+
   goSlide(0);
   startAutoSlide();
+}
+
+/* ── 슬라이더 스와이프 제스처 ──
+   터치(모바일) + 마우스 드래그(데스크톱) 모두 지원.
+   임계값 40px 넘으면 좌→우 = prev, 우→좌 = next. */
+let _swipeBound = false;
+function setupSliderSwipe() {
+  if (_swipeBound) return;
+  _swipeBound = true;
+
+  const wrap = document.querySelector('.slider-wrap');
+  if (!wrap) return;
+
+  let startX = 0, startY = 0;
+  let dx = 0, dy = 0;
+  let active = false;
+
+  const onStart = x => { startX = x; dx = 0; active = true; };
+  const onMove  = x => { if (active) dx = x - startX; };
+  const onEnd   = () => {
+    if (!active) return;
+    active = false;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      dx < 0 ? slideNext() : slidePrev();
+    }
+  };
+
+  /* 터치 — passive: true 로 스크롤 성능 유지 */
+  wrap.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY; dy = 0;
+    onStart(e.touches[0].clientX);
+  }, { passive: true });
+  wrap.addEventListener('touchmove',  e => {
+    dy = e.touches[0].clientY - startY;
+    onMove(e.touches[0].clientX);
+  }, { passive: true });
+  wrap.addEventListener('touchend', onEnd);
+  wrap.addEventListener('touchcancel', () => { active = false; });
+
+  /* 마우스 — 데스크톱 드래그 지원 */
+  wrap.addEventListener('mousedown', e => { onStart(e.clientX); e.preventDefault(); });
+  wrap.addEventListener('mousemove', e => onMove(e.clientX));
+  wrap.addEventListener('mouseup',   onEnd);
+  wrap.addEventListener('mouseleave', () => { active = false; });
 }
 
 function goSlide(idx) {
