@@ -246,9 +246,14 @@ function sendKakao({ title, targetUrl }) {
         imageUrl:    IMG,
         link: { mobileWebUrl: targetUrl, webUrl: targetUrl }
       },
+      /* 현재 구성: 청첩장 보기 + 길찾기
+         (일정 등록 버튼은 필요 시 재활성화 — 아래 주석 참고) */
       buttons: [
-        { title: '📅 일정 등록', link: { mobileWebUrl: CAL_URL, webUrl: CAL_URL } },
-        { title: '🧭 길찾기',    link: { mobileWebUrl: MAP_URL, webUrl: MAP_URL } }
+        { title: '💌 청첩장 보기', link: { mobileWebUrl: targetUrl, webUrl: targetUrl } },
+        { title: '🧭 길찾기',     link: { mobileWebUrl: MAP_URL,   webUrl: MAP_URL   } }
+        /* 일정 등록 버튼 (필요 시 활성화):
+        , { title: '📅 일정 등록', link: { mobileWebUrl: CAL_URL, webUrl: CAL_URL } }
+        */
       ]
     });
   } catch (e) {

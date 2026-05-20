@@ -1564,16 +1564,36 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
   z-index: 5;
 }
 .slider-track {
-  display: flex;
-  transition: transform 1s cubic-bezier(0.22, 0.61, 0.36, 1);
-  position: relative;
-  /* overflow:hidden 제거 — 이게 있으면 2번째 슬라이드가 track 경계 밖이라 영구히 클리핑됨.
+  /* 그리드 스택 — 모든 슬라이드가 같은 셀에 겹쳐져 opacity + 마스크 그라데이션으로 부드럽게 페이드 전환.
+     translateX 슬라이드 방식 대신 그라데이션 마스크가 '샤라락' 쓸려나가는 효과로 변경됨.
      외곽 라운드는 부모 .slider-wrap 의 overflow:hidden 으로 처리. */
+  display: grid;
+  grid-template-areas: 'stack';
+  position: relative;
 }
 .slide {
-  flex: 0 0 100%;
+  grid-area: stack;
   position: relative;
   overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  /* 좌→우로 부드럽게 쓸려나가는 그라데이션 마스크 — '샤라락' 은은한 전환 */
+  -webkit-mask-image: linear-gradient(105deg, transparent 0%, #000 35%, #000 65%, transparent 100%);
+          mask-image: linear-gradient(105deg, transparent 0%, #000 35%, #000 65%, transparent 100%);
+  -webkit-mask-size: 220% 100%;
+          mask-size: 220% 100%;
+  -webkit-mask-position: 100% 0;
+          mask-position: 100% 0;
+  transition: opacity 1.2s ease-in-out,
+              -webkit-mask-position 1.4s cubic-bezier(0.22, 0.61, 0.36, 1),
+                      mask-position 1.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.slide.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 2;
+  -webkit-mask-position: 0 0;
+          mask-position: 0 0;
 }
 .slide img {
   width: 100%;
@@ -3082,11 +3102,14 @@ function shareKakao() {
         link: { mobileWebUrl: siteUrl, webUrl: siteUrl }
       },
       /* Kakao Share feed 템플릿은 최대 2개 버튼.
-         카드 본문(이미지/제목/설명) 클릭 시 청첩장이 열리므로
-         버튼 2개는 길찾기 + 일정 등록 로 구성. */
+         현재 구성: 청첩장 보기 + 길찾기
+         (일정 등록 버튼은 필요 시 재활성화 — 아래 주석 참고) */
       buttons: [
-        { title: '📅 일정 등록', link: { mobileWebUrl: calUrl, webUrl: calUrl } },
-        { title: '🧭 길찾기',    link: { mobileWebUrl: mapUrl, webUrl: mapUrl } }
+        { title: '💌 청첩장 보기', link: { mobileWebUrl: siteUrl, webUrl: siteUrl } },
+        { title: '🧭 길찾기',     link: { mobileWebUrl: mapUrl,  webUrl: mapUrl  } }
+        /* 일정 등록 버튼 (필요 시 활성화):
+        , { title: '📅 일정 등록', link: { mobileWebUrl: calUrl, webUrl: calUrl } }
+        */
       ]
     });
   } catch (e) {
@@ -3244,8 +3267,8 @@ function setupSliderSwipe() {
 
 function goSlide(idx) {
   slideIndex = (idx + slideTotal) % slideTotal;
-  document.getElementById('sliderTrack').style.transform =
-    `translateX(-${slideIndex * 100}%)`;
+  /* 그리드 스택 + opacity/마스크 그라데이션 전환 방식 — translateX 불필요
+     (기존 translateX 라인은 그라데이션 페이드 전환으로 대체) */
 
   /* 활성 슬라이드 — 켄번즈 줌인 효과 */
   document.querySelectorAll('.slide').forEach((s, i) =>
