@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>청첩장 공유 · 재현 ♥ 혜주</title>
+<title>청첩장 공유 · 신부측 부모님 전용</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;600&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600&amp;family=Noto+Sans+KR:wght@300;400;500&amp;display=swap" rel="stylesheet">
 
 <!-- 카카오톡 공유 SDK -->
@@ -69,20 +69,20 @@ body {
   margin: 0 auto 24px;
 }
 .desc {
-  font-size: 12.5px; color: var(--text-mid);
-  line-height: 1.75; letter-spacing: 0.5px;
-  margin-bottom: 24px;
+  font-size: 13.5px; color: var(--text-mid);
+  line-height: 1.85; letter-spacing: 0.5px;
+  margin-bottom: 28px;
 }
 .desc strong { color: var(--text-dark); font-weight: 500; }
 
-/* 공유 버튼들 */
+/* 공유 버튼 */
 .share-list {
-  display: grid; gap: 10px;
+  display: grid; gap: 12px;
 }
 .share-btn {
   display: flex; align-items: center; gap: 14px;
   width: 100%;
-  padding: 14px 18px;
+  padding: 16px 20px;
   border: 1px solid rgba(201,169,110,0.22);
   border-radius: 16px;
   background: rgba(250,247,242,0.7);
@@ -95,10 +95,10 @@ body {
 .share-btn:active { transform: translateY(0); }
 
 .share-icon {
-  width: 40px; height: 40px;
+  width: 44px; height: 44px;
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  color: #3A1D1D; font-size: 18px;
+  color: #3A1D1D; font-size: 20px;
   flex-shrink: 0;
 }
 .share-icon.kakao  { background: linear-gradient(135deg, #FEE500, #F0D000); }
@@ -106,13 +106,12 @@ body {
 
 .share-text { flex: 1; min-width: 0; }
 .share-name {
-  font-size: 13.5px; font-weight: 500;
+  font-size: 14px; font-weight: 500;
   color: var(--text-dark); letter-spacing: 0.5px;
 }
 .share-sub {
-  font-size: 11px; color: var(--text-light);
-  margin-top: 2px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: 11.5px; color: var(--text-light);
+  margin-top: 3px;
 }
 
 .home-link {
@@ -146,67 +145,48 @@ body {
 <div class="card">
   <div class="eyebrow">Share</div>
   <div class="title">청첩장 공유</div>
-  <div class="sub">신랑 · 신부 본인용</div>
+  <div class="sub">신부측 부모님 전용</div>
   <div class="line"></div>
 
   <div class="desc">
-    공유 종류를 선택해 주세요.<br>
-    본인용 / 양가 부모님용 / 링크복사 중 선택하여<br>
-    카카오톡 공유 또는 URL 복사가 가능합니다.
+    아래 버튼을 누르시면<br>
+    <strong>신부측 부모님용 청첩장</strong>이 바로 공유됩니다.
   </div>
 
   <div class="share-list">
-    <!-- 1. 혼주용 -->
-    <button class="share-btn" onclick="shareCouple()">
+    <!-- 카카오톡 공유 -->
+    <button class="share-btn" onclick="shareKakao()">
       <div class="share-icon kakao">💛</div>
       <div class="share-text">
-        <div class="share-name">혼주용 카카오톡 공유</div>
-        <div class="share-sub">메인 청첩장 (index.html)</div>
+        <div class="share-name">카카오톡으로 공유하기</div>
+        <div class="share-sub">지인분들께 청첩장을 보내세요</div>
       </div>
     </button>
 
-    <!-- 2. 김재현측 부모님용 -->
-    <button class="share-btn" onclick="shareGroomParent()">
-      <div class="share-icon kakao">💛</div>
-      <div class="share-text">
-        <div class="share-name">김재현측 부모님 카카오톡 공유</div>
-        <div class="share-sub">신랑측 혼주 연락처 강조</div>
-      </div>
-    </button>
-
-    <!-- 3. 이혜주측 부모님용 -->
-    <button class="share-btn" onclick="shareBrideParent()">
-      <div class="share-icon kakao">💛</div>
-      <div class="share-text">
-        <div class="share-name">이혜주측 부모님 카카오톡 공유</div>
-        <div class="share-sub">신부측 혼주 연락처 강조</div>
-      </div>
-    </button>
-
-    <!-- 4. 링크 복사 -->
+    <!-- 링크 복사 -->
     <button class="share-btn" onclick="copyLink()">
       <div class="share-icon copy">🔗</div>
       <div class="share-text">
-        <div class="share-name">청첩장 링크 복사</div>
-        <div class="share-sub">URL 을 클립보드에 복사</div>
+        <div class="share-name">링크 복사하기</div>
+        <div class="share-sub">문자·메시지에 붙여넣기 하세요</div>
       </div>
     </button>
   </div>
 
-  <a class="home-link" href="/">← 청첩장으로 돌아가기</a>
+  <a class="home-link" href="/hjlee-parent_3.html">← 청첩장 보기</a>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-/* ── 설정값 — index.html 의 shareKakao 와 동일 구조 ── */
+/* ── 설정 ── */
 const KAKAO_JS_KEY = 'dcd1c068f6af150c317890b1ad802bf2';
 const BASE         = location.origin;
+const TARGET_URL   = `${BASE}/hjlee-parent_3.html`;
 const IMG          = `${BASE}/images/og-cover.png?v=5`;
 const MAP_URL      = `${BASE}/nav.html`;
-const CAL_URL      = `${BASE}/cal.html`;
 
-/* setting.json 에서 신랑/신부/일정 가져와 카카오 공유 본문 동적 생성 */
+/* setting.json 에서 정보 로드 */
 let CFG = null;
 async function loadCfg() {
   try {
@@ -223,6 +203,7 @@ loadCfg();
   }
 })();
 
+/* 날짜 한줄 문자열 생성 */
 function dateLine() {
   if (!CFG) return '';
   const d = CFG.date, v = CFG.venue;
@@ -230,30 +211,26 @@ function dateLine() {
   return `${d.year}.${String(d.month).padStart(2,'0')}.${String(d.day).padStart(2,'0')} (${day}) ${d.time}\n${v.name} ${v.hall}`;
 }
 
-/* ── 공유 함수들 ──
-   targetUrl 만 다르게 하고 본문/이미지/버튼은 동일 패턴. */
-function sendKakao({ title, targetUrl }) {
+/* ── 카카오톡 공유 ── */
+function shareKakao() {
   if (!window.Kakao || !Kakao.isInitialized()) {
     showToast('카카오 SDK 로드 대기 중 — 잠시 후 다시 시도해주세요');
     return;
   }
+  const groom = CFG?.groom?.name || '재현';
+  const bride = CFG?.bride?.name || '혜주';
   try {
     Kakao.Share.sendDefault({
       objectType: 'feed',
       content: {
-        title:       title,
+        title:       `${groom} ♥ ${bride} 청첩장 · 신부측 혼주`,
         description: dateLine(),
         imageUrl:    IMG,
-        link: { mobileWebUrl: targetUrl, webUrl: targetUrl }
+        link: { mobileWebUrl: TARGET_URL, webUrl: TARGET_URL }
       },
-      /* 현재 구성: 청첩장 보기 + 길찾기
-         (일정 등록 버튼은 필요 시 재활성화 — 아래 주석 참고) */
       buttons: [
-        { title: '💌 청첩장 보기', link: { mobileWebUrl: targetUrl, webUrl: targetUrl } },
+        { title: '💌 청첩장 보기', link: { mobileWebUrl: TARGET_URL, webUrl: TARGET_URL } },
         { title: '🧭 길찾기',     link: { mobileWebUrl: MAP_URL,   webUrl: MAP_URL   } }
-        /* 일정 등록 버튼 (필요 시 활성화):
-        , { title: '📅 일정 등록', link: { mobileWebUrl: CAL_URL, webUrl: CAL_URL } }
-        */
       ]
     });
   } catch (e) {
@@ -262,41 +239,14 @@ function sendKakao({ title, targetUrl }) {
   }
 }
 
-function shareCouple() {
-  const groom = CFG?.groom?.name || '재현';
-  const bride = CFG?.bride?.name || '혜주';
-  sendKakao({
-    title:     `${groom} ♥ ${bride} 청첩장`,
-    targetUrl: `${BASE}/`
-  });
-}
-
-function shareGroomParent() {
-  const groom = CFG?.groom?.name || '재현';
-  const bride = CFG?.bride?.name || '혜주';
-  sendKakao({
-    title:     `${groom} ♥ ${bride} 청첩장 · 신랑측 혼주`,
-    targetUrl: `${BASE}/jhkim-parent_2.html`
-  });
-}
-
-function shareBrideParent() {
-  const groom = CFG?.groom?.name || '재현';
-  const bride = CFG?.bride?.name || '혜주';
-  sendKakao({
-    title:     `${groom} ♥ ${bride} 청첩장 · 신부측 혼주`,
-    targetUrl: `${BASE}/hjlee-parent_3.html`
-  });
-}
-
+/* ── 링크 복사 ── */
 function copyLink() {
-  const url = `${BASE}/`;
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(url)
+    navigator.clipboard.writeText(TARGET_URL)
       .then(() => showToast('청첩장 링크가 복사되었습니다'))
-      .catch(() => fallbackCopy(url));
+      .catch(() => fallbackCopy(TARGET_URL));
   } else {
-    fallbackCopy(url);
+    fallbackCopy(TARGET_URL);
   }
 }
 
