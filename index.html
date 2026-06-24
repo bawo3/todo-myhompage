@@ -1974,6 +1974,7 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
         </div>
         <div class="family-name-divider"></div>
         <div class="family-name" id="groom-name">—</div>
+        <a class="family-contact" id="contact-groom" href="#" style="display:none;">📞 연락하기</a>
       </div>
       <!-- 신부측 -->
       <div class="family-card">
@@ -1988,6 +1989,7 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
         </div>
         <div class="family-name-divider"></div>
         <div class="family-name" id="bride-name">—</div>
+        <a class="family-contact" id="contact-bride" href="#" style="display:none;">📞 연락하기</a>
       </div>
     </div>
   </section>
@@ -2562,16 +2564,14 @@ function renderFamily() {
 }
 
 /* ── 부모님 전화 아이콘 — 혼주 grid 내부의 4명 부모 ──
-   PHONE_DISPLAY_SIDE: 'none' | 'both' | 'groom' | 'bride'
-     - 'none'  → 아무도 노출 X (index.html 메인 정책)
-     - 'both'  → 양측 모두 표시
-     - 'groom' → 신랑측 부모만 (jhkim-parent_2.html)
-     - 'bride' → 신부측 부모만 (hjlee-parent_3.html)
-
-   ?contact= 쿼리 파라미터로 동적 오버라이드 가능.
-   숨길 때는 visibility:hidden 을 써서 grid 자리를 유지한다. */
+   index.html 메인에서는 부모님 전화번호는 항상 숨김 (none).
+   대신 ?contact= 쿼리 파라미터로 신랑/신부 본인 연락처를 제어.
+     - 'groom' → 신랑 본인 연락처만 표시
+     - 'bride' → 신부 본인 연락처만 표시
+     - 'both'  → 양측 본인 연락처 표시
+     - 'hide' 또는 없음 → 연락처 미표시 */
 const _qContact = new URLSearchParams(location.search).get('contact');
-const PHONE_DISPLAY_SIDE = (['groom','bride','both'].includes(_qContact)) ? _qContact : 'none';
+const PHONE_DISPLAY_SIDE = 'none';
 
 async function renderParentPhones() {
   const g = CFG.groom, b = CFG.bride;
@@ -2594,6 +2594,7 @@ async function renderParentPhones() {
     }
   } catch (e) { console.warn('부모님 연락처 로드 실패:', e); }
 
+  /* 부모님 전화 아이콘 처리 (index.html에서는 항상 숨김) */
   ['groom-father','groom-mother','bride-father','bride-mother'].forEach(k => {
     const el = document.getElementById('phone-' + k);
     if (!el) return;
@@ -2612,6 +2613,26 @@ async function renderParentPhones() {
       el.style.pointerEvents = 'none';
     }
   });
+
+  /* 신랑/신부 본인 연락처 표시 (?contact= 쿼리 파라미터 기반) */
+  const showGroom = (_qContact === 'groom' || _qContact === 'both');
+  const showBride = (_qContact === 'bride' || _qContact === 'both');
+  const groomEl = document.getElementById('contact-groom');
+  const brideEl = document.getElementById('contact-bride');
+  if (groomEl && showGroom) {
+    const p = (g.contact || '').trim();
+    if (p) {
+      groomEl.href = 'tel:' + p.replace(/[^0-9+]/g, '');
+      groomEl.style.display = '';
+    }
+  }
+  if (brideEl && showBride) {
+    const p = (b.contact || '').trim();
+    if (p) {
+      brideEl.href = 'tel:' + p.replace(/[^0-9+]/g, '');
+      brideEl.style.display = '';
+    }
+  }
 }
 
 /* ── 날짜 & 달력 ── */
