@@ -23,7 +23,7 @@
 ## 🗂 파일 구조
 
 ```
-my-hompage/
+WEDDING-CARD/
 ├── index.html          # 메인 청첩장 (HTML + CSS + JS 통합)
 ├── setting.json        # 모든 청첩장 정보
 ├── images/             # 갤러리 이미지

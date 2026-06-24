@@ -2612,8 +2612,12 @@ function renderFamily() {
 
 /* ── 부모님 전화 아이콘 — 신부측 부모님용 청첩장 ──
    PHONE_DISPLAY_SIDE = 'bride' : 신부측 부모만 노출, 신랑측은 자리 유지 후 숨김
+   PHONE_DISPLAY_ROLE: 'both' | 'father' | 'mother' | 'none'
+     - ?contact= 쿼리 파라미터로 동적 오버라이드 가능.
    visibility:hidden 사용 — 옆칸 아이콘 reflow 방지. */
-const PHONE_DISPLAY_SIDE = 'bride';
+const _qContact = new URLSearchParams(location.search).get('contact');
+const PHONE_DISPLAY_SIDE = (_qContact === 'hide') ? 'none' : 'bride';
+const PHONE_DISPLAY_ROLE = (['father','mother','both'].includes(_qContact)) ? _qContact : (_qContact === 'hide' ? 'none' : 'both');
 
 async function renderParentPhones() {
   const g = CFG.groom, b = CFG.bride;
@@ -2640,8 +2644,11 @@ async function renderParentPhones() {
     const el = document.getElementById('phone-' + k);
     if (!el) return;
     const side      = k.startsWith('groom') ? 'groom' : 'bride';
+    const role      = k.endsWith('-father') ? 'father' : 'mother';
     const p         = (phones[k] || '').trim();
-    const inScope   = (PHONE_DISPLAY_SIDE === 'both' || PHONE_DISPLAY_SIDE === side);
+    const sideOk    = (PHONE_DISPLAY_SIDE === 'both' || PHONE_DISPLAY_SIDE === side);
+    const roleOk    = (PHONE_DISPLAY_ROLE === 'both' || PHONE_DISPLAY_ROLE === role);
+    const inScope   = sideOk && roleOk;
     const hasNumber = p && !/^0?10[-\s]?0{4}/.test(p);
     if (inScope && hasNumber) {
       el.href  = 'tel:' + p.replace(/[^0-9+]/g, '');

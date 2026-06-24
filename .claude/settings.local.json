@@ -12,7 +12,13 @@
       "Bash(ls \"C:\\\\Users\\\\bawo3\\\\OneDrive\\\\Desktop\\\\0506\\\\my-hompage\" /B)",
       "Bash(dir \"C:\\\\Users\\\\bawo3\\\\OneDrive\\\\Desktop\\\\0506\\\\my-hompage\" /B)",
       "PowerShell(Get-Item *)",
-      "PowerShell(ffmpeg *)"
+      "PowerShell(ffmpeg *)",
+      "Bash(vercel --prod --yes)",
+      "Bash(vercel alias *)",
+      "Bash(vercel project *)",
+      "Bash(vercel link *)",
+      "Bash(gh auth *)",
+      "PowerShell(gh auth *)"
     ]
   }
 }

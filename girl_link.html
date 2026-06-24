@@ -149,21 +149,49 @@ body {
   <div class="line"></div>
 
   <div class="desc">
-    아래 버튼을 누르시면<br>
-    <strong>신부측 부모님용 청첩장</strong>이 바로 공유됩니다.
+    공유할 연락처 범위를 선택해 주세요.<br>
+    선택한 옵션에 따라 <strong>신부측 부모님</strong><br>
+    연락처 표시가 달라집니다.
   </div>
 
   <div class="share-list">
-    <!-- 카카오톡 공유 -->
-    <button class="share-btn" onclick="shareKakao()">
+    <!-- 1. 아버지만 -->
+    <button class="share-btn" onclick="shareWith('father')">
       <div class="share-icon kakao">💛</div>
       <div class="share-text">
-        <div class="share-name">카카오톡으로 공유하기</div>
-        <div class="share-sub">지인분들께 청첩장을 보내세요</div>
+        <div class="share-name">아버지 연락처만 공유</div>
+        <div class="share-sub">신부 아버지 연락처만 표시</div>
       </div>
     </button>
 
-    <!-- 링크 복사 -->
+    <!-- 2. 어머니만 -->
+    <button class="share-btn" onclick="shareWith('mother')">
+      <div class="share-icon kakao">💛</div>
+      <div class="share-text">
+        <div class="share-name">어머니 연락처만 공유</div>
+        <div class="share-sub">신부 어머니 연락처만 표시</div>
+      </div>
+    </button>
+
+    <!-- 3. 둘 다 -->
+    <button class="share-btn" onclick="shareWith('both')">
+      <div class="share-icon kakao">💛</div>
+      <div class="share-text">
+        <div class="share-name">부모님 연락처 모두 공유</div>
+        <div class="share-sub">아버지·어머니 연락처 모두 표시</div>
+      </div>
+    </button>
+
+    <!-- 4. 연락처 없이 -->
+    <button class="share-btn" onclick="shareWith('hide')">
+      <div class="share-icon kakao">💛</div>
+      <div class="share-text">
+        <div class="share-name">연락처 없이 공유</div>
+        <div class="share-sub">부모님 연락처를 표시하지 않음</div>
+      </div>
+    </button>
+
+    <!-- 5. 링크 복사 -->
     <button class="share-btn" onclick="copyLink()">
       <div class="share-icon copy">🔗</div>
       <div class="share-text">
@@ -182,7 +210,6 @@ body {
 /* ── 설정 ── */
 const KAKAO_JS_KEY = 'dcd1c068f6af150c317890b1ad802bf2';
 const BASE         = location.origin;
-const TARGET_URL   = `${BASE}/hjlee-parent_3.html`;
 const IMG          = `${BASE}/images/og-cover.png?v=5`;
 const MAP_URL      = `${BASE}/nav.html`;
 
@@ -211,14 +238,15 @@ function dateLine() {
   return `${d.year}.${String(d.month).padStart(2,'0')}.${String(d.day).padStart(2,'0')} (${day}) ${d.time}\n${v.name} ${v.hall}`;
 }
 
-/* ── 카카오톡 공유 ── */
-function shareKakao() {
+/* ── 카카오톡 공유 — 연락처 옵션별 분기 ── */
+function shareWith(contactType) {
   if (!window.Kakao || !Kakao.isInitialized()) {
     showToast('카카오 SDK 로드 대기 중 — 잠시 후 다시 시도해주세요');
     return;
   }
   const groom = CFG?.groom?.name || '재현';
   const bride = CFG?.bride?.name || '혜주';
+  const targetUrl = `${BASE}/hjlee-parent_3.html?contact=${contactType}`;
   try {
     Kakao.Share.sendDefault({
       objectType: 'feed',
@@ -226,10 +254,10 @@ function shareKakao() {
         title:       `${groom} ♥ ${bride} 청첩장 · 신부측 혼주`,
         description: dateLine(),
         imageUrl:    IMG,
-        link: { mobileWebUrl: TARGET_URL, webUrl: TARGET_URL }
+        link: { mobileWebUrl: targetUrl, webUrl: targetUrl }
       },
       buttons: [
-        { title: '💌 청첩장 보기', link: { mobileWebUrl: TARGET_URL, webUrl: TARGET_URL } },
+        { title: '💌 청첩장 보기', link: { mobileWebUrl: targetUrl, webUrl: targetUrl } },
         { title: '🧭 길찾기',     link: { mobileWebUrl: MAP_URL,   webUrl: MAP_URL   } }
       ]
     });
@@ -241,12 +269,13 @@ function shareKakao() {
 
 /* ── 링크 복사 ── */
 function copyLink() {
+  const url = `${BASE}/hjlee-parent_3.html`;
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(TARGET_URL)
+    navigator.clipboard.writeText(url)
       .then(() => showToast('청첩장 링크가 복사되었습니다'))
-      .catch(() => fallbackCopy(TARGET_URL));
+      .catch(() => fallbackCopy(url));
   } else {
-    fallbackCopy(TARGET_URL);
+    fallbackCopy(url);
   }
 }
 

@@ -150,40 +150,49 @@ body {
   <div class="line"></div>
 
   <div class="desc">
-    공유 종류를 선택해 주세요.<br>
-    본인용 / 양가 부모님용 / 링크복사 중 선택하여<br>
-    카카오톡 공유 또는 URL 복사가 가능합니다.
+    공유할 연락처 범위를 선택해 주세요.<br>
+    선택한 옵션에 따라 청첩장에<br>
+    표시되는 연락처가 달라집니다.
   </div>
 
   <div class="share-list">
-    <!-- 1. 혼주용 -->
-    <button class="share-btn" onclick="shareCouple()">
+    <!-- 1. 신랑 연락처만 -->
+    <button class="share-btn" onclick="shareWith('groom')">
       <div class="share-icon kakao">💛</div>
       <div class="share-text">
-        <div class="share-name">혼주용 카카오톡 공유</div>
-        <div class="share-sub">메인 청첩장 (index.html)</div>
+        <div class="share-name">신랑 연락처만 공유</div>
+        <div class="share-sub">신랑측 부모님 연락처만 표시</div>
       </div>
     </button>
 
-    <!-- 2. 김재현측 부모님용 -->
-    <button class="share-btn" onclick="shareGroomParent()">
+    <!-- 2. 신부 연락처만 -->
+    <button class="share-btn" onclick="shareWith('bride')">
       <div class="share-icon kakao">💛</div>
       <div class="share-text">
-        <div class="share-name">김재현측 부모님 카카오톡 공유</div>
-        <div class="share-sub">신랑측 혼주 연락처 강조</div>
+        <div class="share-name">신부 연락처만 공유</div>
+        <div class="share-sub">신부측 부모님 연락처만 표시</div>
       </div>
     </button>
 
-    <!-- 3. 이혜주측 부모님용 -->
-    <button class="share-btn" onclick="shareBrideParent()">
+    <!-- 3. 둘 다 공유 -->
+    <button class="share-btn" onclick="shareWith('both')">
       <div class="share-icon kakao">💛</div>
       <div class="share-text">
-        <div class="share-name">이혜주측 부모님 카카오톡 공유</div>
-        <div class="share-sub">신부측 혼주 연락처 강조</div>
+        <div class="share-name">양측 연락처 모두 공유</div>
+        <div class="share-sub">신랑·신부 양측 부모님 연락처 표시</div>
       </div>
     </button>
 
-    <!-- 4. 링크 복사 -->
+    <!-- 4. 연락처 없이 -->
+    <button class="share-btn" onclick="shareWith('hide')">
+      <div class="share-icon kakao">💛</div>
+      <div class="share-text">
+        <div class="share-name">연락처 없이 공유</div>
+        <div class="share-sub">부모님 연락처를 표시하지 않음</div>
+      </div>
+    </button>
+
+    <!-- 5. 링크 복사 -->
     <button class="share-btn" onclick="copyLink()">
       <div class="share-icon copy">🔗</div>
       <div class="share-text">
@@ -231,7 +240,23 @@ function dateLine() {
 }
 
 /* ── 공유 함수들 ──
-   targetUrl 만 다르게 하고 본문/이미지/버튼은 동일 패턴. */
+   contact 파라미터에 따라 청첩장 연락처 표시 분기 */
+function shareWith(contactType) {
+  const groom = CFG?.groom?.name || '재현';
+  const bride = CFG?.bride?.name || '혜주';
+  const targetUrl = `${BASE}/?contact=${contactType}`;
+  const labels = {
+    groom: '신랑측 연락처',
+    bride: '신부측 연락처',
+    both:  '양측 연락처',
+    hide:  '연락처 없음'
+  };
+  sendKakao({
+    title:     `${groom} ♥ ${bride} 청첩장`,
+    targetUrl: targetUrl
+  });
+}
+
 function sendKakao({ title, targetUrl }) {
   if (!window.Kakao || !Kakao.isInitialized()) {
     showToast('카카오 SDK 로드 대기 중 — 잠시 후 다시 시도해주세요');
@@ -246,47 +271,15 @@ function sendKakao({ title, targetUrl }) {
         imageUrl:    IMG,
         link: { mobileWebUrl: targetUrl, webUrl: targetUrl }
       },
-      /* 현재 구성: 청첩장 보기 + 길찾기
-         (일정 등록 버튼은 필요 시 재활성화 — 아래 주석 참고) */
       buttons: [
         { title: '💌 청첩장 보기', link: { mobileWebUrl: targetUrl, webUrl: targetUrl } },
         { title: '🧭 길찾기',     link: { mobileWebUrl: MAP_URL,   webUrl: MAP_URL   } }
-        /* 일정 등록 버튼 (필요 시 활성화):
-        , { title: '📅 일정 등록', link: { mobileWebUrl: CAL_URL, webUrl: CAL_URL } }
-        */
       ]
     });
   } catch (e) {
     console.error('카카오 공유 실패:', e);
     showToast('공유에 실패했습니다');
   }
-}
-
-function shareCouple() {
-  const groom = CFG?.groom?.name || '재현';
-  const bride = CFG?.bride?.name || '혜주';
-  sendKakao({
-    title:     `${groom} ♥ ${bride} 청첩장`,
-    targetUrl: `${BASE}/`
-  });
-}
-
-function shareGroomParent() {
-  const groom = CFG?.groom?.name || '재현';
-  const bride = CFG?.bride?.name || '혜주';
-  sendKakao({
-    title:     `${groom} ♥ ${bride} 청첩장 · 신랑측 혼주`,
-    targetUrl: `${BASE}/jhkim-parent_2.html`
-  });
-}
-
-function shareBrideParent() {
-  const groom = CFG?.groom?.name || '재현';
-  const bride = CFG?.bride?.name || '혜주';
-  sendKakao({
-    title:     `${groom} ♥ ${bride} 청첩장 · 신부측 혼주`,
-    targetUrl: `${BASE}/hjlee-parent_3.html`
-  });
 }
 
 function copyLink() {

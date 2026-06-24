@@ -2568,8 +2568,10 @@ function renderFamily() {
      - 'groom' → 신랑측 부모만 (jhkim-parent_2.html)
      - 'bride' → 신부측 부모만 (hjlee-parent_3.html)
 
+   ?contact= 쿼리 파라미터로 동적 오버라이드 가능.
    숨길 때는 visibility:hidden 을 써서 grid 자리를 유지한다. */
-const PHONE_DISPLAY_SIDE = 'none';
+const _qContact = new URLSearchParams(location.search).get('contact');
+const PHONE_DISPLAY_SIDE = (['groom','bride','both'].includes(_qContact)) ? _qContact : 'none';
 
 async function renderParentPhones() {
   const g = CFG.groom, b = CFG.bride;
