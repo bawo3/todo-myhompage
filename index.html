@@ -2581,6 +2581,10 @@ async function renderParentPhones() {
     'bride-father': b.fatherPhone || '',
     'bride-mother': b.motherPhone || '',
   };
+  /* 신랑·신부 본인 연락처 (setting.json 기본값) */
+  let groomContactPhone = (g.contact || '').trim();
+  let brideContactPhone = (b.contact || '').trim();
+
   try {
     const res = await fetch('/api/parents');
     if (res.ok) {
@@ -2590,6 +2594,9 @@ async function renderParentPhones() {
         if (data.groomMother?.phone) phones['groom-mother'] = data.groomMother.phone;
         if (data.brideFather?.phone) phones['bride-father'] = data.brideFather.phone;
         if (data.brideMother?.phone) phones['bride-mother'] = data.brideMother.phone;
+        /* API에 저장된 신랑·신부 본인 연락처 덮어쓰기 */
+        if (data.groomContact?.phone) groomContactPhone = data.groomContact.phone;
+        if (data.brideContact?.phone) brideContactPhone = data.brideContact.phone;
       }
     }
   } catch (e) { console.warn('부모님 연락처 로드 실패:', e); }
@@ -2619,19 +2626,13 @@ async function renderParentPhones() {
   const showBride = (_qContact === 'bride' || _qContact === 'both');
   const groomEl = document.getElementById('contact-groom');
   const brideEl = document.getElementById('contact-bride');
-  if (groomEl && showGroom) {
-    const p = (g.contact || '').trim();
-    if (p) {
-      groomEl.href = 'tel:' + p.replace(/[^0-9+]/g, '');
-      groomEl.style.display = '';
-    }
+  if (groomEl && showGroom && groomContactPhone) {
+    groomEl.href = 'tel:' + groomContactPhone.replace(/[^0-9+]/g, '');
+    groomEl.style.display = '';
   }
-  if (brideEl && showBride) {
-    const p = (b.contact || '').trim();
-    if (p) {
-      brideEl.href = 'tel:' + p.replace(/[^0-9+]/g, '');
-      brideEl.style.display = '';
-    }
+  if (brideEl && showBride && brideContactPhone) {
+    brideEl.href = 'tel:' + brideContactPhone.replace(/[^0-9+]/g, '');
+    brideEl.style.display = '';
   }
 }
 
