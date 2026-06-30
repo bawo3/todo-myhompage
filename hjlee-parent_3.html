@@ -954,7 +954,13 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
 .naver-map-wrap iframe {
   width: 100%; height: 100%;
   border: none; display: block;
-  pointer-events: none; /* 지도 터치/클릭 차단 — 고정 표시 전용 */
+}
+/* 지도 위 투명 오버레이 — 드래그(이동)는 iframe에 전달, 클릭(링크)은 차단 */
+.naver-map-wrap .map-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 2;
+  cursor: grab;
 }
 /* 상단 광택 */
 .naver-map-wrap::after {
@@ -2133,6 +2139,7 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
     <div class="section-title">오시는 길</div>
     <!-- 지도 -->
     <div class="naver-map-wrap">
+      <div class="map-overlay"></div>
       <iframe id="naver-map-iframe" src="" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
 
@@ -2734,6 +2741,20 @@ function renderVenue() {
   }
   document.getElementById('naver-map-iframe').src =
     `https://maps.google.com/maps?q=${mapQuery}&z=15&hl=ko&output=embed`;
+
+  /* 지도 오버레이 — 터치 이동은 iframe에 전달, 클릭(탭)은 차단 */
+  const overlay = document.querySelector('.map-overlay');
+  if (overlay) {
+    let moved = false;
+    overlay.addEventListener('touchstart', () => { moved = false; }, { passive: true });
+    overlay.addEventListener('touchmove', () => {
+      if (!moved) { moved = true; overlay.style.pointerEvents = 'none'; }
+    }, { passive: true });
+    overlay.addEventListener('touchend', () => {
+      setTimeout(() => { overlay.style.pointerEvents = ''; }, 300);
+    });
+    overlay.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+  }
 
   /* 오시는 길 섹션 — 웨딩홀 사진 */
   if (v.photo) {
