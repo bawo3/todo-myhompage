@@ -505,6 +505,22 @@ body {
       <div class="acc-card-title">📞 혼주 연락처 관리</div>
     </div>
 
+    <!-- 신랑·신부 본인 연락처 -->
+    <div class="acc-group">
+      <div class="acc-group-label groom">🤵 신랑 본인</div>
+      <div class="parent-phone-row">
+        <input class="acc-input" id="ph-groom-contact" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
+      </div>
+    </div>
+    <div class="acc-group">
+      <div class="acc-group-label bride">👰 신부 본인</div>
+      <div class="parent-phone-row">
+        <input class="acc-input" id="ph-bride-contact" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
+      </div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
+
     <!-- 신랑측 부모님 연락처 -->
     <div class="acc-group">
       <div class="acc-group-label groom">🤵 신랑 아버지</div>
@@ -815,7 +831,8 @@ async function saveAccounts() {
 
 /* ── 부모님 연락처 관리 ──
    /api/parents 엔드포인트(Vercel KV)와 동기화
-   필드: groomFather/groomMother/brideFather/brideMother 각각 { name, phone } */
+   필드: groomFather/groomMother/brideFather/brideMother 각각 { name, phone }
+         groomContact/brideContact 각각 { phone } — 신랑·신부 본인 연락처 */
 const PARENT_FIELDS = [
   ['groomFather', 'ph-gf-name', 'ph-gf-phone'],
   ['groomMother', 'ph-gm-name', 'ph-gm-phone'],
@@ -835,6 +852,9 @@ async function loadParents() {
       if (p.name)  document.getElementById(nameId).value  = p.name;
       if (p.phone) document.getElementById(phoneId).value = p.phone;
     });
+    /* 신랑·신부 본인 연락처 로드 */
+    if (data.groomContact?.phone) document.getElementById('ph-groom-contact').value = data.groomContact.phone;
+    if (data.brideContact?.phone) document.getElementById('ph-bride-contact').value = data.brideContact.phone;
   } catch (e) {
     console.error('부모님 연락처 로드 실패:', e);
   }
@@ -851,6 +871,9 @@ async function saveParents() {
       phone: document.getElementById(phoneId).value.trim(),
     };
   });
+  /* 신랑·신부 본인 연락처 추가 */
+  data.groomContact = { phone: document.getElementById('ph-groom-contact').value.trim() };
+  data.brideContact = { phone: document.getElementById('ph-bride-contact').value.trim() };
   try {
     const res = await fetch('/api/parents', {
       method: 'PUT',
