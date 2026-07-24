@@ -205,6 +205,23 @@ const EVT = {
   endUTC:   '20261031T053000Z',
 };
 
+/* 예식장 정보가 photo.html에서 저장되어 있으면 장소만 최신 값으로 갱신
+   (제목·상세 문구는 결혼식 안내 자체 문구라 자동 반영하지 않음) */
+(async function loadVenueOverride() {
+  try {
+    const res = await fetch('/api/venue');
+    if (!res.ok) return;
+    const d = await res.json();
+    if (!d) return;
+    const name = d.name || '';
+    const hall = d.hall || '';
+    const addr = d.address || '';
+    if (name || addr) {
+      EVT.location = `${name} ${hall} · ${addr}`.replace(/\s+/g, ' ').trim();
+    }
+  } catch (e) { console.warn('예식장 정보 로드 실패:', e); }
+})();
+
 /* ── 브라우저 환경 감지 ──
    카카오톡 내장 브라우저는 별도 WebView 라서 Chrome/Safari 의
    Google 로그인 세션과 분리되어 있다.

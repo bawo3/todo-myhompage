@@ -219,6 +219,15 @@ async function loadCfg() {
   try {
     const res = await fetch('./setting.json');
     if (res.ok) CFG = (await res.json()).wedding;
+
+    /* 예식장 정보 — photo.html에서 저장한 값이 있으면 setting.json 기본값을 덮어씀 */
+    const vRes = await fetch('/api/venue');
+    if (vRes.ok) {
+      const vData = await vRes.json();
+      if (vData && typeof vData === 'object' && CFG) {
+        CFG.venue = { ...CFG.venue, ...vData };
+      }
+    }
   } catch (e) { console.error('setting.json 로드 실패:', e); }
 }
 loadCfg();

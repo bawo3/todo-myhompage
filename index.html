@@ -2113,7 +2113,7 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
     </button>
 
     <button class="map-btn" onclick="openNavModal()">
-      🗺 문수컨벤션 길찾기
+      🗺 <span id="nav-btn-label">문수컨벤션 길찾기</span>
     </button>
 
     <!-- 웨딩홀 실제 사진 (장소명+홀 표시) -->
@@ -2501,6 +2501,17 @@ async function init() {
     const data = await res.json();
     CFG = data.wedding;
 
+    /* 예식장 정보 — photo.html에서 저장한 값이 있으면 setting.json 기본값을 덮어씀 */
+    try {
+      const vRes = await fetch('/api/venue');
+      if (vRes.ok) {
+        const vData = await vRes.json();
+        if (vData && typeof vData === 'object') {
+          CFG.venue = { ...CFG.venue, ...vData };
+        }
+      }
+    } catch (e) { console.warn('예식장 정보 로드 실패:', e); }
+
     /* 렌더링 */
     renderCover();
     renderGreeting();
@@ -2730,6 +2741,10 @@ function renderVenue() {
     overlay.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
   }
 
+  /* 길찾기 버튼 라벨 — 예식장 이름 반영 */
+  const navBtnLabel = document.getElementById('nav-btn-label');
+  if (navBtnLabel) navBtnLabel.textContent = `${v.name} 길찾기`;
+
   /* 오시는 길 섹션 — 웨딩홀 사진 */
   if (v.photo) {
     const wrap = document.getElementById('venue-photo-wrap');
@@ -2782,8 +2797,8 @@ function closeNavModal(e) {
 }
 
 function goNav(app) {
-  /* 길찾기 시 항상 "문수컨벤션웨딩홀"로 검색 — 사용자가 정확히 인지할 수 있는 키워드 */
-  const searchName = '문수컨벤션웨딩홀';
+  /* 길찾기 시 예식장 이름으로 검색 — setting.json/저장된 값 기준 */
+  const searchName = CFG.venue.name;
   const addr = CFG.venue.address;
   const searchEnc = encodeURIComponent(searchName);
   const addrEnc   = encodeURIComponent(addr);
@@ -2793,10 +2808,10 @@ function goNav(app) {
   let url = '';
 
   if (app === 'naver') {
-    /* 네이버지도 웹 — "문수컨벤션웨딩홀" 검색 */
+    /* 네이버지도 웹 — 예식장 이름 검색 */
     url = `https://map.naver.com/v5/search/${searchEnc}`;
   } else if (app === 'kakao') {
-    /* 카카오맵 웹 — "문수컨벤션웨딩홀" 검색 */
+    /* 카카오맵 웹 — 예식장 이름 검색 */
     url = `https://map.kakao.com/link/search/${searchEnc}`;
   } else if (app === 'kakaonav') {
     /* 카카오내비 앱 딥링크 → 미설치 시 카카오맵 목적지 웹으로 */

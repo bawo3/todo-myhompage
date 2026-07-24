@@ -190,13 +190,26 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-/* 문수컨벤션 좌표 */
+/* 문수컨벤션 좌표 — photo.html에서 저장한 값이 있으면 아래를 덮어씀 */
 const VENUE = {
   name:  '문수컨벤션웨딩홀',
   lat:   35.5359834,
   lng:   129.2586323,
   addr:  '울산광역시 남구 문수로 44'
 };
+
+(async function loadVenueOverride() {
+  try {
+    const res = await fetch('/api/venue');
+    if (!res.ok) return;
+    const d = await res.json();
+    if (!d) return;
+    if (d.name)    VENUE.name = d.name;
+    if (d.lat)     VENUE.lat  = d.lat;
+    if (d.lng)     VENUE.lng  = d.lng;
+    if (d.address) VENUE.addr = d.address;
+  } catch (e) { console.warn('예식장 정보 로드 실패:', e); }
+})();
 
 const ua = navigator.userAgent || '';
 const isIOS = /iPhone|iPad|iPod/i.test(ua);
