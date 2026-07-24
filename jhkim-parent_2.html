@@ -2172,6 +2172,9 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
       </div>
     </div>
 
+    <!-- 추가 장소 (지상/지하주차장 등) — photo.html에서 등록한 만큼 동적으로 생성 -->
+    <div id="extra-locations-wrap"></div>
+
     <div class="transport-grid">
       <div class="transport-card">
         <div class="transport-type">Bus</div>
@@ -2783,6 +2786,9 @@ function renderVenue() {
     img.onerror = () => { wrap.style.display = 'none'; };
   }
 
+  /* 추가 장소 (지상/지하주차장 등) 렌더링 */
+  renderExtraNavLocations();
+
   /* 커버 영상 — 자동재생 보장 + 살짝 줌인 트랜지션 */
   const bg = document.getElementById('cover-bg');
   if (bg) {
@@ -2810,10 +2816,67 @@ function copyAddr() {
   }
 }
 
-function openNavModal() {
+function escapeHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/* 지상/지하주차장 등 추가 장소 — photo.html에서 등록한 값 기준으로 카드+길찾기 버튼 반복 생성
+   카카오 알림톡 공유(link.html→nav.html)의 길찾기는 항상 메인 예식장(CFG.venue) 1곳만 사용 */
+function renderExtraNavLocations() {
+  const wrap = document.getElementById('extra-locations-wrap');
+  if (!wrap) return;
+  const list = CFG.venue.extraLocations || [];
+  wrap.innerHTML = list.map((loc, i) => `
+    <div style="margin-top:20px;">
+      <button class="venue-addr-card" onclick="copyExtraAddr(${i})" title="클릭하면 주소가 복사됩니다">
+        <div class="venue-addr-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 8 14 8 14s8-8.75 8-14c0-4.42-3.58-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" fill="#C9A96E"/>
+          </svg>
+        </div>
+        <div class="venue-addr-text">${escapeHtml(loc.name)} · ${escapeHtml(loc.address)}</div>
+        <div class="venue-addr-copy-icon" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <rect x="6" y="6" width="12" height="14" rx="2" stroke="#C9A96E" stroke-width="1.6" fill="none"/>
+            <path d="M9 4h7a2 2 0 012 2v2" stroke="#C9A96E" stroke-width="1.6" fill="none"/>
+          </svg>
+        </div>
+      </button>
+      <button class="map-btn" onclick="openNavModalByIndex(${i})" style="margin-top:10px;">
+        🗺 ${escapeHtml(loc.name)} 길찾기
+      </button>
+    </div>
+  `).join('');
+}
+
+function copyExtraAddr(i) {
+  const loc = (CFG.venue.extraLocations || [])[i];
+  if (!loc || !loc.address) return;
+  const addr = loc.address;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(addr)
+      .then(() => showToast('주소가 복사되었습니다'))
+      .catch(() => fallbackCopy(addr, '주소가 복사되었습니다'));
+  } else {
+    fallbackCopy(addr, '주소가 복사되었습니다');
+  }
+}
+
+/* 길찾기 모달이 현재 어느 장소를 대상으로 하는지 — 기본은 메인 예식장 */
+let activeNavTarget = null;
+
+function openNavModal(target) {
+  activeNavTarget = target || CFG.venue;
   document.getElementById('nav-addr').textContent =
-    CFG.venue.name + ' · ' + CFG.venue.address;
+    activeNavTarget.name + ' · ' + activeNavTarget.address;
   document.getElementById('navModal').classList.add('show');
+}
+
+function openNavModalByIndex(i) {
+  const loc = (CFG.venue.extraLocations || [])[i];
+  openNavModal(loc);
 }
 
 function closeNavModal(e) {
@@ -2823,14 +2886,15 @@ function closeNavModal(e) {
 }
 
 function goNav(app) {
-  /* 길찾기 시 예식장 이름으로 검색 — setting.json/저장된 값 기준 */
-  const searchName = CFG.venue.name;
-  const addr = CFG.venue.address;
+  /* 길찾기 시 대상 장소 이름으로 검색 — 모달을 연 카드(메인 예식장 또는 추가 장소) 기준 */
+  const target = activeNavTarget || CFG.venue;
+  const searchName = target.name;
+  const addr = target.address;
   const searchEnc = encodeURIComponent(searchName);
   const addrEnc   = encodeURIComponent(addr);
-  /* setting.json의 좌표 사용 — 카카오내비·티맵 앱 딥링크용 */
-  const lat = CFG.venue.lat;
-  const lng = CFG.venue.lng;
+  /* 저장된 좌표 사용 — 카카오내비·티맵 앱 딥링크용 */
+  const lat = target.lat;
+  const lng = target.lng;
   let url = '';
 
   if (app === 'naver') {
@@ -2840,18 +2904,26 @@ function goNav(app) {
     /* 카카오맵 웹 — 예식장 이름 검색 */
     url = `https://map.kakao.com/link/search/${searchEnc}`;
   } else if (app === 'kakaonav') {
-    /* 카카오내비 앱 딥링크 → 미설치 시 카카오맵 목적지 웹으로 */
-    const fallback = `https://map.kakao.com/link/to/${searchEnc},${lat},${lng}`;
-    window.location.href =
-      `kakaomap://route?ep=${lat},${lng}&by=CAR`;
-    setTimeout(() => window.open(fallback, '_blank'), 1200);
+    /* 카카오내비 앱 딥링크 → 미설치 시 카카오맵 목적지 웹으로
+       좌표가 없는 장소(예: 좌표 미등록 추가 장소)는 딥링크 대신 이름 검색으로 대체 */
+    if (lat && lng) {
+      const fallback = `https://map.kakao.com/link/to/${searchEnc},${lat},${lng}`;
+      window.location.href = `kakaomap://route?ep=${lat},${lng}&by=CAR`;
+      setTimeout(() => window.open(fallback, '_blank'), 1200);
+    } else {
+      window.open(`https://map.kakao.com/link/search/${searchEnc}`, '_blank');
+    }
     closeNavModal(); return;
   } else if (app === 'tmap') {
-    /* 티맵 앱 딥링크 → 미설치 시 티맵 웹으로 */
-    const fallback = `https://tmap.life/route?goalname=${searchEnc}&goalx=${lng}&goaly=${lat}`;
-    window.location.href =
-      `tmap://route?goalname=${searchEnc}&goalx=${lng}&goaly=${lat}&goaladdr=${addrEnc}`;
-    setTimeout(() => window.open(fallback, '_blank'), 1200);
+    /* 티맵 앱 딥링크 → 미설치 시 티맵 웹으로
+       좌표가 없는 장소는 딥링크 대신 카카오맵 이름 검색으로 대체 */
+    if (lat && lng) {
+      const fallback = `https://tmap.life/route?goalname=${searchEnc}&goalx=${lng}&goaly=${lat}`;
+      window.location.href = `tmap://route?goalname=${searchEnc}&goalx=${lng}&goaly=${lat}&goaladdr=${addrEnc}`;
+      setTimeout(() => window.open(fallback, '_blank'), 1200);
+    } else {
+      window.open(`https://map.kakao.com/link/search/${searchEnc}`, '_blank');
+    }
     closeNavModal(); return;
   }
 

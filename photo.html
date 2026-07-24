@@ -445,20 +445,29 @@ body {
         <input class="acc-input" id="venue-name" placeholder="예식장 이름 (예: 문수컨벤션)">
         <input class="acc-input" id="venue-hall" placeholder="홀 이름 (예: 1층 블루밍하우스홀)">
       </div>
-      <div class="parent-phone-row">
+      <div class="parent-phone-row" style="grid-template-columns: 1fr;">
         <input class="acc-input" id="venue-address" placeholder="주소">
       </div>
+      <button class="action-btn" type="button" id="venueGeocodeBtn" onclick="findCoordsFromAddress()" style="margin-bottom:10px;">🔍 주소로 좌표 찾기</button>
       <div class="parent-phone-row" style="grid-template-columns: 1fr 1fr;">
         <input class="acc-input" id="venue-lat" placeholder="위도 (lat)" inputmode="decimal">
         <input class="acc-input" id="venue-lng" placeholder="경도 (lng)" inputmode="decimal">
       </div>
       <div style="font-size:11px; color: var(--text-light); margin: 2px 0 12px; line-height:1.6;">
-        💡 위도·경도는 구글맵/네이버지도에서 예식장을 검색한 뒤 지도를 우클릭(모바일은 길게 터치)하면 나오는 좌표를 복사해 붙여넣으세요. 비워두면 이름+주소로 지도를 검색합니다.
+        💡 주소 입력 후 "주소로 좌표 찾기"를 누르면 위도·경도가 자동으로 채워집니다. 결과가 정확한지는 아래 지도 미리보기로 확인하고, 필요하면 위도·경도를 직접 수정하세요.
       </div>
       <button class="action-btn" type="button" onclick="previewVenueMap()">📍 지도 미리보기로 위치 확인</button>
       <div id="venueMapPreviewWrap" style="display:none; margin-top:12px; border-radius:14px; overflow:hidden; aspect-ratio:16/10;">
         <iframe id="venueMapPreview" src="" style="width:100%; height:100%; border:0;" loading="lazy"></iframe>
       </div>
+    </div>
+
+    <div class="acc-group" style="border-top:1px solid rgba(201,169,110,0.18); padding-top:16px; margin-top:16px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+        <div class="acc-group-label" style="margin-bottom:0;">➕ 추가 장소 (지상/지하주차장 등)</div>
+        <button class="action-btn" type="button" onclick="addExtraLocation()">+ 장소 추가</button>
+      </div>
+      <div id="extraLocationsList"></div>
     </div>
 
     <div class="acc-group">
@@ -845,11 +854,19 @@ function fillVenueFields(v) {
 
 async function loadVenue() {
   fillVenueFields(DEFAULT_VENUE);
+  extraLocations = DEFAULT_EXTRA_LOCATIONS.map(l => ({ id: Date.now() + Math.random(), ...l }));
+  renderExtraLocations();
   try {
     const res = await fetch('/api/venue');
     if (!res.ok) return;
     const data = await res.json();
-    if (data) fillVenueFields(data);
+    if (data) {
+      fillVenueFields(data);
+      if (Array.isArray(data.extraLocations)) {
+        extraLocations = data.extraLocations.map(l => ({ id: Date.now() + Math.random(), ...l }));
+        renderExtraLocations();
+      }
+    }
   } catch (e) {
     console.error('예식장 정보 로드 실패:', e);
   }
@@ -868,6 +885,33 @@ document.getElementById('venuePhotoInput').addEventListener('change', async e =>
     showToast('이미지를 불러오지 못했습니다');
   }
 });
+
+/* 주소 → 좌표 자동 검색 (카카오 주소 검색 API, /api/geocode 프록시 경유) */
+async function findCoordsFromAddress() {
+  const address = document.getElementById('venue-address').value.trim();
+  if (!address) { showToast('주소를 입력해 주세요'); return; }
+
+  const btn = document.getElementById('venueGeocodeBtn');
+  btn.disabled = true;
+  btn.textContent = '검색 중...';
+  try {
+    const res = await fetch(`/api/geocode?address=${encodeURIComponent(address)}`);
+    const data = await res.json();
+    if (!res.ok) {
+      showToast(data.error || '좌표를 찾지 못했습니다');
+      return;
+    }
+    document.getElementById('venue-lat').value = data.lat;
+    document.getElementById('venue-lng').value = data.lng;
+    showToast(`좌표를 찾았습니다: ${data.matchedAddress}`);
+    previewVenueMap();
+  } catch (e) {
+    showToast('좌표 검색에 실패했습니다');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔍 주소로 좌표 찾기';
+  }
+}
 
 /* 입력된 주소/좌표로 구글맵 미리보기 — 저장 전에 위치가 맞는지 확인 */
 function previewVenueMap() {
@@ -891,6 +935,82 @@ function previewVenueMap() {
   document.getElementById('venueMapPreviewWrap').style.display = '';
 }
 
+/* ── 추가 장소 (지상/지하주차장 등) ──
+   메인 예식장과 별도로 이름/주소/좌표를 몇 개든 추가 등록.
+   청첩장에서는 각각 "[이름] 주소 카드 + [이름] 길찾기" 블록으로 반복 표시되고,
+   카카오 알림톡 공유의 길찾기는 항상 메인 예식장(위 필드) 1곳만 사용한다. */
+const DEFAULT_EXTRA_LOCATIONS = [
+  { name: '지하주차장', address: '울산광역시 울주군 삼남읍 도호길 31',    lat: null, lng: null },
+  { name: '지상주차장', address: '울산 울주군 삼남읍 신화리 1616-2', lat: null, lng: null },
+];
+let extraLocations = [];
+
+function escapeAttr(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function renderExtraLocations() {
+  const wrap = document.getElementById('extraLocationsList');
+  if (!extraLocations.length) {
+    wrap.innerHTML = '<div style="font-size:12px; color: var(--text-light); padding: 6px 0 2px;">등록된 추가 장소가 없습니다</div>';
+    return;
+  }
+  wrap.innerHTML = extraLocations.map(loc => `
+    <div style="border-top:1px solid rgba(201,169,110,0.18); padding-top:14px; margin-top:14px;">
+      <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
+        <button class="action-btn danger" type="button" onclick="removeExtraLocation(${loc.id})">✕ 이 장소 삭제</button>
+      </div>
+      <div class="parent-phone-row" style="grid-template-columns: 1fr;">
+        <input class="acc-input" placeholder="장소 이름 (예: 지하주차장)" value="${escapeAttr(loc.name)}"
+               oninput="updateExtraLocationField(${loc.id}, 'name', this.value)">
+      </div>
+      <div class="parent-phone-row" style="grid-template-columns: 1fr;">
+        <input class="acc-input" placeholder="주소" value="${escapeAttr(loc.address)}"
+               oninput="updateExtraLocationField(${loc.id}, 'address', this.value)">
+      </div>
+      <button class="action-btn" type="button" onclick="geocodeExtraLocation(${loc.id})" style="margin-bottom:10px;">🔍 주소로 좌표 찾기</button>
+      <div class="parent-phone-row" style="grid-template-columns: 1fr 1fr;">
+        <input class="acc-input" placeholder="위도 (lat)" inputmode="decimal" value="${loc.lat ?? ''}"
+               oninput="updateExtraLocationField(${loc.id}, 'lat', this.value)">
+        <input class="acc-input" placeholder="경도 (lng)" inputmode="decimal" value="${loc.lng ?? ''}"
+               oninput="updateExtraLocationField(${loc.id}, 'lng', this.value)">
+      </div>
+    </div>
+  `).join('');
+}
+
+function addExtraLocation() {
+  extraLocations.push({ id: Date.now() + Math.random(), name: '', address: '', lat: '', lng: '' });
+  renderExtraLocations();
+}
+
+function removeExtraLocation(id) {
+  extraLocations = extraLocations.filter(l => l.id !== id);
+  renderExtraLocations();
+}
+
+function updateExtraLocationField(id, field, value) {
+  const loc = extraLocations.find(l => l.id === id);
+  if (loc) loc[field] = value;
+}
+
+async function geocodeExtraLocation(id) {
+  const loc = extraLocations.find(l => l.id === id);
+  if (!loc || !loc.address || !loc.address.trim()) { showToast('주소를 입력해 주세요'); return; }
+  try {
+    const res = await fetch(`/api/geocode?address=${encodeURIComponent(loc.address.trim())}`);
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error || '좌표를 찾지 못했습니다'); return; }
+    loc.lat = data.lat;
+    loc.lng = data.lng;
+    renderExtraLocations();
+    showToast(`좌표를 찾았습니다: ${data.matchedAddress}`);
+  } catch (e) {
+    showToast('좌표 검색에 실패했습니다');
+  }
+}
+
 async function saveVenue() {
   const btn     = document.getElementById('venueSaveBtn');
   const name    = document.getElementById('venue-name').value.trim();
@@ -904,11 +1024,21 @@ async function saveVenue() {
     return;
   }
 
+  const extras = extraLocations
+    .filter(l => (l.name && l.name.trim()) || (l.address && l.address.trim()))
+    .map(l => ({
+      name: (l.name || '').trim(),
+      address: (l.address || '').trim(),
+      lat: l.lat !== '' && l.lat != null ? parseFloat(l.lat) : null,
+      lng: l.lng !== '' && l.lng != null ? parseFloat(l.lng) : null,
+    }));
+
   const data = {
     name, hall, address,
     lat: latRaw ? parseFloat(latRaw) : null,
     lng: lngRaw ? parseFloat(lngRaw) : null,
     photo: venuePhotoData,
+    extraLocations: extras,
   };
 
   btn.disabled = true;
