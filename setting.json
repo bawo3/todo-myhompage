@@ -2,7 +2,7 @@
   "site": {
     "url": "https://invite-wedding-jhkim-hjlee.vercel.app/",
     "title": "재현 ♥ 혜주 청첩장",
-    "description": "2026.11.07 SAT · 문수컨벤션 1층 블루밍하우스홀 · 12:30",
+    "description": "2026.11.07 SAT · 더엠컨벤션(KTX울산역 앞) 9층 피에스타 홀 · 12:30",
     "ogImage": "./images/og-cover.png"
   },
   "wedding": {
@@ -32,11 +32,11 @@
       "time": "오후 12시 30분"
     },
     "venue": {
-      "name": "문수컨벤션",
-      "hall": "1층 블루밍하우스홀",
-      "address": "울산광역시 남구 문수로 44",
-      "lat": 35.5359834,
-      "lng": 129.2586323,
+      "name": "더엠컨벤션 (KTX울산역 앞)",
+      "hall": "9층 피에스타 홀",
+      "address": "울산광역시 울주군 삼남읍 도호길 31",
+      "lat": 35.5486079889529,
+      "lng": 129.139211866971,
       "photo": "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20210624_271%2F1624520159858wbEY5_JPEG%2FLlDEAapOjAuV9p0mzslGZPHW.jpg"
     },
     "message": {

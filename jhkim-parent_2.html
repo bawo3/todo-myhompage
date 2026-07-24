@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>재현 ♥ 혜주 청첩장 · 신랑측 혼주</title>
-<meta name="description" content="2026.11.07 SAT · 문수컨벤션 1층 블루밍하우스홀 · 12:30">
+<meta name="description" content="2026.11.07 SAT · 더엠컨벤션(KTX울산역 앞) 9층 피에스타 홀 · 12:30">
 
 <!-- ━━━ Open Graph (카카오톡·페이스북 미리보기용) ━━━ -->
 <meta property="og:type"        content="website">
 <meta property="og:title"       content="재현 ♥ 혜주 청첩장 · 신랑측 혼주">
-<meta property="og:description" content="2026.11.07 SAT · 문수컨벤션 1층 블루밍하우스홀 · 12:30">
+<meta property="og:description" content="2026.11.07 SAT · 더엠컨벤션(KTX울산역 앞) 9층 피에스타 홀 · 12:30">
 <meta property="og:image"       content="https://invite-wedding-jhkim-hjlee.vercel.app/images/og-cover.png?v=3">
 <meta property="og:image:secure_url" content="https://invite-wedding-jhkim-hjlee.vercel.app/images/og-cover.png?v=3">
 <meta property="og:image:type"   content="image/png">
@@ -23,7 +23,7 @@
 <!-- 트위터 카드 -->
 <meta name="twitter:card"        content="summary_large_image">
 <meta name="twitter:title"       content="재현 ♥ 혜주 청첩장">
-<meta name="twitter:description" content="2026.11.07 SAT · 문수컨벤션 1층 블루밍하우스홀 · 12:30">
+<meta name="twitter:description" content="2026.11.07 SAT · 더엠컨벤션(KTX울산역 앞) 9층 피에스타 홀 · 12:30">
 <meta name="twitter:image"       content="https://invite-wedding-jhkim-hjlee.vercel.app/images/og-cover.png?v=3">
 
 <!-- 테마 컬러 (모바일 브라우저 상단바) -->
@@ -2136,7 +2136,7 @@ body {
     </button>
 
     <button class="map-btn" onclick="openNavModal()">
-      🗺 <span id="nav-btn-label">문수컨벤션 길찾기</span>
+      🗺 <span id="nav-btn-label">길찾기</span>
     </button>
 
     <!-- 웨딩홀 실제 사진 (장소명+홀 표시) -->
@@ -2154,11 +2154,11 @@ body {
     <div class="transport-grid">
       <div class="transport-card">
         <div class="transport-type">Bus</div>
-        <div class="transport-info" id="transport-bus-info">문수웨딩홀 정류장<br>114, 124, 134, 416<br>417, 753, 918번</div>
+        <div class="transport-info" id="transport-bus-info">—</div>
       </div>
       <div class="transport-card">
         <div class="transport-type">Taxi</div>
-        <div class="transport-info" id="transport-taxi-info">"문수웨딩홀" 말씀 후<br>남구 문수로 44</div>
+        <div class="transport-info" id="transport-taxi-info">—</div>
       </div>
       <div class="transport-card">
         <div class="transport-type">Parking</div>
@@ -2590,9 +2590,20 @@ function renderCover() {
   document.getElementById('cover-time').textContent =
     `${d.dayOfWeek} · ${d.time}`;
 
-  /* 장소 — 식장명 / 홀명 2단 분리 */
-  document.getElementById('cover-venue-name').textContent = v.name;
+  /* 장소 — 식장명 / 홀명 2단 분리 (식장명에 괄호 부가설명이 있으면 줄바꿈) */
+  document.getElementById('cover-venue-name').innerHTML = formatVenueNameHtml(v.name);
   document.getElementById('cover-venue-hall').textContent = v.hall;
+}
+
+/* 예식장 이름 끝에 "(부가설명)" 형태가 있으면 줄바꿈해서 표시
+   예: "더엠컨벤션 (KTX울산역 앞)" → "더엠컨벤션<br>(KTX울산역 앞)" */
+function formatVenueNameHtml(name) {
+  const s = String(name || '').trim();
+  const m = s.match(/^(.*?)\s*(\([^)]*\))\s*$/);
+  if (m && m[1]) {
+    return `${escapeHtml(m[1].trim())}<br>${escapeHtml(m[2])}`;
+  }
+  return escapeHtml(s);
 }
 
 /* ── 인사말 ── */
@@ -2767,7 +2778,7 @@ function renderVenue() {
     const img  = document.getElementById('venue-photo-img');
     img.src = v.photo;
     img.alt = v.name;
-    document.getElementById('venue-photo-name').textContent = v.name;
+    document.getElementById('venue-photo-name').innerHTML = formatVenueNameHtml(v.name);
     document.getElementById('venue-photo-hall').textContent = v.hall;
     wrap.style.display = '';
     img.onerror = () => { wrap.style.display = 'none'; };

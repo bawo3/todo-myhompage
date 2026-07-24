@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>길찾기 · 문수컨벤션웨딩홀</title>
+<title>길찾기 · 더엠컨벤션 (KTX울산역 앞)</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;600&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600&amp;family=Noto+Sans+KR:wght@300;400;500&amp;display=swap" rel="stylesheet">
 <style>
 :root {
@@ -157,8 +157,8 @@ body {
 
 <div class="card">
   <div class="eyebrow">Wedding Venue</div>
-  <div class="title">문수컨벤션웨딩홀</div>
-  <div class="addr">울산 남구 문수로 44 · 1층 블루밍하우스홀</div>
+  <div class="title" id="venue-title">더엠컨벤션 (KTX울산역 앞)</div>
+  <div class="addr" id="venue-addr-line">울산광역시 울주군 삼남읍 도호길 31 · 9층 피에스타 홀</div>
   <div class="line"></div>
 
   <div class="btn-grid">
@@ -190,12 +190,12 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-/* 문수컨벤션 좌표 — photo.html에서 저장한 값이 있으면 아래를 덮어씀 */
+/* 예식장 좌표 — photo.html에서 저장한 값이 있으면 아래를 덮어씀 */
 const VENUE = {
-  name:  '문수컨벤션웨딩홀',
-  lat:   35.5359834,
-  lng:   129.2586323,
-  addr:  '울산광역시 남구 문수로 44'
+  name:  '더엠컨벤션',                 /* 지도 검색/딥링크용 — navName 우선 사용 */
+  lat:   35.5486079889529,
+  lng:   129.139211866971,
+  addr:  '울산광역시 울주군 삼남읍 도호길 31'
 };
 
 (async function loadVenueOverride() {
@@ -204,10 +204,19 @@ const VENUE = {
     if (!res.ok) return;
     const d = await res.json();
     if (!d) return;
-    if (d.name)    VENUE.name = d.name;
+    if (d.navName || d.name) VENUE.name = d.navName || d.name;
     if (d.lat)     VENUE.lat  = d.lat;
     if (d.lng)     VENUE.lng  = d.lng;
     if (d.address) VENUE.addr = d.address;
+
+    /* 화면에 보이는 제목/주소도 실제 저장된 값으로 갱신 (지금까지는 딥링크만 갱신되고
+       화면 텍스트는 그대로였음 — 예식장이 바뀌었는데 이 페이지만 옛 이름이 남는 문제 수정) */
+    const displayName = d.name || VENUE.name;
+    document.title = `길찾기 · ${displayName}`;
+    const titleEl = document.getElementById('venue-title');
+    const addrEl  = document.getElementById('venue-addr-line');
+    if (titleEl) titleEl.textContent = displayName;
+    if (addrEl)  addrEl.textContent  = `${VENUE.addr}${d.hall ? ' · ' + d.hall : ''}`;
   } catch (e) { console.warn('예식장 정보 로드 실패:', e); }
 })();
 
