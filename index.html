@@ -190,37 +190,6 @@ body {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   캡쳐 방지 — 가능한 범위에서
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/* 텍스트·이미지 선택 / 길게누르기 메뉴 차단 (입력창은 예외) */
-body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-input, textarea { -webkit-user-select: text; user-select: text; }
-img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
-
-/* 검은 오버레이 — 탭/앱 전환·스크린샷 키 감지 시 표시 */
-#blackout-overlay {
-  position: fixed; inset: 0;
-  background: #000;
-  z-index: 999999;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.08s linear;
-}
-#blackout-overlay.active {
-  opacity: 1; pointer-events: all;
-}
-
-/* 인쇄 — 검은 페이지로 대체 */
-@media print {
-  body * { visibility: hidden !important; }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background: #000;
-    visibility: visible !important;
-  }
-}
-
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    SECTION 1 · 커버
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .cover {
@@ -1829,9 +1798,6 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
 </head>
 <body>
 
-<!-- 캡쳐 방지용 검은 오버레이 (visibilitychange / 스크린샷 키 감지 시 표시) -->
-<div id="blackout-overlay" aria-hidden="true"></div>
-
 <!-- 단풍잎 오버레이 — 화면 곳곳에 분산, 제자리 살랑살랑 -->
 <div class="petals-overlay" aria-hidden="true">
   <span class="petal p-gold"  style="top:  6%; left:  7%; animation-duration: 7s;   animation-delay: 0s;   width: 14px; height: 14px;"></span>
@@ -2131,19 +2097,19 @@ img { -webkit-user-drag: none; user-drag: none; pointer-events: auto; }
     <div class="transport-grid">
       <div class="transport-card">
         <div class="transport-type">Bus</div>
-        <div class="transport-info">문수웨딩홀 정류장<br>114, 124, 134, 416<br>417, 753, 918번</div>
+        <div class="transport-info" id="transport-bus-info">문수웨딩홀 정류장<br>114, 124, 134, 416<br>417, 753, 918번</div>
       </div>
       <div class="transport-card">
         <div class="transport-type">Taxi</div>
-        <div class="transport-info">"문수웨딩홀" 말씀 후<br>남구 문수로 44</div>
+        <div class="transport-info" id="transport-taxi-info">"문수웨딩홀" 말씀 후<br>남구 문수로 44</div>
       </div>
       <div class="transport-card">
         <div class="transport-type">Parking</div>
-        <div class="transport-info">건물 전용 주차장<br>이용 가능</div>
+        <div class="transport-info" id="transport-parking-info">건물 전용 주차장<br>이용 가능</div>
       </div>
       <div class="transport-card">
         <div class="transport-type">Car</div>
-        <div class="transport-info">울산공항에서 약 15분<br>KTX울산역에서 약 25분</div>
+        <div class="transport-info" id="transport-car-info">울산공항에서 약 15분<br>KTX울산역에서 약 25분</div>
       </div>
     </div>
   </section>
@@ -2515,6 +2481,17 @@ async function init() {
       }
     } catch (e) { console.warn('예식장 정보 로드 실패:', e); }
 
+    /* 예식 일자 — photo.html에서 저장한 값이 있으면 setting.json 기본값을 덮어씀 */
+    try {
+      const dRes = await fetch('/api/date');
+      if (dRes.ok) {
+        const dData = await dRes.json();
+        if (dData && typeof dData === 'object') {
+          CFG.date = { ...CFG.date, ...dData };
+        }
+      }
+    } catch (e) { console.warn('예식 일자 로드 실패:', e); }
+
     /* 렌더링 */
     renderCover();
     renderGreeting();
@@ -2744,11 +2721,11 @@ function renderVenue() {
     overlay.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
   }
 
-  /* 길찾기 버튼 라벨 — 예식장 이름 반영 */
+  /* 길찾기 버튼 라벨 — 길찾기 전용 이름(navName)이 있으면 그걸, 없으면 예식장 이름 사용 */
   const navBtnLabel = document.getElementById('nav-btn-label');
-  if (navBtnLabel) navBtnLabel.textContent = `${v.name} 길찾기`;
+  if (navBtnLabel) navBtnLabel.textContent = `${v.navName || v.name} 길찾기`;
 
-  /* 오시는 길 섹션 — 웨딩홀 사진 */
+  /* 오시는 길 섹션 — 웨딩홀 사진 (사진 위 표시되는 텍스트는 예식장 이름/홀 — 길찾기 텍스트와 별도 관리) */
   if (v.photo) {
     const wrap = document.getElementById('venue-photo-wrap');
     const img  = document.getElementById('venue-photo-img');
@@ -2758,6 +2735,20 @@ function renderVenue() {
     document.getElementById('venue-photo-hall').textContent = v.hall;
     wrap.style.display = '';
     img.onerror = () => { wrap.style.display = 'none'; };
+  }
+
+  /* 오시는 길 교통정보 — photo.html에서 저장한 값이 있으면 교체 (없으면 기존 텍스트 유지) */
+  const t = v.transport;
+  if (t) {
+    const setTransportInfo = (id, text) => {
+      if (!text) return;
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+    };
+    setTransportInfo('transport-bus-info', t.bus);
+    setTransportInfo('transport-taxi-info', t.taxi);
+    setTransportInfo('transport-parking-info', t.parking);
+    setTransportInfo('transport-car-info', t.car);
   }
 
   /* 추가 장소 (지상/지하주차장 등) 렌더링 */
@@ -2810,7 +2801,7 @@ function renderExtraNavLocations() {
             <path d="M12 2C7.58 2 4 5.58 4 10c0 5.25 8 14 8 14s8-8.75 8-14c0-4.42-3.58-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" fill="#C9A96E"/>
           </svg>
         </div>
-        <div class="venue-addr-text">${escapeHtml(loc.name)} · ${escapeHtml(loc.address)}</div>
+        <div class="venue-addr-text">${escapeHtml(loc.name)}<br>${escapeHtml(loc.address)}</div>
         <div class="venue-addr-copy-icon" aria-hidden="true">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <rect x="6" y="6" width="12" height="14" rx="2" stroke="#C9A96E" stroke-width="1.6" fill="none"/>
@@ -2843,8 +2834,8 @@ let activeNavTarget = null;
 
 function openNavModal(target) {
   activeNavTarget = target || CFG.venue;
-  document.getElementById('nav-addr').textContent =
-    activeNavTarget.name + ' · ' + activeNavTarget.address;
+  document.getElementById('nav-addr').innerHTML =
+    escapeHtml(activeNavTarget.name) + '<br>' + escapeHtml(activeNavTarget.address);
   document.getElementById('navModal').classList.add('show');
 }
 
@@ -2860,9 +2851,10 @@ function closeNavModal(e) {
 }
 
 function goNav(app) {
-  /* 길찾기 시 대상 장소 이름으로 검색 — 모달을 연 카드(메인 예식장 또는 추가 장소) 기준 */
+  /* 길찾기 시 대상 장소 이름으로 검색 — 모달을 연 카드(메인 예식장 또는 추가 장소) 기준
+     메인 예식장은 navName(길찾기 전용 이름)이 있으면 그걸 우선 사용 */
   const target = activeNavTarget || CFG.venue;
-  const searchName = target.name;
+  const searchName = target.navName || target.name;
   const addr = target.address;
   const searchEnc = encodeURIComponent(searchName);
   const addrEnc   = encodeURIComponent(addr);
@@ -3132,10 +3124,12 @@ function renderRsvp() {
     document.querySelector('.rsvp').style.display = 'none';
     return;
   }
-  const deadline = r.deadline
-    ? `${r.deadline} 까지 회신 부탁드립니다`
-    : '참석 여부를 알려주시면 감사하겠습니다';
-  document.getElementById('rsvp-desc').textContent = deadline;
+  /* 회신 마감일 = 예식일 3주 전 (자동 계산, setting.json의 deadline 값은 더 이상 사용하지 않음) */
+  const d = CFG.date;
+  const deadlineDate = new Date(d.year, d.month - 1, d.day);
+  deadlineDate.setDate(deadlineDate.getDate() - 21);
+  const dl = `${deadlineDate.getFullYear()}.${String(deadlineDate.getMonth() + 1).padStart(2, '0')}.${String(deadlineDate.getDate()).padStart(2, '0')}`;
+  document.getElementById('rsvp-desc').textContent = `${dl} 까지 회신 부탁드립니다`;
 }
 
 async function submitRsvp() {
@@ -3456,50 +3450,7 @@ function setupScrollObserver() {
 /* ── 실행 ── */
 window.addEventListener('DOMContentLoaded', () => {
   init().then(() => setupScrollObserver());
-  setupCaptureProtection();
 });
-
-/* ── 캡쳐 방지 ──
-   완벽 차단은 불가(모바일 하드웨어 캡쳐는 OS 레벨). 가능한 범위:
-   - 우클릭/길게누르기 메뉴 차단
-   - 탭/앱 전환(visibility hidden) 시 검은 화면
-   - PrintScreen / Cmd+Shift+3,4,5 키 감지 시 검은 화면 + 클립보드 클리어 시도
-   - 인쇄 시 검은 페이지 (CSS @media print)
-   - 이미지 드래그 저장 차단 */
-function setupCaptureProtection() {
-  const overlay = document.getElementById('blackout-overlay');
-  if (!overlay) return;
-
-  /* 우클릭 / 길게누르기 차단 */
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('dragstart',   e => e.preventDefault());
-
-  /* 탭·앱 전환 — 페이지가 hidden 이 되면 즉시 검은 화면 */
-  const show = () => overlay.classList.add('active');
-  const hide = () => overlay.classList.remove('active');
-  document.addEventListener('visibilitychange', () => {
-    document.hidden ? show() : setTimeout(hide, 30);
-  });
-  window.addEventListener('blur',  show);
-  window.addEventListener('focus', () => setTimeout(hide, 30));
-
-  /* 스크린샷 키 감지 — Windows PrintScreen, macOS Cmd+Shift+3/4/5 */
-  document.addEventListener('keydown', e => {
-    const isPrtSc = e.key === 'PrintScreen';
-    const isMacShot = e.metaKey && e.shiftKey &&
-                      (e.key === '3' || e.key === '4' || e.key === '5');
-    if (isPrtSc || isMacShot) {
-      show();
-      setTimeout(hide, 1500);
-    }
-  });
-  document.addEventListener('keyup', e => {
-    if (e.key === 'PrintScreen' &&
-        navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText('').catch(() => {});
-    }
-  });
-}
 </script>
 </body>
 </html>
