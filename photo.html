@@ -543,10 +543,10 @@ body {
     </div>
   </div>
 
-  <!-- 계좌 관리 -->
+  <!-- 계좌 · 연락처 관리 -->
   <div class="acc-card">
     <div class="acc-card-header">
-      <div class="acc-card-title">💳 계좌번호 관리</div>
+      <div class="acc-card-title">💳📞 계좌 · 연락처 관리</div>
     </div>
 
     <!-- 신랑/신부 본인 -->
@@ -557,6 +557,9 @@ body {
         <input class="acc-input" id="acc-groom-bank"   placeholder="은행"     value="농협">
         <input class="acc-input" id="acc-groom-number" placeholder="계좌번호" value="302-03-81-2812-91">
       </div>
+      <div class="parent-phone-row" style="grid-template-columns: 1fr; margin-top:6px;">
+        <input class="acc-input" id="ph-groom-contact" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
+      </div>
     </div>
     <div class="acc-group">
       <div class="acc-group-label bride">👰 신부 본인</div>
@@ -565,7 +568,12 @@ body {
         <input class="acc-input" id="acc-bride-bank"   placeholder="은행"     value="카카오뱅크">
         <input class="acc-input" id="acc-bride-number" placeholder="계좌번호" value="3333-07-7353601">
       </div>
+      <div class="parent-phone-row" style="grid-template-columns: 1fr; margin-top:6px;">
+        <input class="acc-input" id="ph-bride-contact" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
+      </div>
     </div>
+
+    <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
 
     <!-- 신랑측 부모님 -->
     <div class="acc-group">
@@ -575,6 +583,9 @@ body {
         <input class="acc-input" id="acc-gf-bank"   placeholder="은행"     value="농협">
         <input class="acc-input" id="acc-gf-number" placeholder="계좌번호" value="882-12-045-901">
       </div>
+      <div class="parent-phone-row" style="grid-template-columns: 1fr; margin-top:6px;">
+        <input class="acc-input" id="ph-gf-phone" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
+      </div>
     </div>
     <div class="acc-group">
       <div class="acc-group-label groom">🤵 신랑 어머니</div>
@@ -582,6 +593,9 @@ body {
         <input class="acc-input" id="acc-gm-name"   placeholder="성함"     value="강민선">
         <input class="acc-input" id="acc-gm-bank"   placeholder="은행"     value="우리">
         <input class="acc-input" id="acc-gm-number" placeholder="계좌번호" value="184-230012-02-001">
+      </div>
+      <div class="parent-phone-row" style="grid-template-columns: 1fr; margin-top:6px;">
+        <input class="acc-input" id="ph-gm-phone" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
       </div>
     </div>
 
@@ -593,6 +607,9 @@ body {
         <input class="acc-input" id="acc-bf-bank"   placeholder="은행"     value="농협">
         <input class="acc-input" id="acc-bf-number" placeholder="계좌번호" value="001-0001-00010">
       </div>
+      <div class="parent-phone-row" style="grid-template-columns: 1fr; margin-top:6px;">
+        <input class="acc-input" id="ph-bf-phone" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
+      </div>
     </div>
     <div class="acc-group">
       <div class="acc-group-label bride">👰 신부 어머니</div>
@@ -601,69 +618,13 @@ body {
         <input class="acc-input" id="acc-bm-bank"   placeholder="은행"     value="농협">
         <input class="acc-input" id="acc-bm-number" placeholder="계좌번호" value="222-000-33333">
       </div>
-    </div>
-
-    <div class="acc-actions">
-      <button class="btn-primary" id="accSaveBtn" onclick="saveAccounts()">저장</button>
-    </div>
-  </div>
-
-  <!-- 부모님 연락처 관리 -->
-  <div class="acc-card">
-    <div class="acc-card-header">
-      <div class="acc-card-title">📞 혼주 연락처 관리</div>
-    </div>
-
-    <!-- 신랑·신부 본인 연락처 -->
-    <div class="acc-group">
-      <div class="acc-group-label groom">🤵 신랑 본인</div>
-      <div class="parent-phone-row">
-        <input class="acc-input" id="ph-groom-contact" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
-      </div>
-    </div>
-    <div class="acc-group">
-      <div class="acc-group-label bride">👰 신부 본인</div>
-      <div class="parent-phone-row">
-        <input class="acc-input" id="ph-bride-contact" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
-      </div>
-    </div>
-
-    <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
-
-    <!-- 신랑측 부모님 연락처 -->
-    <div class="acc-group">
-      <div class="acc-group-label groom">🤵 신랑 아버지</div>
-      <div class="parent-phone-row">
-        <input class="acc-input" id="ph-gf-name"  placeholder="성함"   value="김주영">
-        <input class="acc-input" id="ph-gf-phone" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
-      </div>
-    </div>
-    <div class="acc-group">
-      <div class="acc-group-label groom">🤵 신랑 어머니</div>
-      <div class="parent-phone-row">
-        <input class="acc-input" id="ph-gm-name"  placeholder="성함"   value="강민선">
-        <input class="acc-input" id="ph-gm-phone" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
-      </div>
-    </div>
-
-    <!-- 신부측 부모님 연락처 -->
-    <div class="acc-group">
-      <div class="acc-group-label bride">👰 신부 아버지</div>
-      <div class="parent-phone-row">
-        <input class="acc-input" id="ph-bf-name"  placeholder="성함"   value="이홍기">
-        <input class="acc-input" id="ph-bf-phone" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
-      </div>
-    </div>
-    <div class="acc-group">
-      <div class="acc-group-label bride">👰 신부 어머니</div>
-      <div class="parent-phone-row">
-        <input class="acc-input" id="ph-bm-name"  placeholder="성함"   value="이은희">
+      <div class="parent-phone-row" style="grid-template-columns: 1fr; margin-top:6px;">
         <input class="acc-input" id="ph-bm-phone" placeholder="연락처 (예: 010-0000-0000)" inputmode="tel">
       </div>
     </div>
 
     <div class="acc-actions">
-      <button class="btn-primary" id="parentsSaveBtn" onclick="saveParents()">저장</button>
+      <button class="btn-primary" id="accSaveBtn" onclick="saveAccountsAndContacts()">저장</button>
     </div>
   </div>
 
@@ -688,8 +649,7 @@ function checkAuth() {
     loadWeddingDate();
     loadVenue();
     loadTransport();
-    loadAccounts();
-    loadParents();
+    loadAccountsAndContacts();
   } else {
     err.textContent = '비밀번호가 일치하지 않습니다';
     input.value = '';
@@ -1247,115 +1207,74 @@ async function saveWeddingDate() {
   }
 }
 
-/* ── 계좌 관리 ── */
-const ACC_FIELDS = [
-  ['groom',       'acc-groom-name',  'acc-groom-bank',  'acc-groom-number'],
-  ['bride',       'acc-bride-name',  'acc-bride-bank',  'acc-bride-number'],
-  ['groomFather', 'acc-gf-name',     'acc-gf-bank',     'acc-gf-number'],
-  ['groomMother', 'acc-gm-name',     'acc-gm-bank',     'acc-gm-number'],
-  ['brideFather', 'acc-bf-name',     'acc-bf-bank',     'acc-bf-number'],
-  ['brideMother', 'acc-bm-name',     'acc-bm-bank',     'acc-bm-number'],
+/* ── 계좌 · 연락처 관리 ──
+   한 사람당 계좌(예금주/은행/계좌번호)와 연락처(전화번호)를 한 블록에서 관리.
+   저장 시 내부적으로 /api/accounts, /api/parents 두 곳에 나눠서 PUT 한다
+   (다른 페이지들이 이미 이 두 엔드포인트를 따로 읽고 있어서 데이터 구조는 유지). */
+const PERSON_FIELDS = [
+  ['groom',       'acc-groom-name', 'acc-groom-bank', 'acc-groom-number', 'ph-groom-contact'],
+  ['bride',       'acc-bride-name', 'acc-bride-bank', 'acc-bride-number', 'ph-bride-contact'],
+  ['groomFather', 'acc-gf-name',    'acc-gf-bank',    'acc-gf-number',    'ph-gf-phone'],
+  ['groomMother', 'acc-gm-name',    'acc-gm-bank',    'acc-gm-number',    'ph-gm-phone'],
+  ['brideFather', 'acc-bf-name',    'acc-bf-bank',    'acc-bf-number',    'ph-bf-phone'],
+  ['brideMother', 'acc-bm-name',    'acc-bm-bank',    'acc-bm-number',    'ph-bm-phone'],
 ];
 
-async function loadAccounts() {
+async function loadAccountsAndContacts() {
   try {
-    const res = await fetch('/api/accounts');
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!data) return;
-    ACC_FIELDS.forEach(([key, nameId, bankId, numId]) => {
-      const acc = data[key];
-      if (!acc) return;
-      if (acc.name)   document.getElementById(nameId).value   = acc.name;
-      if (acc.bank)   document.getElementById(bankId).value   = acc.bank;
-      if (acc.number) document.getElementById(numId).value    = acc.number;
+    const [accRes, parRes] = await Promise.all([fetch('/api/accounts'), fetch('/api/parents')]);
+    const accData = accRes.ok ? await accRes.json() : null;
+    const parData = parRes.ok ? await parRes.json() : null;
+
+    PERSON_FIELDS.forEach(([key, nameId, bankId, numId, phoneId]) => {
+      const acc = accData && accData[key];
+      if (acc) {
+        if (acc.name)   document.getElementById(nameId).value = acc.name;
+        if (acc.bank)   document.getElementById(bankId).value = acc.bank;
+        if (acc.number) document.getElementById(numId).value  = acc.number;
+      }
+      let phone = '', parentName = '';
+      if (key === 'groom')      phone = parData?.groomContact?.phone || '';
+      else if (key === 'bride') phone = parData?.brideContact?.phone || '';
+      else if (parData && parData[key]) {
+        phone = parData[key].phone || '';
+        parentName = parData[key].name || '';
+      }
+      if (parentName && !document.getElementById(nameId).value) document.getElementById(nameId).value = parentName;
+      if (phone) document.getElementById(phoneId).value = phone;
     });
   } catch (e) {
-    console.error('계좌 로드 실패:', e);
+    console.error('계좌/연락처 로드 실패:', e);
   }
 }
 
-async function saveAccounts() {
+async function saveAccountsAndContacts() {
   const btn = document.getElementById('accSaveBtn');
   btn.disabled = true;
   btn.textContent = '저장 중...';
-  const data = {};
-  ACC_FIELDS.forEach(([key, nameId, bankId, numId]) => {
-    data[key] = {
-      name:   document.getElementById(nameId).value.trim(),
+
+  const accData = {};
+  const parData = {};
+  PERSON_FIELDS.forEach(([key, nameId, bankId, numId, phoneId]) => {
+    const name  = document.getElementById(nameId).value.trim();
+    const phone = document.getElementById(phoneId).value.trim();
+    accData[key] = {
+      name,
       bank:   document.getElementById(bankId).value.trim(),
       number: document.getElementById(numId).value.trim(),
     };
+    if (key === 'groom')      parData.groomContact = { phone };
+    else if (key === 'bride') parData.brideContact = { phone };
+    else                      parData[key] = { name, phone };
   });
-  try {
-    const res = await fetch('/api/accounts', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) throw new Error('서버 오류');
-    showToast('계좌 정보가 저장되었습니다');
-  } catch (e) {
-    showToast('저장에 실패했습니다');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '저장';
-  }
-}
 
-/* ── 부모님 연락처 관리 ──
-   /api/parents 엔드포인트(Vercel KV)와 동기화
-   필드: groomFather/groomMother/brideFather/brideMother 각각 { name, phone }
-         groomContact/brideContact 각각 { phone } — 신랑·신부 본인 연락처 */
-const PARENT_FIELDS = [
-  ['groomFather', 'ph-gf-name', 'ph-gf-phone'],
-  ['groomMother', 'ph-gm-name', 'ph-gm-phone'],
-  ['brideFather', 'ph-bf-name', 'ph-bf-phone'],
-  ['brideMother', 'ph-bm-name', 'ph-bm-phone'],
-];
-
-async function loadParents() {
   try {
-    const res = await fetch('/api/parents');
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!data) return;
-    PARENT_FIELDS.forEach(([key, nameId, phoneId]) => {
-      const p = data[key];
-      if (!p) return;
-      if (p.name)  document.getElementById(nameId).value  = p.name;
-      if (p.phone) document.getElementById(phoneId).value = p.phone;
-    });
-    /* 신랑·신부 본인 연락처 로드 */
-    if (data.groomContact?.phone) document.getElementById('ph-groom-contact').value = data.groomContact.phone;
-    if (data.brideContact?.phone) document.getElementById('ph-bride-contact').value = data.brideContact.phone;
-  } catch (e) {
-    console.error('부모님 연락처 로드 실패:', e);
-  }
-}
-
-async function saveParents() {
-  const btn = document.getElementById('parentsSaveBtn');
-  btn.disabled = true;
-  btn.textContent = '저장 중...';
-  const data = {};
-  PARENT_FIELDS.forEach(([key, nameId, phoneId]) => {
-    data[key] = {
-      name:  document.getElementById(nameId).value.trim(),
-      phone: document.getElementById(phoneId).value.trim(),
-    };
-  });
-  /* 신랑·신부 본인 연락처 추가 */
-  data.groomContact = { phone: document.getElementById('ph-groom-contact').value.trim() };
-  data.brideContact = { phone: document.getElementById('ph-bride-contact').value.trim() };
-  try {
-    const res = await fetch('/api/parents', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) throw new Error('서버 오류');
-    showToast('부모님 연락처가 저장되었습니다');
+    const [accRes, parRes] = await Promise.all([
+      fetch('/api/accounts', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(accData) }),
+      fetch('/api/parents',  { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(parData) }),
+    ]);
+    if (!accRes.ok || !parRes.ok) throw new Error('서버 오류');
+    showToast('계좌 · 연락처 정보가 저장되었습니다');
   } catch (e) {
     showToast('저장에 실패했습니다');
   } finally {
@@ -1370,8 +1289,7 @@ if (sessionStorage.getItem(AUTH_KEY) === '1') {
   loadWeddingDate();
   loadVenue();
   loadTransport();
-  loadAccounts();
-  loadParents();
+  loadAccountsAndContacts();
 }
 </script>
 </body>
