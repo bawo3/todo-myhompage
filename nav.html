@@ -270,13 +270,14 @@ function openNav(app) {
     }
   }
   else if (app === 'navermap') {
-    /* 네이버지도 — 자동차 길찾기 */
+    /* 네이버지도 — 앱 딥링크는 좌표(dlat/dlng)로 정확히 지정, dname 은 표시 라벨.
+       웹 폴백은 좌표 없는 순수 텍스트 검색이라 주소로 검색해야 정확 */
     if (isMobile) {
       const deep = `nmap://route/car?dlat=${VENUE.lat}&dlng=${VENUE.lng}&dname=${name}&appname=invite.wedding`;
-      const web  = `https://map.naver.com/v5/search/${name}`;
+      const web  = `https://map.naver.com/v5/search/${addr}`;
       tryDeepLink(deep, web);
     } else {
-      window.open(`https://map.naver.com/v5/search/${name}`, '_blank');
+      window.open(`https://map.naver.com/v5/search/${addr}`, '_blank');
     }
   }
   else if (app === 'tmap') {

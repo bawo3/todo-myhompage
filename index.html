@@ -2863,44 +2863,47 @@ function closeNavModal(e) {
 }
 
 function goNav(app) {
-  /* 길찾기 시 대상 장소 이름으로 검색 — 모달을 연 카드(메인 예식장 또는 추가 장소) 기준
-     메인 예식장은 navName(길찾기 전용 이름)이 있으면 그걸 우선 사용 */
+  /* 길찾기 대상 — 모달을 연 카드(메인 예식장 또는 추가 장소) 기준.
+     name/navName 은 지도 위에 표시되는 "제목(라벨)" 텍스트일 뿐이고,
+     실제 검색·목적지 지정은 항상 주소(좌표가 있으면 좌표)를 사용한다. */
   const target = activeNavTarget || CFG.venue;
-  const searchName = target.navName || target.name;
+  const title = target.navName || target.name;
   const addr = target.address;
-  const searchEnc = encodeURIComponent(searchName);
-  const addrEnc   = encodeURIComponent(addr);
+  const titleEnc = encodeURIComponent(title);
+  const addrEnc  = encodeURIComponent(addr);
   /* 저장된 좌표 사용 — 카카오내비·티맵 앱 딥링크용 */
   const lat = target.lat;
   const lng = target.lng;
   let url = '';
 
   if (app === 'naver') {
-    /* 네이버지도 웹 — 예식장 이름 검색 */
-    url = `https://map.naver.com/v5/search/${searchEnc}`;
+    /* 네이버지도 웹 — 좌표/제목 없이 순수 텍스트 검색이라 주소로 검색해야 정확 */
+    url = `https://map.naver.com/v5/search/${addrEnc}`;
   } else if (app === 'kakao') {
-    /* 카카오맵 웹 — 예식장 이름 검색 */
-    url = `https://map.kakao.com/link/search/${searchEnc}`;
+    /* 카카오맵 웹 — 마찬가지로 주소로 검색 */
+    url = `https://map.kakao.com/link/search/${addrEnc}`;
   } else if (app === 'kakaonav') {
     /* 카카오내비 앱 딥링크 → 미설치 시 카카오맵 목적지 웹으로
-       좌표가 없는 장소(예: 좌표 미등록 추가 장소)는 딥링크 대신 이름 검색으로 대체 */
+       실제 목적지는 좌표(ep=lat,lng)로 정확히 지정, title 은 표시용 라벨.
+       좌표가 없는 장소는 좌표 지정이 불가능하므로 주소 검색으로 대체 */
     if (lat && lng) {
-      const fallback = `https://map.kakao.com/link/to/${searchEnc},${lat},${lng}`;
+      const fallback = `https://map.kakao.com/link/to/${titleEnc},${lat},${lng}`;
       window.location.href = `kakaomap://route?ep=${lat},${lng}&by=CAR`;
       setTimeout(() => window.open(fallback, '_blank'), 1200);
     } else {
-      window.open(`https://map.kakao.com/link/search/${searchEnc}`, '_blank');
+      window.open(`https://map.kakao.com/link/search/${addrEnc}`, '_blank');
     }
     closeNavModal(); return;
   } else if (app === 'tmap') {
     /* 티맵 앱 딥링크 → 미설치 시 티맵 웹으로
-       좌표가 없는 장소는 딥링크 대신 카카오맵 이름 검색으로 대체 */
+       goalname 은 표시 라벨, goalx/goaly(좌표)가 실제 목적지, goaladdr 은 주소 표시.
+       좌표가 없는 장소는 좌표 지정이 불가능하므로 주소 검색으로 대체 */
     if (lat && lng) {
-      const fallback = `https://tmap.life/route?goalname=${searchEnc}&goalx=${lng}&goaly=${lat}`;
-      window.location.href = `tmap://route?goalname=${searchEnc}&goalx=${lng}&goaly=${lat}&goaladdr=${addrEnc}`;
+      const fallback = `https://tmap.life/route?goalname=${titleEnc}&goalx=${lng}&goaly=${lat}`;
+      window.location.href = `tmap://route?goalname=${titleEnc}&goalx=${lng}&goaly=${lat}&goaladdr=${addrEnc}`;
       setTimeout(() => window.open(fallback, '_blank'), 1200);
     } else {
-      window.open(`https://map.kakao.com/link/search/${searchEnc}`, '_blank');
+      window.open(`https://map.kakao.com/link/search/${addrEnc}`, '_blank');
     }
     closeNavModal(); return;
   }
