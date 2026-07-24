@@ -476,6 +476,10 @@ body {
         <input class="acc-input" id="venue-lat" placeholder="위도 (lat)" inputmode="decimal">
         <input class="acc-input" id="venue-lng" placeholder="경도 (lng)" inputmode="decimal">
       </div>
+      <label style="display:flex; align-items:center; gap:6px; font-size:12px; color: var(--text-mid); margin: 2px 0 10px; cursor:pointer;">
+        <input type="checkbox" id="venue-use-coords" checked style="width:16px; height:16px; accent-color: var(--gold);">
+        길찾기 시 좌표 우선 사용 (해제하면 좌표가 있어도 주소로 검색)
+      </label>
       <div style="font-size:11px; color: var(--text-light); margin: 2px 0 12px; line-height:1.6;">
         💡 주소 입력 후 "주소로 좌표 찾기"를 누르면 위도·경도가 자동으로 채워집니다. 결과가 정확한지는 아래 지도 미리보기로 확인하고, 필요하면 위도·경도를 직접 수정하세요.
       </div>
@@ -866,6 +870,7 @@ function fillVenueFields(v) {
   document.getElementById('venue-address').value = v.address || '';
   document.getElementById('venue-lat').value     = (v.lat ?? '') === null ? '' : (v.lat ?? '');
   document.getElementById('venue-lng').value     = (v.lng ?? '') === null ? '' : (v.lng ?? '');
+  document.getElementById('venue-use-coords').checked = v.useCoords !== false;
   venuePhotoData = v.photo || '';
   document.getElementById('venuePhotoPreview').src = venuePhotoData;
 }
@@ -994,12 +999,18 @@ function renderExtraLocations() {
         <input class="acc-input" placeholder="경도 (lng)" inputmode="decimal" value="${loc.lng ?? ''}"
                oninput="updateExtraLocationField(${loc.id}, 'lng', this.value)">
       </div>
+      <label style="display:flex; align-items:center; gap:6px; font-size:12px; color: var(--text-mid); margin-top:2px; cursor:pointer;">
+        <input type="checkbox" ${loc.useCoords !== false ? 'checked' : ''}
+               onchange="updateExtraLocationCheckbox(${loc.id}, this.checked)"
+               style="width:16px; height:16px; accent-color: var(--gold);">
+        길찾기 시 좌표 우선 사용 (해제하면 좌표가 있어도 주소로 검색)
+      </label>
     </div>
   `).join('');
 }
 
 function addExtraLocation() {
-  extraLocations.push({ id: Date.now() + Math.random(), name: '', address: '', lat: '', lng: '' });
+  extraLocations.push({ id: Date.now() + Math.random(), name: '', address: '', lat: '', lng: '', useCoords: true });
   renderExtraLocations();
 }
 
@@ -1011,6 +1022,11 @@ function removeExtraLocation(id) {
 function updateExtraLocationField(id, field, value) {
   const loc = extraLocations.find(l => l.id === id);
   if (loc) loc[field] = value;
+}
+
+function updateExtraLocationCheckbox(id, checked) {
+  const loc = extraLocations.find(l => l.id === id);
+  if (loc) loc.useCoords = checked;
 }
 
 async function geocodeExtraLocation(id) {
@@ -1037,6 +1053,7 @@ async function saveVenue() {
   const address = document.getElementById('venue-address').value.trim();
   const latRaw  = document.getElementById('venue-lat').value.trim();
   const lngRaw  = document.getElementById('venue-lng').value.trim();
+  const useCoords = document.getElementById('venue-use-coords').checked;
 
   if (!name || !address) {
     showToast('예식장 이름과 주소는 필수입니다');
@@ -1050,6 +1067,7 @@ async function saveVenue() {
       address: (l.address || '').trim(),
       lat: l.lat !== '' && l.lat != null ? parseFloat(l.lat) : null,
       lng: l.lng !== '' && l.lng != null ? parseFloat(l.lng) : null,
+      useCoords: l.useCoords !== false,
     }));
 
   btn.disabled = true;
@@ -1063,6 +1081,7 @@ async function saveVenue() {
       name, hall, navName, address,
       lat: latRaw ? parseFloat(latRaw) : null,
       lng: lngRaw ? parseFloat(lngRaw) : null,
+      useCoords,
       photo: venuePhotoData,
       extraLocations: extras,
     };
