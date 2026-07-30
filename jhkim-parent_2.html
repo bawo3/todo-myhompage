@@ -32,6 +32,9 @@
 <!-- 카카오톡 공유 SDK -->
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"></script>
 
+<!-- 카카오맵 SDK (오시는 길 지도) -->
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=dcd1c068f6af150c317890b1ad802bf2&autoload=false"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;600&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;family=Noto+Sans+KR:wght@300;400;500&amp;display=swap" rel="stylesheet">
 <style>
 /* ── 전역 변수 & 리셋 ── */
@@ -929,11 +932,13 @@ body {
     0 12px 48px rgba(139,111,71,0.14),
     0 2px 8px rgba(139,111,71,0.08);
 }
-.naver-map-wrap iframe {
+.naver-map-wrap iframe,
+.naver-map-wrap #kakao-map {
   width: 100%; height: 100%;
   border: none; display: block;
 }
-/* 지도 위 투명 오버레이 — 드래그(이동)는 iframe에 전달, 클릭(링크)은 차단 */
+/* 지도 위 투명 오버레이 — 카카오맵은 탭하면 잠금 해제(드래그/줌 가능),
+   구글맵 폴백은 드래그(이동)를 iframe에 전달, 클릭(링크)은 차단 */
 .naver-map-wrap .map-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -2116,6 +2121,7 @@ body {
     <!-- 지도 -->
     <div class="naver-map-wrap">
       <div class="map-overlay"></div>
+      <div id="kakao-map" style="display:none;"></div>
       <iframe id="naver-map-iframe" src="" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
 
@@ -2738,34 +2744,35 @@ function renderVenue() {
   const v = CFG.venue;
   document.getElementById('venue-addr').textContent = v.address;
 
-  /* 지도 iframe — Google Maps 임베드
-     · 키 불필요 (output=embed 공개 API)
-     · 한국 도로/지명 정확
-     · iframe X-Frame 제한 없음
-     · setting.json의 lat/lng 좌표가 있으면 정확한 좌표로, 없으면 장소명+주소 검색 */
-  let mapQuery;
-  if (v.lat && v.lng) {
-    /* 좌표 직접 지정 — 가장 정확 */
-    mapQuery = `${v.lat},${v.lng}`;
-  } else {
-    /* 좌표가 없으면 장소명+주소로 Google 검색 */
-    mapQuery = encodeURIComponent(`${v.name} ${v.address}`);
-  }
-  document.getElementById('naver-map-iframe').src =
-    `https://maps.google.com/maps?q=${mapQuery}&z=15&hl=ko&output=embed`;
+  /* 지도 — 좌표(lat/lng)가 있으면 카카오맵 SDK로 실제 지도 + 마커 표시
+     좌표가 없으면(드물게) Google Maps 주소검색 임베드로 폴백 */
+  const mapDiv    = document.getElementById('kakao-map');
+  const mapIframe = document.getElementById('naver-map-iframe');
+  const useCoords = v.lat && v.lng && v.useCoords !== false;
 
-  /* 지도 오버레이 — 터치 이동은 iframe에 전달, 클릭(탭)은 차단 */
-  const overlay = document.querySelector('.map-overlay');
-  if (overlay) {
-    let moved = false;
-    overlay.addEventListener('touchstart', () => { moved = false; }, { passive: true });
-    overlay.addEventListener('touchmove', () => {
-      if (!moved) { moved = true; overlay.style.pointerEvents = 'none'; }
-    }, { passive: true });
-    overlay.addEventListener('touchend', () => {
-      setTimeout(() => { overlay.style.pointerEvents = ''; }, 300);
+  if (useCoords && window.kakao && window.kakao.maps) {
+    mapIframe.style.display = 'none';
+    mapDiv.style.display = 'block';
+    kakao.maps.load(() => {
+      const center = new kakao.maps.LatLng(v.lat, v.lng);
+      const map = new kakao.maps.Map(mapDiv, { center, level: 4 });
+      new kakao.maps.Marker({ position: center, map });
+      /* display:none → block 직후 생성하면 내부 크기 계산이 어긋나 중심이 밀릴 수 있어
+         relayout으로 재계산 후 중심을 다시 맞춘다 */
+      kakao.maps.event.addListener(map, 'tilesloaded', () => {
+        map.relayout();
+        map.setCenter(center);
+      });
+      setupMapLock(map);
     });
-    overlay.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+  } else {
+    mapDiv.style.display = 'none';
+    mapIframe.style.display = 'block';
+    const mapQuery = useCoords
+      ? `${v.lat},${v.lng}`
+      : encodeURIComponent(`${v.name} ${v.address}`);
+    mapIframe.src = `https://maps.google.com/maps?q=${mapQuery}&z=15&hl=ko&output=embed`;
+    setupIframeOverlay();
   }
 
   /* 길찾기 버튼 라벨 — 길찾기 전용 이름(navName)이 있으면 그걸, 없으면 예식장 이름 사용 */
@@ -2813,6 +2820,37 @@ function renderVenue() {
     document.addEventListener('touchstart', tryPlay, { once: true, passive: true });
     document.addEventListener('click',      tryPlay, { once: true });
   }
+}
+
+/* 카카오맵 잠금 — 처음엔 드래그/줌 잠금, 오버레이를 한 번 탭하면 잠금 해제
+   (스크롤 중 지도가 실수로 움직이는 것을 방지) */
+function setupMapLock(map) {
+  map.setDraggable(false);
+  map.setZoomable(false);
+  const overlay = document.querySelector('.map-overlay');
+  if (!overlay) return;
+  const unlock = () => {
+    map.setDraggable(true);
+    map.setZoomable(true);
+    overlay.style.pointerEvents = 'none';
+  };
+  overlay.addEventListener('click', unlock, { once: true });
+  overlay.addEventListener('touchstart', unlock, { once: true, passive: true });
+}
+
+/* Google Maps 폴백용 오버레이 — 터치 이동은 iframe에 전달, 클릭(탭)은 차단 */
+function setupIframeOverlay() {
+  const overlay = document.querySelector('.map-overlay');
+  if (!overlay) return;
+  let moved = false;
+  overlay.addEventListener('touchstart', () => { moved = false; }, { passive: true });
+  overlay.addEventListener('touchmove', () => {
+    if (!moved) { moved = true; overlay.style.pointerEvents = 'none'; }
+  }, { passive: true });
+  overlay.addEventListener('touchend', () => {
+    setTimeout(() => { overlay.style.pointerEvents = ''; }, 300);
+  });
+  overlay.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
 }
 
 /* 주소 카드 클릭 — 주소 복사 */
