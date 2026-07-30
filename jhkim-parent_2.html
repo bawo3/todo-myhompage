@@ -3311,7 +3311,9 @@ function shareKakao() {
   const dateStr = `${d.year}.${String(d.month).padStart(2,'0')}.${String(d.day).padStart(2,'0')} (${(d.dayOfWeek||'').replace('요일','')}) ${d.time}`;
 
   const base    = location.origin + '/';
-  const siteUrl = base;
+  /* 지금 보고 있는 페이지(파일 + ?contact= 등 쿼리스트링)를 그대로 공유 —
+     혼주용 변형에서 공유해도 index.html로 뒤바뀌지 않도록, 연락처 노출 조건도 유지 */
+  const siteUrl = location.origin + location.pathname + location.search;
   const mapUrl  = `${location.origin}/nav.html`;
   const calUrl  = `${location.origin}/cal.html`;
   /* 이미지 URL — 캐시 강제 무효화 */
@@ -3345,7 +3347,7 @@ function shareKakao() {
 }
 
 function copyInviteLink() {
-  const url = location.origin + '/';
+  const url = location.origin + location.pathname + location.search;
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url)
       .then(() => showToast('청첩장 링크가 복사되었습니다'))
