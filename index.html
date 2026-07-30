@@ -2720,7 +2720,7 @@ function renderVenue() {
     mapDiv.style.display = 'block';
     kakao.maps.load(() => {
       const center = new kakao.maps.LatLng(v.lat, v.lng);
-      const map = new kakao.maps.Map(mapDiv, { center, level: 4 });
+      const map = new kakao.maps.Map(mapDiv, { center, level: 5 });
       new kakao.maps.Marker({ position: center, map });
       /* display:none → block 직후 생성하면 내부 크기 계산이 어긋나 중심이 밀릴 수 있어
          relayout으로 재계산 후 중심을 다시 맞춘다 */
