@@ -83,7 +83,7 @@ WEDDING-CARD/
 | 계좌·혼주 연락처 | photo.html "💳📞 계좌 · 연락처 관리" | `/api/accounts`, `/api/parents` |
 | 갤러리 사진 | photo.html 상단 업로드 영역 | `/api/photos` |
 | 배경음악 (파일명 + on/off + 최대 볼륨%) | photo.html "🎵 배경음악 관리" | `/api/music` |
-| 방문자 수 (총합) | 청첩장 접속 시 자동 카운트 → result.html에서 조회 | `/api/visits` |
+| 방문 횟수 (총합) | 청첩장 접속·새로고침마다 자동 카운트 → result.html에서 조회 | `/api/visits` |
 
 RSVP 회신 마감일은 더 이상 별도 값을 저장하지 않고, **예식 일자 기준 3주 전을 자동 계산**해서 표시합니다.
 

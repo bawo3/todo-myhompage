@@ -2678,13 +2678,9 @@ function toggleBgm() {
   else bgmEl.pause();
 }
 
-/* ── 방문자 수 카운팅 ──
-   브라우저당 1회만 +1 (같은 사람이 새로고침해도 중복되지 않음). result.html에서 총합 확인. */
+/* ── 방문 횟수 카운팅 ──
+   새로고침·재접속할 때마다 +1 (총 열어본 횟수). result.html에서 총합 확인. */
 function countVisit() {
-  try {
-    if (localStorage.getItem('wedding_visited') === '1') return;
-    localStorage.setItem('wedding_visited', '1');
-  } catch (e) { /* 사생활 보호 모드 등 localStorage 불가 — 그냥 1회 시도 */ }
   fetch('/api/visits', { method: 'POST' }).catch(() => {});
 }
 
