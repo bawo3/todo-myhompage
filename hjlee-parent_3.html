@@ -2565,31 +2565,62 @@ function setupBgm(music) {
   const btn = document.getElementById('bgmToggle');
   if (!bgmEl || !btn) return;
 
+  const icon = document.getElementById('bgmIcon');
   bgmEl.src = 'music/' + encodeURIComponent(music.file);
-  bgmEl.volume = 0.55;
+  bgmEl.volume = 0.30;   /* 볼륨 30% */
   btn.style.display = 'flex';
+
+  /* 첫 사용자 상호작용에서 재생 — 데스크톱·모바일 공통.
+     PC 크롬 등은 자동재생이 막힐 때 pointerdown만으로 안 걸리는 경우가 있어
+     touchstart·click·keydown까지 캡처 단계(true)로 함께 듣는다. */
+  const gestureEvents = ['pointerdown', 'touchstart', 'click', 'keydown'];
+  function removeGesture() {
+    gestureEvents.forEach(ev => document.removeEventListener(ev, startOnGesture, true));
+  }
+  function startOnGesture(e) {
+    if (btn.contains(e.target)) return;   /* 버튼 클릭은 toggleBgm이 처리 */
+    if (bgmEl.paused) bgmEl.play().catch(() => {});
+    removeGesture();
+  }
+  function armGesture() {
+    /* 자동재생이 막히면 버튼을 꺼진 모습(🔇)으로 두고, 첫 상호작용에서 재생 */
+    btn.classList.add('off');
+    if (icon) icon.textContent = '🔇';
+    gestureEvents.forEach(ev => document.addEventListener(ev, startOnGesture, true));
+  }
 
   /* 재생/정지 상태를 버튼 아이콘에 반영 */
   bgmEl.addEventListener('play', () => {
     btn.classList.add('playing'); btn.classList.remove('off');
-    document.getElementById('bgmIcon').textContent = '🎵';
+    if (icon) icon.textContent = '🎵';
+    removeGesture();   /* 한 번 재생되면 자동 시작 리스너 정리 */
   });
   bgmEl.addEventListener('pause', () => {
     btn.classList.remove('playing'); btn.classList.add('off');
-    document.getElementById('bgmIcon').textContent = '🔇';
+    if (icon) icon.textContent = '🔇';
   });
 
-  /* 자동재생 시도 → 막히면 첫 탭에서 재생 (버튼 탭은 toggleBgm이 담당) */
-  bgmEl.play().catch(() => {
-    btn.classList.add('off');
-    document.getElementById('bgmIcon').textContent = '🔇';
-    const onFirstTap = e => {
-      if (btn.contains(e.target)) return;   /* 버튼 탭은 toggleBgm이 처리 */
-      if (bgmEl.paused) bgmEl.play().catch(() => {});
-      document.removeEventListener('pointerdown', onFirstTap);
-    };
-    document.addEventListener('pointerdown', onFirstTap);
+  /* 홈 화면으로 나가거나 다른 앱/탭으로 이동하면(백그라운드) 노래를 멈춘다.
+     다시 청첩장으로 돌아오면, 나갈 때 재생 중이었을 때만 이어서 재생한다. */
+  let wasPlayingBeforeHide = false;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      wasPlayingBeforeHide = !bgmEl.paused;
+      if (!bgmEl.paused) bgmEl.pause();
+    } else if (wasPlayingBeforeHide) {
+      bgmEl.play().catch(() => {});
+    }
   });
+  /* iOS Safari 등 일부 환경은 pagehide 로만 잡히는 경우가 있어 정지만 한 번 더 건다 */
+  window.addEventListener('pagehide', () => { if (!bgmEl.paused) bgmEl.pause(); });
+
+  /* 자동재생 시도 → 되면 그대로, 막히면 첫 상호작용에서 재생 */
+  const playP = bgmEl.play();
+  if (playP && typeof playP.then === 'function') {
+    playP.catch(armGesture);
+  } else {
+    armGesture();
+  }
 }
 
 /* 우하단 버튼 — 하객이 직접 끄고 켜기 */
