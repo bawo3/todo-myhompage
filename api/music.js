@@ -43,16 +43,25 @@ export default async function handler(req, res) {
 
   /* 배경음악 설정 조회 (+ 폴더의 파일 목록) */
   if (req.method === 'GET') {
-    const saved = (await kv.get(MUSIC_KEY)) || { file: '', enabled: false };
-    return res.json({ ...saved, available: listMusicFiles() });
+    const saved = (await kv.get(MUSIC_KEY)) || {};
+    return res.json({
+      file: typeof saved.file === 'string' ? saved.file : '',
+      enabled: !!saved.enabled,
+      volume: typeof saved.volume === 'number' ? saved.volume : 15,   /* 최대 볼륨 %, 기본 15 */
+      available: listMusicFiles(),
+    });
   }
 
   /* 배경음악 설정 저장 (덮어쓰기) */
   if (req.method === 'PUT') {
     const body = req.body || {};
+    let volume = Number(body.volume);
+    if (!isFinite(volume)) volume = 15;
+    volume = Math.max(0, Math.min(100, Math.round(volume)));   /* 0~100%로 제한 */
     const data = {
       file: typeof body.file === 'string' ? body.file.trim() : '',
       enabled: !!body.enabled,
+      volume,
     };
     await kv.set(MUSIC_KEY, data);
     return res.json({ ok: true });

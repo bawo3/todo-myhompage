@@ -451,6 +451,11 @@ body {
     <div style="font-size:11px; color: var(--text-light); margin: 8px 0 12px; line-height:1.6;">
       💡 <b>music</b> 폴더에 넣어둔 mp3 중 하나를 골라 배경음악으로 씁니다. 파일 자체는 KV에 저장하지 않고 <b>파일명만</b> 저장하므로 가볍고 빠릅니다. 새 곡은 mp3를 music 폴더에 넣고 배포한 뒤 여기서 선택하세요. (모바일은 정책상 하객이 화면을 처음 탭할 때 재생됩니다)
     </div>
+    <div class="acc-group-label" style="margin-top:6px;">최대 볼륨: <span id="music-volume-label">15</span>%</div>
+    <input type="range" min="0" max="100" step="1" value="15" id="music-volume" oninput="onMusicVolumeInput()" style="width:100%; accent-color: var(--gold); margin-bottom:6px;">
+    <div style="font-size:11px; color: var(--text-light); margin: 0 0 12px; line-height:1.6;">
+      💡 하객 청첩장에서 배경음악이 <b>이 % 이하</b>로만 재생됩니다(아이폰 포함). 시작할 때 이 값까지 2.5초에 걸쳐 서서히 커집니다. 아래 미리듣기로 크기를 확인하세요.
+    </div>
     <button class="action-btn" type="button" id="musicPreviewBtn" onclick="previewMusic()" style="margin-bottom:12px;">▶ 미리듣기 / ⏸ 정지</button>
     <audio id="music-preview" preload="none"></audio>
     <div class="acc-actions">
@@ -1341,6 +1346,9 @@ async function loadMusic() {
     document.getElementById('music-enabled').checked = !!data.enabled;
     document.getElementById('music-file').value = data.file || '';
     fillMusicSelect(data.file || '');
+    const vol = typeof data.volume === 'number' ? data.volume : 15;
+    document.getElementById('music-volume').value = vol;
+    document.getElementById('music-volume-label').textContent = vol;
   } catch (e) {
     console.error('배경음악 정보 로드 실패:', e);
   }
@@ -1365,6 +1373,14 @@ function onMusicSelectChange() {
   if (v) document.getElementById('music-file').value = v;
 }
 
+/* 슬라이더 이동 시 % 라벨·미리듣기 볼륨을 실시간 반영 */
+function onMusicVolumeInput() {
+  const v = parseInt(document.getElementById('music-volume').value, 10) || 0;
+  document.getElementById('music-volume-label').textContent = v;
+  const audio = document.getElementById('music-preview');
+  if (audio) audio.volume = Math.max(0, Math.min(1, v / 100));
+}
+
 /* 미리듣기 — 선택한 파일이 실제로 재생되는지 확인 (한 번 더 누르면 정지) */
 function previewMusic() {
   const file  = document.getElementById('music-file').value.trim();
@@ -1372,6 +1388,7 @@ function previewMusic() {
   if (!audio.paused) { audio.pause(); return; }
   if (!file) { showToast('먼저 곡을 선택하거나 파일명을 입력하세요'); return; }
   audio.src = 'music/' + encodeURIComponent(file);
+  audio.volume = Math.max(0, Math.min(1, (parseInt(document.getElementById('music-volume').value, 10) || 0) / 100));
   audio.play().catch(() => showToast('재생 실패 — 파일명이 정확한지, music 폴더에 있는지 확인하세요'));
 }
 
@@ -1379,6 +1396,7 @@ async function saveMusic() {
   const btn     = document.getElementById('musicSaveBtn');
   const file    = document.getElementById('music-file').value.trim();
   const enabled = document.getElementById('music-enabled').checked;
+  const volume  = parseInt(document.getElementById('music-volume').value, 10) || 0;
   if (enabled && !file) { showToast('배경음악을 켜려면 곡을 선택하세요'); return; }
 
   btn.disabled = true;
@@ -1387,7 +1405,7 @@ async function saveMusic() {
     const res = await fetch('/api/music', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ file, enabled })
+      body: JSON.stringify({ file, enabled, volume })
     });
     if (!res.ok) throw new Error('서버 오류');
     showToast('배경음악 설정이 저장되었습니다');

@@ -17,7 +17,7 @@
 | **마음 전하기** | 신랑(판다 🐼)/신부(토끼 🐰) 캐릭터 + 송금 모달 (토스/카카오페이/복사) |
 | **갤러리** | 사진 슬라이더 (자동재생, 점 인디케이터, 썸네일) |
 | **RSVP** | 참석 여부 폼 (이름·연락처·참석여부 필수, 인원 수) |
-| **배경음악** | `music/` 폴더의 mp3 재생 (우하단 🎵 버튼으로 끄고 켜기, photo.html에서 곡 선택·on/off) |
+| **배경음악** | `music/` 폴더의 mp3 재생 (우하단 🎵 버튼으로 끄고 켜기 · photo.html에서 곡 선택·on/off·최대 볼륨% · 시작 시 페이드인 · 앱 전환 시 자동 정지) |
 
 ---
 
@@ -42,7 +42,8 @@ WEDDING-CARD/
 │   ├── accounts.js             # 계좌 정보 저장 (GET/PUT)
 │   ├── parents.js              # 혼주·본인 연락처 저장 (GET/PUT)
 │   ├── photos.js               # 갤러리 사진 저장 (GET/POST/DELETE)
-│   └── rsvp.js                 # 참석 회신 저장 (GET/POST/DELETE)
+│   ├── rsvp.js                 # 참석 회신 저장 (GET/POST/DELETE)
+│   └── visits.js               # 방문자 수 카운트 (GET/POST, kv.incr)
 ├── music/                      # 배경음악 mp3 (정적 파일 — 여기에 넣고 배포)
 ├── vercel.json                 # music.js 함수에 music 폴더 포함(includeFiles)
 ├── images/                     # 갤러리 이미지
@@ -81,7 +82,8 @@ WEDDING-CARD/
 | 예식장 이름/홀/길찾기 이름/주소/좌표/사진, 추가 장소, 교통정보 | photo.html "🏛️ 예식장 정보 관리" 외 | `/api/venue` |
 | 계좌·혼주 연락처 | photo.html "💳📞 계좌 · 연락처 관리" | `/api/accounts`, `/api/parents` |
 | 갤러리 사진 | photo.html 상단 업로드 영역 | `/api/photos` |
-| 배경음악 (파일명 + on/off) | photo.html "🎵 배경음악 관리" | `/api/music` |
+| 배경음악 (파일명 + on/off + 최대 볼륨%) | photo.html "🎵 배경음악 관리" | `/api/music` |
+| 방문자 수 (총합) | 청첩장 접속 시 자동 카운트 → result.html에서 조회 | `/api/visits` |
 
 RSVP 회신 마감일은 더 이상 별도 값을 저장하지 않고, **예식 일자 기준 3주 전을 자동 계산**해서 표시합니다.
 
