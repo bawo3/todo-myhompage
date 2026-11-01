@@ -1549,12 +1549,28 @@ body {
   color: #7A5C36;
   margin-bottom: 5px;
 }
-.notice-date {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 29px; font-weight: 500;
-  color: var(--gold-dark); letter-spacing: 2px;
-  line-height: 1.1;
+.notice-week {
+  display: inline-block;
+  padding: 3px 16px; margin-bottom: 6px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #D4B26F, #8B6F47);
+  color: white;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px; font-weight: 700; letter-spacing: 4px;
+  animation: noticeWeek 1.8s ease-out infinite;
 }
+@keyframes noticeWeek {
+  0%   { box-shadow: 0 0 0 0 rgba(201,169,110,0.6); }
+  70%  { box-shadow: 0 0 0 9px rgba(201,169,110,0); }
+  100% { box-shadow: 0 0 0 0 rgba(201,169,110,0); }
+}
+.notice-date {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 22px; font-weight: 700;
+  color: #7A5C36; letter-spacing: 0;
+  line-height: 1.25;
+}
+.notice-main-sub span { white-space: nowrap; }
 .notice-main-sub {
   font-family: 'Noto Serif KR', serif;
   font-size: 16px; color: var(--text-dark);
@@ -1568,6 +1584,16 @@ body {
 .notice-note {
   font-family: 'Noto Sans KR', sans-serif;
   font-size: 13px; color: var(--text-mid);
+}
+.notice-time {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 15px; font-weight: 700; color: #7A5C36;
+  margin-top: 4px;
+}
+.notice-fee {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13.5px; font-weight: 600; color: var(--text-mid);
+  margin: -1px 0 7px;
 }
 .notice-addr {
   font-family: 'Noto Sans KR', sans-serif;
@@ -1606,9 +1632,27 @@ button.notice-chip { cursor: pointer; }
 /* 손모양이 위아래로 살짝 움직여 "눌러보세요" 느낌을 줌 */
 .notice-hand { display: inline-block; animation: noticeHand 1.2s ease-in-out infinite; }
 @keyframes noticeHand { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-@media (prefers-reduced-motion: reduce) { .notice-hand { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .notice-hand, .notice-week { animation: none; } }
 /* 아주 좁은 폰(320px)에서도 문구가 한 줄로 보이게 */
 @media (max-width: 340px) { .notice-chip-sub { font-size: 11px; white-space: nowrap; } }
+/* 화면 높이가 아주 낮은 폰(568px 등) — 모든 칸을 조금씩 더 줄임 */
+@media (max-height: 600px) {
+  .notice-modal { padding: 10px 14px; }
+  .notice-title { font-size: 15px; margin-bottom: 4px; letter-spacing: 5px; }
+  .notice-line { margin-bottom: 6px; }
+  .notice-block { padding: 5px 10px; margin-bottom: 5px; }
+  .notice-block.main { padding: 0 0 6px; }
+  .notice-label { font-size: 13px; margin-bottom: 2px; }
+  .notice-value { font-size: 16px; }
+  .notice-note, .notice-fee { font-size: 12px; }
+  .notice-fee { margin-bottom: 5px; }
+  .notice-time { font-size: 14px; margin-top: 2px; }
+  .notice-chip { padding: 6px 4px; font-size: 16px; }
+  .notice-chip-sub { font-size: 11px; margin-top: 0; }
+  .notice-btn { padding: 7px 4px; font-size: 14px; }
+  .notice-addr { font-size: 13px; margin-bottom: 5px; }
+  .notice-close { padding: 9px; }
+}
 button.notice-chip:active { transform: scale(0.97); }
 .notice-close {
   margin-top: 2px; width: 100%;
@@ -1637,8 +1681,9 @@ button.notice-chip:active { transform: scale(0.97); }
   .notice-eyebrow { display: none; }
   .notice-title { margin-bottom: 6px; }
   .notice-line { margin-bottom: 8px; }
-  .notice-date { font-size: 26px; }
-  .notice-main-sub { font-size: 15px; }
+  .notice-date { font-size: 21px; }
+  .notice-main-sub { font-size: 14px; }
+  .notice-week { font-size: 12px; padding: 2px 12px; margin-bottom: 4px; }
   .notice-block { padding: 7px 10px; margin-bottom: 6px; }
   .notice-block.main { padding-bottom: 8px; }
   .notice-addr { font-size: 12px; margin-bottom: 6px; }
@@ -2989,8 +3034,8 @@ function getNoticeParkingItems() {
 
 function buildNoticeHtml() {
   const d = CFG.date, v = CFG.venue, n = NOTICE;
-  const dateText = `${d.year}. ${String(d.month).padStart(2, '0')}. ${String(d.day).padStart(2, '0')}`;
-  const dow = ['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date(d.year, d.month - 1, d.day).getDay()];
+  const dow = ['일','월','화','수','목','금','토'][new Date(d.year, d.month - 1, d.day).getDay()];
+  const dateText = `${d.year}년 ${String(d.month).padStart(2, '0')}월 ${String(d.day).padStart(2, '0')}일 (${dow})`;
   const chips = getNoticeParkingItems().map(p => {
     if (p.idx === null) return `<div class="notice-chip">${escapeHtml(p.label)}</div>`;
     const act = p.idx === -1 ? 'openNavModal()' : `openNavModalByIndex(${p.idx})`;
@@ -3003,18 +3048,21 @@ function buildNoticeHtml() {
     <div class="notice-line"></div>
 
     <div class="notice-block main">
-      <div class="notice-date">${dateText} ${dow}</div>
-      <div class="notice-main-sub">${escapeHtml(d.time)}<br>${escapeHtml(v.hall)}</div>
+      <div class="notice-week">이번주</div>
+      <div class="notice-date">${dateText}</div>
+      <div class="notice-main-sub"><span>${escapeHtml(d.time)}</span> · <span>${escapeHtml(v.hall)}</span></div>
     </div>
 
     <div class="notice-block">
       <div class="notice-label">🍽 식사 장소</div>
       <div class="notice-value">${escapeHtml(n.dining.place)}</div>
       <div class="notice-note">${escapeHtml(n.dining.note)}</div>
+      ${n.dining.time ? `<div class="notice-time">🕛 ${escapeHtml(n.dining.time)}</div>` : ''}
     </div>
 
     <div class="notice-block">
       <div class="notice-label">🅿 빠른 주차안내 (아래 클릭)</div>
+      ${n.parkingNote ? `<div class="notice-fee">${escapeHtml(n.parkingNote)}</div>` : ''}
       <div class="notice-chip-row">${chips}</div>
     </div>
 
