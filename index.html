@@ -1487,33 +1487,33 @@ body {
 .notice-block.main { background: transparent; border: none; padding: 0 0 10px; margin-bottom: 0; }
 .notice-label {
   font-family: 'Noto Sans KR', sans-serif;
-  font-size: 11px; letter-spacing: 1.5px;
-  color: var(--gold-dark);
-  margin-bottom: 4px;
+  font-size: 14px; font-weight: 700; letter-spacing: 1px;
+  color: #7A5C36;
+  margin-bottom: 5px;
 }
 .notice-date {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 27px; font-weight: 500;
+  font-size: 29px; font-weight: 500;
   color: var(--gold-dark); letter-spacing: 2px;
   line-height: 1.1;
 }
 .notice-main-sub {
   font-family: 'Noto Serif KR', serif;
-  font-size: 14px; color: var(--text-dark);
+  font-size: 16px; color: var(--text-dark);
   letter-spacing: 1px; margin-top: 4px; line-height: 1.5;
 }
 .notice-value {
   font-family: 'Noto Serif KR', serif;
-  font-size: 15px; color: var(--text-dark);
+  font-size: 18px; font-weight: 600; color: var(--text-dark);
   letter-spacing: 1px; line-height: 1.4;
 }
 .notice-note {
   font-family: 'Noto Sans KR', sans-serif;
-  font-size: 11px; color: var(--text-light);
+  font-size: 13px; color: var(--text-mid);
 }
 .notice-addr {
   font-family: 'Noto Sans KR', sans-serif;
-  font-size: 12.5px; color: var(--text-mid);
+  font-size: 14px; font-weight: 500; color: var(--text-dark);
   line-height: 1.5; word-break: keep-all;
   margin-bottom: 8px;
 }
@@ -1523,7 +1523,7 @@ body {
   border: 1px solid rgba(201,169,110,0.45);
   background: white; color: var(--gold-dark);
   font-family: 'Noto Sans KR', sans-serif;
-  font-size: 13px; cursor: pointer;
+  font-size: 15px; font-weight: 600; cursor: pointer;
   transition: all 0.2s;
 }
 .notice-btn.primary {
@@ -1538,9 +1538,19 @@ body {
   border: 1px solid rgba(201,169,110,0.45);
   background: white; color: var(--text-dark);
   font-family: 'Noto Sans KR', sans-serif;
-  font-size: 14px;
+  font-size: 17px; font-weight: 700;
 }
 button.notice-chip { cursor: pointer; }
+.notice-chip-sub {
+  display: block; margin-top: 2px;
+  font-size: 12.5px; font-weight: 500; color: var(--gold-dark); letter-spacing: 0;
+}
+/* 손모양이 위아래로 살짝 움직여 "눌러보세요" 느낌을 줌 */
+.notice-hand { display: inline-block; animation: noticeHand 1.2s ease-in-out infinite; }
+@keyframes noticeHand { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .notice-hand { animation: none; } }
+/* 아주 좁은 폰(320px)에서도 문구가 한 줄로 보이게 */
+@media (max-width: 340px) { .notice-chip-sub { font-size: 11px; white-space: nowrap; } }
 button.notice-chip:active { transform: scale(0.97); }
 .notice-close {
   margin-top: 2px; width: 100%;
@@ -1548,7 +1558,7 @@ button.notice-chip:active { transform: scale(0.97); }
   border: none; border-radius: 14px;
   background: var(--text-dark); color: var(--cream);
   font-family: 'Noto Sans KR', sans-serif;
-  font-size: 13px; letter-spacing: 3px; cursor: pointer;
+  font-size: 14px; letter-spacing: 3px; cursor: pointer;
 }
 /* 감사 인사 */
 .notice-thanks-msg {
@@ -1569,8 +1579,8 @@ button.notice-chip:active { transform: scale(0.97); }
   .notice-eyebrow { display: none; }
   .notice-title { margin-bottom: 6px; }
   .notice-line { margin-bottom: 8px; }
-  .notice-date { font-size: 24px; }
-  .notice-main-sub { font-size: 13px; }
+  .notice-date { font-size: 26px; }
+  .notice-main-sub { font-size: 15px; }
   .notice-block { padding: 7px 10px; margin-bottom: 6px; }
   .notice-block.main { padding-bottom: 8px; }
   .notice-addr { font-size: 12px; margin-bottom: 6px; }
@@ -2928,7 +2938,7 @@ function buildNoticeHtml() {
   const chips = getNoticeParkingItems().map(p => {
     if (p.idx === null) return `<div class="notice-chip">${escapeHtml(p.label)}</div>`;
     const act = p.idx === -1 ? 'openNavModal()' : `openNavModalByIndex(${p.idx})`;
-    return `<button class="notice-chip" onclick="${act}">${escapeHtml(p.label)}</button>`;
+    return `<button class="notice-chip" onclick="${act}">${escapeHtml(p.label)}<span class="notice-chip-sub">바로 길안내 클릭 <span class="notice-hand">👆</span></span></button>`;
   }).join('');
 
   return `
